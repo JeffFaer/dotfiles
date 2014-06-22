@@ -1,4 +1,0 @@
-#!/bin/bash
-# Bash script for vim to use
-shopt -s expand_aliases
-. ~/.bash_aliases
