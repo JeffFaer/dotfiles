@@ -1,0 +1,11 @@
+[user]
+	name = Jeffrey Falgout
+	email = jeffrey.falgout@gmail.com
+[color]
+	ui = auto
+[merge]
+	tool = meld
+[mergetool "meld"]
+	trustExitCode = true
+[diff]
+	external = ~/bin/git-diff-meld
