@@ -9,3 +9,4 @@
 	trustExitCode = true
 [diff]
 	external = ~/bin/git-diff-meld
+
