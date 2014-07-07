@@ -8,7 +8,7 @@ if has("autocmd")
     filetype plugin indent on
 end
 
-"autocmd FileType c map <F6> :!gcc -o "%:p:r.out" "%:." <bar> more<CR>
+"autocmd FileType c map <F6> :!gcc -o "%:p:r.out" "%:." <bar> more<CR>d
 "autocmd FileType c map <F7> :!%:p:r.out <CR>
 
 set tabstop=4
@@ -41,4 +41,6 @@ set ignorecase
 set smartcase
 set incsearch
 set hidden
+
+au BufNewFile,BufRead .bash_aliases call SetFileTypeSH("bash")
 
