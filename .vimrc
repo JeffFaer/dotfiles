@@ -1,5 +1,3 @@
-"let $BASH_ENV = "$HOME/.bash_vim"
-
 if has("syntax")
     syntax on
 end
@@ -8,14 +6,16 @@ if has("autocmd")
     filetype plugin indent on
 end
 
-"autocmd FileType c map <F6> :!gcc -o "%:p:r.out" "%:." <bar> more<CR>d
-"autocmd FileType c map <F7> :!%:p:r.out <CR>
-
 set tabstop=4
 set shiftwidth=4
 set expandtab
 
-set hlsearch
+set showmatch                           "matching brackets
+
+set hlsearch                            "search options
+set ignorecase
+set smartcase
+set incsearch
 
 set statusline=
 set statusline +=%1*\ %n\ %*            "buffer number
@@ -36,11 +36,13 @@ hi User4 ctermfg=155
 hi User5 ctermfg=227
 
 set showcmd
-set showmatch
-set ignorecase
-set smartcase
-set incsearch
-set hidden
+set hidden                              "hide buffers
+set rnu                                 "relative line numbers
 
+"mark .bash_aliases as a bash file
 au BufNewFile,BufRead .bash_aliases call SetFileTypeSH("bash")
+
+"highlight the 81st character on a line
+au BufEnter * highlight OverLength ctermbg=red ctermfg=white
+au BufEnter * match OverLength /\%81v./
 
