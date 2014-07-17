@@ -15,7 +15,7 @@ set wildmenu
 set wildmode=list:longest
 
 """""""""""""""
-"SYNTAX
+" SYNTAX
 """""""""""""""
 
 if has("syntax")
@@ -26,12 +26,8 @@ end
 au BufNewFile,BufRead .bash_aliases call SetFileTypeSH("bash")
 
 """""""""""""""
-"FORMATTING
+" FORMATTING
 """""""""""""""
-
-if has("autocmd")
-    filetype plugin indent on
-end
 
 set tabstop=4
 set shiftwidth=4
@@ -42,7 +38,7 @@ au BufEnter * highlight OverLength ctermbg=red ctermfg=white
 au BufEnter * match OverLength /\%81v./
 
 """""""""""""""
-"STATUS LINE
+" STATUS LINE
 """""""""""""""
 
 set statusline=
@@ -77,3 +73,17 @@ nnoremap <leader>h :let @/='\<<C-r><C-w>\>'<CR>
 nmap <leader>s <leader>h
               \:%s/\<<C-r><C-w>\>//g<left><left>
 
+"""""""""""""""
+" PLUGINS
+"""""""""""""""
+
+filetype off
+
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+Plugin 'gmarik/Vundle.vim'
+Plugin 'Valloric/YouCompleteMe'
+
+call vundle#end()
+filetype plugin indent on
