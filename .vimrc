@@ -1,6 +1,33 @@
+set nocompatible
+set backspace=indent,eol,start
+set hidden                              "hide buffers
+set rnu                                 "relative line numbers
+
+set showmatch                           "matching brackets
+set showcmd
+
+set hlsearch                            "search options
+set ignorecase
+set smartcase
+set incsearch
+
+set wildmenu
+set wildmode=list:longest
+
+"""""""""""""""
+"SYNTAX
+"""""""""""""""
+
 if has("syntax")
     syntax on
 end
+
+"mark .bash_aliases as a bash file
+au BufNewFile,BufRead .bash_aliases call SetFileTypeSH("bash")
+
+"""""""""""""""
+"FORMATTING
+"""""""""""""""
 
 if has("autocmd")
     filetype plugin indent on
@@ -10,12 +37,13 @@ set tabstop=4
 set shiftwidth=4
 set expandtab
 
-set showmatch                           "matching brackets
+"highlight the 81st character on a line
+au BufEnter * highlight OverLength ctermbg=red ctermfg=white
+au BufEnter * match OverLength /\%81v./
 
-set hlsearch                            "search options
-set ignorecase
-set smartcase
-set incsearch
+"""""""""""""""
+"STATUS LINE
+"""""""""""""""
 
 set statusline=
 set statusline +=%1*\ %n\ %*            "buffer number
@@ -35,14 +63,17 @@ hi User3 ctermfg=207
 hi User4 ctermfg=155
 hi User5 ctermfg=227
 
-set showcmd
-set hidden                              "hide buffers
-set rnu                                 "relative line numbers
+"""""""""""""""
+" MISC COMMANDS
+"""""""""""""""
 
-"mark .bash_aliases as a bash file
-au BufNewFile,BufRead .bash_aliases call SetFileTypeSH("bash")
+let mapleader=','
+"Highlight every occurence of the word under the cursor without moving the
+"cursor
+nnoremap <leader>h :let @/='\<<C-r><C-w>\>'<CR>
+                  \:set hls<CR>
 
-"highlight the 81st character on a line
-au BufEnter * highlight OverLength ctermbg=red ctermfg=white
-au BufEnter * match OverLength /\%81v./
+"<leader>h and then prepare to do a global substitution
+nmap <leader>s <leader>h
+              \:%s/\<<C-r><C-w>\>//g<left><left>
 
