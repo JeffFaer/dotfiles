@@ -31,6 +31,7 @@ au BufNewFile,BufRead .bash_aliases call SetFileTypeSH("bash")
 
 set tabstop=4
 set shiftwidth=4
+set softtabstop=4
 set expandtab
 
 "highlight the 81st character on a line
@@ -71,7 +72,8 @@ nnoremap <leader>h :let @/='\<<C-r><C-w>\>'<CR>
 
 "<leader>h and then prepare to do a global substitution
 nmap <leader>s <leader>h
-              \:%s/\<<C-r><C-w>\>//g<left><left>
+              \:%s///g<left><left>
+vnoremap <leader>s :s///g<left><left>
 
 """""""""""""""
 " PLUGINS
