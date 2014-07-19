@@ -35,8 +35,8 @@ set softtabstop=4
 set expandtab
 
 "highlight the 81st character on a line
-au BufEnter * highlight OverLength ctermbg=red ctermfg=white
-au BufEnter * match OverLength /\%81v./
+au BufEnter,WinEnter * highlight OverLength ctermbg=red ctermfg=white
+au BufEnter,WinEnter * match OverLength /\%81v./
 
 """""""""""""""
 " STATUS LINE
