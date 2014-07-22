@@ -2,17 +2,51 @@ set nocompatible
 set backspace=indent,eol,start
 set hidden                              "hide buffers
 set rnu                                 "relative line numbers
-
+let mapleader=',' 
 set showmatch                           "matching brackets
 set showcmd
+
+set wildmenu
+set wildmode=list:longest
+
+nnoremap ; :
+
+"""""""""""""""
+" Navigation
+"""""""""""""""
+
+nnoremap j gj
+nnoremap k gk
+
+noremap <left> <nop>
+noremap <right> <nop>
+noremap <up> <nop>
+noremap <down> <nop>
+inoremap <left> <nop>
+inoremap <right> <nop>
+inoremap <up> <nop>
+inoremap <down> <nop>
+
+"""""""""""""""
+" Highlight
+"""""""""""""""
 
 set hlsearch                            "search options
 set ignorecase
 set smartcase
 set incsearch
 
-set wildmenu
-set wildmode=list:longest
+nnoremap <leader>h :let @/='\<<C-r><C-w>\>'<CR>:set hls<CR>
+nnoremap <leader><space> :nohl<CR>
+
+"""""""""""""""
+" Substitute
+"""""""""""""""
+
+set gdefault
+
+nmap <leader>s <leader>h:%s///<left><left>
+vnoremap <leader>s :s///<left><left>
 
 """""""""""""""
 " SYNTAX
@@ -42,6 +76,7 @@ au BufEnter,WinEnter * match OverLength /\%81v./
 " STATUS LINE
 """""""""""""""
 
+set laststatus=2
 set statusline=
 set statusline +=%1*\ %n\ %*            "buffer number
 set statusline +=%5*%{&ff}%*            "file format
@@ -52,28 +87,12 @@ set statusline +=%1*%=%5l%*             "current line
 set statusline +=%2*/%L%*               "total lines
 set statusline +=%1*%4v\ %*             "virtual column number
 set statusline +=%2*0x%04B\ %*          "character under cursor
-set laststatus=2
 
 hi User1 ctermfg=215
 hi User2 ctermfg=167
 hi User3 ctermfg=207
 hi User4 ctermfg=155
 hi User5 ctermfg=227
-
-"""""""""""""""
-" MISC COMMANDS
-"""""""""""""""
-
-let mapleader=','
-"Highlight every occurence of the word under the cursor without moving the
-"cursor
-nnoremap <leader>h :let @/='\<<C-r><C-w>\>'<CR>
-                  \:set hls<CR>
-
-"<leader>h and then prepare to do a global substitution
-nmap <leader>s <leader>h
-              \:%s///g<left><left>
-vnoremap <leader>s :s///g<left><left>
 
 """""""""""""""
 " PLUGINS
@@ -89,3 +108,4 @@ Plugin 'Valloric/YouCompleteMe'
 
 call vundle#end()
 filetype plugin indent on
+
