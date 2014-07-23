@@ -45,8 +45,8 @@ nnoremap <leader><space> :nohl<CR>
 
 set gdefault
 
-nmap <leader>s <leader>h:%s///<left><left>
-vnoremap <leader>s :s///<left><left>
+nmap <leader>s <leader>h:%s///<left>
+vnoremap <leader>s :s///<left>
 
 """""""""""""""
 " SYNTAX
