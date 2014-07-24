@@ -2,7 +2,9 @@ set nocompatible
 set backspace=indent,eol,start
 set hidden                              "hide buffers
 set rnu                                 "relative line numbers
-let mapleader=',' 
+
+let mapleader=','
+
 set showmatch                           "matching brackets
 set showcmd
 
@@ -17,6 +19,8 @@ nnoremap ; :
 
 nnoremap j gj
 nnoremap k gk
+
+nnoremap g: g;
 
 noremap <left> <nop>
 noremap <right> <nop>
@@ -68,9 +72,10 @@ set shiftwidth=4
 set softtabstop=4
 set expandtab
 
-"highlight the 81st character on a line
-au BufEnter,WinEnter * highlight OverLength ctermbg=red ctermfg=white
-au BufEnter,WinEnter * match OverLength /\%81v./
+" 81st character
+au BufEnter,WinEnter,BufRead * let w:m1=matchadd('ErrorMsg', '\%81v.')
+" trailing whitespace
+au BufEnter,WinEnter,BufRead * let w:m1=matchadd('ErrorMsg', '\s\+$')
 
 """""""""""""""
 " STATUS LINE
