@@ -20,6 +20,6 @@ fi
 if [ -d "$HOME/bin" ] ; then
     if [[ ":$PATH:" != *":$HOME/bin"* ]]; then
         PATH="$HOME/bin:$PATH"
-    fi    
+    fi
 fi
 
