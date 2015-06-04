@@ -156,7 +156,7 @@ PS1_PRE="${PS1_PRE}${PS_BLACK}["
 PS1_PRE="${PS1_PRE}\$(exit_status)"
 PS1_PRE="${PS1_PRE}${PS_BLACK}]"
 PS1_POST=""
-PS1_POST="${PS1_POST}${PS_BLACK}\n\$ "
+PS1_POST="${PS1_POST}${PS_WHITE}\n\$ "
 PS1_POST="${PS1_POST}${PS_END}"
 
 export PROMPT_COMMAND='__git_ps1 "$PS1_PRE" "$PS1_POST" "(%s${PS_BLACK})"'
