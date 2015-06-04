@@ -124,16 +124,21 @@ fi
 stty -ixon
 
 # setup a pretty command prompt
-RED=$(tput setaf 1)
-WHITE=$(tput setaf 7)
-BLUE=$(tput setaf 4)
-BLACK=$(tput setaf 0)
-GREEN=$(tput setaf 2)
-END=$(tput sgr0)
+TPUT_RED=$(tput setaf 1)
+TPUT_WHITE=$(tput setaf 7)
+TPUT_BLUE=$(tput setaf 4)
+TPUT_BLACK=$(tput setaf 0)
+TPUT_GREEN=$(tput setaf 2)
+TPUT_END=$(tput sgr0)
 
-for color in "RED" "WHITE" "BLUE" "BLACK" "GREEN" "END"; do
-    declare PS_${color}="\[${!color}\]"
-    declare F_${color}="\001${!color}\002"
+if [ $(tput colors) -gt 7 ]; then
+    TPUT_GRAY=$(tput setaf 8)
+fi
+
+for tput in ${!TPUT_*}; do
+    color=${tput#TPUT_}
+    declare PS_${color}="\[${!tput}\]"
+    declare F_${color}="\001${!tput}\002"
 done
 
 exit_status() {
@@ -148,15 +153,15 @@ exit_status() {
 
 PS1_PRE=""
 PS1_PRE="${PS1_PRE}${PS_RED}\u"
-PS1_PRE="${PS1_PRE}${PS_BLACK}@"
+PS1_PRE="${PS1_PRE}${PS_BLACK}${PS_GRAY}@"
 PS1_PRE="${PS1_PRE}${PS_WHITE}\h"
-PS1_PRE="${PS1_PRE}${PS_BLACK}:"
+PS1_PRE="${PS1_PRE}${PS_BLACK}${PS_GRAY}:"
 PS1_PRE="${PS1_PRE}${PS_BLUE}\w"
 PS1_PRE="${PS1_PRE}${PS_BLACK}["
 PS1_PRE="${PS1_PRE}\$(exit_status)"
 PS1_PRE="${PS1_PRE}${PS_BLACK}]"
 PS1_POST=""
-PS1_POST="${PS1_POST}${PS_WHITE}\n\$ "
+PS1_POST="${PS1_POST}${PS_GRAY}\n\$ "
 PS1_POST="${PS1_POST}${PS_END}"
 
 export PROMPT_COMMAND='__git_ps1 "$PS1_PRE" "$PS1_POST" "(%s${PS_BLACK})"'
