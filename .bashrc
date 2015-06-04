@@ -135,9 +135,9 @@ exit_status() {
     local status=$?
 
     if [ $status -eq 0 ]; then
-        echo -e "${GREEN:2:8}:)"
+        echo -e "\001${GREEN:2:8}\002:)"
     else
-        echo -e "${RED:2:8}:("
+        echo -e "\001${RED:2:8}\002:("
     fi
 }
 
@@ -155,7 +155,7 @@ PS1_POST=""
 PS1_POST="${PS1_POST}${BLACK})\$ "
 PS1_POST="${PS1_POST}${END}"
 
-#export PROMPT_COMMAND='__git_ps1 "$PS1_PRE" "$PS1_POST" "%s"'
+export PROMPT_COMMAND='__git_ps1 "$PS1_PRE" "$PS1_POST" "%s"'
 export GIT_PS1_SHOWDIRTYSTATE=true
 export GIT_PS1_SHOWUPSTREAM="verbose"
 export GIT_PS1_SHOWCOLORHINTS=true
