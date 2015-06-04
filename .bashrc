@@ -133,6 +133,8 @@ TPUT_END=$(tput sgr0)
 
 if [ $(tput colors) -gt 7 ]; then
     TPUT_GRAY=$(tput setaf 8)
+else
+    TPUT_GRAY=$TPUT_BLACK
 fi
 
 for tput in ${!TPUT_*}; do
@@ -153,9 +155,9 @@ exit_status() {
 
 PS1_PRE=""
 PS1_PRE="${PS1_PRE}${PS_RED}\u"
-PS1_PRE="${PS1_PRE}${PS_BLACK}${PS_GRAY}@"
+PS1_PRE="${PS1_PRE}${PS_GRAY}@"
 PS1_PRE="${PS1_PRE}${PS_WHITE}\h"
-PS1_PRE="${PS1_PRE}${PS_BLACK}${PS_GRAY}:"
+PS1_PRE="${PS1_PRE}${PS_GRAY}:"
 PS1_PRE="${PS1_PRE}${PS_BLUE}\w"
 PS1_PRE="${PS1_PRE}${PS_BLACK}["
 PS1_PRE="${PS1_PRE}\$(exit_status)"
