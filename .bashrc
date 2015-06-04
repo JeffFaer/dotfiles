@@ -124,37 +124,42 @@ fi
 stty -ixon
 
 # setup a pretty command prompt
-RED='\[\e[0;31m\]'
-WHITE='\[\e[1;37m\]'
-BLUE='\[\e[0;34m\]'
-BLACK='\[\e[0;30m\]'
-GREEN='\[\e[0;32m\]'
-END='\[\e[0m\]'
+RED=$(tput setaf 1)
+WHITE=$(tput setaf 7)
+BLUE=$(tput setaf 4)
+BLACK=$(tput setaf 0)
+GREEN=$(tput setaf 2)
+END=$(tput sgr0)
+
+for color in "RED" "WHITE" "BLUE" "BLACK" "GREEN" "END"; do
+    declare PS_${color}="\[${!color}\]"
+    declare F_${color}="\001${!color}\002"
+done
 
 exit_status() {
     local status=$?
 
     if [ $status -eq 0 ]; then
-        echo -e "\001${GREEN:2:8}\002:)"
+        echo -e "${F_GREEN}:)"
     else
-        echo -e "\001${RED:2:8}\002:("
+        echo -e "${F_RED}:("
     fi
 }
 
 PS1_PRE=""
-PS1_PRE="${PS1_PRE}${RED}\u"
-PS1_PRE="${PS1_PRE}${BLACK}@"
-PS1_PRE="${PS1_PRE}${WHITE}\h"
-PS1_PRE="${PS1_PRE}${BLACK}:"
-PS1_PRE="${PS1_PRE}${BLUE}\w"
-PS1_PRE="${PS1_PRE}${BLACK}["
+PS1_PRE="${PS1_PRE}${PS_RED}\u"
+PS1_PRE="${PS1_PRE}${PS_BLACK}@"
+PS1_PRE="${PS1_PRE}${PS_WHITE}\h"
+PS1_PRE="${PS1_PRE}${PS_BLACK}:"
+PS1_PRE="${PS1_PRE}${PS_BLUE}\w"
+PS1_PRE="${PS1_PRE}${PS_BLACK}["
 PS1_PRE="${PS1_PRE}\$(exit_status)"
-PS1_PRE="${PS1_PRE}${BLACK}]"
+PS1_PRE="${PS1_PRE}${PS_BLACK}]"
 PS1_POST=""
-PS1_POST="${PS1_POST}${BLACK}\$ "
-PS1_POST="${PS1_POST}${END}"
+PS1_POST="${PS1_POST}${PS_BLACK}\n\$ "
+PS1_POST="${PS1_POST}${PS_END}"
 
-export PROMPT_COMMAND='__git_ps1 "$PS1_PRE" "$PS1_POST" "(%s${BLACK})"'
+export PROMPT_COMMAND='__git_ps1 "$PS1_PRE" "$PS1_POST" "(%s${PS_BLACK})"'
 export GIT_PS1_SHOWDIRTYSTATE=true
 export GIT_PS1_SHOWUPSTREAM="verbose"
 export GIT_PS1_SHOWCOLORHINTS=true
