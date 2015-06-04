@@ -61,16 +61,16 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    PS1_PRE='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+    PS1_PRE='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
 unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
 xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    PS1_PRE="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1_PRE"
     ;;
 *)
     ;;
@@ -122,4 +122,41 @@ if [ -n "$DISPLAY" -a "$TERM" == "xterm" ]; then
 fi
 
 stty -ixon
+
+# setup a pretty command prompt
+RED='\e[0;31m'
+WHITE='\e[1;37m'
+BLUE='\e[1;34m'
+BLACK='\e[0;30m'
+GREEN='\e[0;32m'
+END='\e[m'
+
+exit_status() {
+    local status=$?
+
+    if [ $status -eq 0 ]; then
+        echo -e "${GREEN}:)"
+    else
+        echo -e "${RED}:("
+    fi
+}
+
+PS1_PRE=""
+PS1_PRE="${PS1_PRE}${RED}\u"
+PS1_PRE="${PS1_PRE}${BLACK}@"
+PS1_PRE="${PS1_PRE}${WHITE}\h"
+PS1_PRE="${PS1_PRE}${BLACK}:"
+PS1_PRE="${PS1_PRE}${BLUE}\w"
+PS1_PRE="${PS1_PRE}${BLACK}["
+PS1_PRE="${PS1_PRE}\$(exit_status)"
+PS1_PRE="${PS1_PRE}${BLACK}]"
+PS1_PRE="${PS1_PRE}${END}"
+PS1_POST=""
+PS1_POST="${PS1_POST}${BLACK}\n\$ "
+PS1_POST="${PS1_POST}${END}"
+
+export PROMPT_COMMAND='__git_ps1 "$PS1_PRE" "$PS1_POST" " %s "'
+export GIT_PS1_SHOWDIRTYSTATE=true
+export GIT_PS1_SHOWUPSTREAM="auto"
+export GIT_PS1_SHOWCOLORHINTS=true
 
