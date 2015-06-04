@@ -124,20 +124,20 @@ fi
 stty -ixon
 
 # setup a pretty command prompt
-RED='\e[0;31m'
-WHITE='\e[1;37m'
-BLUE='\e[1;34m'
-BLACK='\e[0;30m'
-GREEN='\e[0;32m'
-END='\e[m'
+RED='\[\e[0;31m\]'
+WHITE='\[\e[1;37m\]'
+BLUE='\[\e[0;34m\]'
+BLACK='\[\e[0;30m\]'
+GREEN='\[\e[0;32m\]'
+END='\[\e[0m\]'
 
 exit_status() {
     local status=$?
 
     if [ $status -eq 0 ]; then
-        echo -e "${GREEN}:)"
+        echo -e "${GREEN:2:8}:)"
     else
-        echo -e "${RED}:("
+        echo -e "${RED:2:8}:("
     fi
 }
 
@@ -149,13 +149,13 @@ PS1_PRE="${PS1_PRE}${BLACK}:"
 PS1_PRE="${PS1_PRE}${BLUE}\w"
 PS1_PRE="${PS1_PRE}${BLACK}["
 PS1_PRE="${PS1_PRE}\$(exit_status)"
-PS1_PRE="${PS1_PRE}${BLACK}]"
+PS1_PRE="${PS1_PRE}${BLACK}]("
 PS1_PRE="${PS1_PRE}${END}"
 PS1_POST=""
-PS1_POST="${PS1_POST}${BLACK}\n\$ "
+PS1_POST="${PS1_POST}${BLACK})\$ "
 PS1_POST="${PS1_POST}${END}"
 
-export PROMPT_COMMAND='__git_ps1 "$PS1_PRE" "$PS1_POST" " %s "'
+#export PROMPT_COMMAND='__git_ps1 "$PS1_PRE" "$PS1_POST" "%s"'
 export GIT_PS1_SHOWDIRTYSTATE=true
 export GIT_PS1_SHOWUPSTREAM="verbose"
 export GIT_PS1_SHOWCOLORHINTS=true
