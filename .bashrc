@@ -131,7 +131,7 @@ TPUT_BLACK=$(tput setaf 0)
 TPUT_GREEN=$(tput setaf 2)
 TPUT_END=$(tput sgr0)
 
-if [ $(tput colors) -gt 7 ]; then
+if [ $(tput colors) -gt 8 ]; then
     TPUT_GRAY=$(tput setaf 8)
 else
     TPUT_GRAY=$TPUT_BLACK
