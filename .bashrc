@@ -149,13 +149,12 @@ PS1_PRE="${PS1_PRE}${BLACK}:"
 PS1_PRE="${PS1_PRE}${BLUE}\w"
 PS1_PRE="${PS1_PRE}${BLACK}["
 PS1_PRE="${PS1_PRE}\$(exit_status)"
-PS1_PRE="${PS1_PRE}${BLACK}]("
-PS1_PRE="${PS1_PRE}${END}"
+PS1_PRE="${PS1_PRE}${BLACK}]"
 PS1_POST=""
-PS1_POST="${PS1_POST}${BLACK})\$ "
+PS1_POST="${PS1_POST}${BLACK}\$ "
 PS1_POST="${PS1_POST}${END}"
 
-export PROMPT_COMMAND='__git_ps1 "$PS1_PRE" "$PS1_POST" "%s"'
+export PROMPT_COMMAND='__git_ps1 "$PS1_PRE" "$PS1_POST" "(%s${BLACK})"'
 export GIT_PS1_SHOWDIRTYSTATE=true
 export GIT_PS1_SHOWUPSTREAM="verbose"
 export GIT_PS1_SHOWCOLORHINTS=true
