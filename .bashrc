@@ -157,6 +157,6 @@ PS1_POST="${PS1_POST}${END}"
 
 export PROMPT_COMMAND='__git_ps1 "$PS1_PRE" "$PS1_POST" " %s "'
 export GIT_PS1_SHOWDIRTYSTATE=true
-export GIT_PS1_SHOWUPSTREAM="auto"
+export GIT_PS1_SHOWUPSTREAM="verbose"
 export GIT_PS1_SHOWCOLORHINTS=true
 
