@@ -124,9 +124,21 @@ PS1_POST=""
 PS1_POST="${PS1_POST}${PS_GRAY}\n\$ "
 PS1_POST="${PS1_POST}${PS_END}"
 
-if [ "$(type -t __git_ps1)" == "function" ]; then
-    export PROMPT_COMMAND="__git_ps1 \"$PS1_PRE\" \"$PS1_POST\" \
-        \"(%s${PS_BLACK})\""
+__smart_git_ps1() {
+    if git rev-parse &> /dev/null
+        && [ "$(git config status.showUntrackedFiles)" == "no"\
+             -a -z "$(git ls-files)" ]; then
+        # if we don't care about untracked files and there are no
+        # tracked files in this directory, don't show git_ps1
+        export PS1="$1$2"
+    else
+        __git_ps1 "$@"
+    fi
+}
+
+if [ -x git -a "$(type -t __git_ps1)" == "function" ]; then
+    export PROMPT_COMMAND="__smart_git_ps1 \"$PS1_PRE\" \"$PS1_POST\" \
+        \"(%s${PS_BLACK})${PS_END}\""
     export GIT_PS1_SHOWDIRTYSTATE=true
     export GIT_PS1_SHOWUPSTREAM="verbose"
     export GIT_PS1_SHOWCOLORHINTS=true
