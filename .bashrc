@@ -125,7 +125,7 @@ PS1_POST="${PS1_POST}${PS_GRAY}\n\$ "
 PS1_POST="${PS1_POST}${PS_END}"
 
 __smart_git_ps1() {
-    if git rev-parse &> /dev/null
+    if git rev-parse &> /dev/null\
         && [ "$(git config status.showUntrackedFiles)" == "no"\
              -a -z "$(git ls-files)" ]; then
         # if we don't care about untracked files and there are no
@@ -136,7 +136,8 @@ __smart_git_ps1() {
     fi
 }
 
-if [ -x git -a "$(type -t __git_ps1)" == "function" ]; then
+if command -v git &> /dev/null\
+    && [ "$(type -t __git_ps1)" == "function" ]; then
     export PROMPT_COMMAND="__smart_git_ps1 \"$PS1_PRE\" \"$PS1_POST\" \
         \"(%s${PS_BLACK})${PS_END}\""
     export GIT_PS1_SHOWDIRTYSTATE=true
