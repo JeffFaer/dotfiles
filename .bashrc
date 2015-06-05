@@ -105,9 +105,9 @@ exit_status() {
     local status=$?
 
     if [ $status -eq 0 ]; then
-        echo -e "${F_GREEN}:)"
+        echo "${F_GREEN}:)"
     else
-        echo -e "${F_RED}:("
+        echo "${F_RED}:("
     fi
 }
 
