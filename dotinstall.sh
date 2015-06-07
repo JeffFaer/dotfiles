@@ -9,7 +9,7 @@ vim +PluginInstall +qall
 
 install=""
 for package in "build-essential" "cmake" "python-dev"; do
-    dpkg -s "$package" | grep -P '^Status.+(?<!-)installed' &> /dev/null ||
+    dpkg -s "$package" 2>&1 | grep -P '^Status.+(?<!-)installed' &> /dev/null ||
         install="$install $package"
 done
 
