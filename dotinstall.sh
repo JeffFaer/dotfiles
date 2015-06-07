@@ -9,11 +9,14 @@ vim +PluginInstall +qall
 
 install=""
 for package in "build-essential" "cmake" "python-dev"; do
-    dpkg -s "$package" &> /dev/null || install="$install $package"
+    dpkg -s "$package" | grep -P '^Status.+(?<!-)installed' &> /dev/null ||
+        install="$install $package"
 done
 
 if [ -n "$install" ]; then
-    sudo apt-get install $install -y
+    echo "Installing$install"
+    sudo apt-get update -qq
+    sudo apt-get install $install -yqq
 fi
 
 cd ~/.vim/bundle/YouCompleteMe
