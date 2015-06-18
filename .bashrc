@@ -75,12 +75,16 @@ if ! shopt -oq posix; then
   fi
 fi
 
+########################################################
+## Everything above this point was Ubuntu boilerplate ##
+########################################################
+
 # Add color to our terminal
 if [ -n "$DISPLAY" -a "$TERM" == "xterm" ]; then
     export TERM=xterm-256color
 fi
 
-# Allow Ctrl-S to look backwards in history
+# Allow Ctrl-S to look forwards in history
 stty -ixon
 
 # Setup a pretty command prompt
