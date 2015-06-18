@@ -15,10 +15,6 @@ HISTCONTROL=ignoreboth
 # append to the history file, don't overwrite it
 shopt -s histappend
 
-HISTIGNORE=clear:history:ls
-# replace !!, !<text>, !?<text>, !# commands inline before executing
-shopt -s histverify
-
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=1000
 HISTFILESIZE=2000
@@ -78,6 +74,11 @@ fi
 ########################################################
 ## Everything above this point was Ubuntu boilerplate ##
 ########################################################
+
+# Ignore these commands in history
+HISTIGNORE=clear:history:ls
+# replace !!, !<text>, !?<text>, !# commands inline before executing
+shopt -s histverify
 
 # Add color to our terminal
 if [ -n "$DISPLAY" -a "$TERM" == "xterm" ]; then
