@@ -75,13 +75,15 @@ if ! shopt -oq posix; then
   fi
 fi
 
+# Add color to our terminal
 if [ -n "$DISPLAY" -a "$TERM" == "xterm" ]; then
     export TERM=xterm-256color
 fi
 
+# Allow Ctrl-S to look backwards in history
 stty -ixon
 
-# setup a pretty command prompt
+# Setup a pretty command prompt
 TPUT_RED=$(tput setaf 1)
 TPUT_WHITE=$(tput setaf 7)
 TPUT_BLUE=$(tput setaf 4)
