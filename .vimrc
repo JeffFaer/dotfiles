@@ -14,7 +14,7 @@ set wildmode=list:longest
 nnoremap ; :
 
 """""""""""""""
-" Navigation
+" NAVIGATION
 """""""""""""""
 
 nnoremap j gj
@@ -31,8 +31,10 @@ inoremap <right> <nop>
 inoremap <up> <nop>
 inoremap <down> <nop>
 
+nnoremap <leader>jd :YcmCompleter GoTo<CR>
+
 """""""""""""""
-" Highlight
+" HIGHLIGHT
 """""""""""""""
 
 set hlsearch                            "search options
@@ -44,7 +46,7 @@ nnoremap <leader>h :let @/='\<<C-r><C-w>\>'<CR>:set hls<CR>
 nnoremap <leader><space> :nohl<CR>
 
 """""""""""""""
-" Substitute
+" SUBSTITUTE
 """""""""""""""
 
 set gdefault
@@ -112,5 +114,6 @@ Plugin 'gmarik/Vundle.vim'
 Plugin 'Valloric/YouCompleteMe'
 
 call vundle#end()
+
 filetype plugin indent on
 
