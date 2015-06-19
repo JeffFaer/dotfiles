@@ -19,6 +19,8 @@ call vundle#end()
 """""""""""""""
 
 filetype plugin indent on
+augroup personal
+autocmd!
 
 set backspace=indent,eol,start
 set hidden                              "hide buffers
@@ -83,9 +85,6 @@ if has("syntax")
     syntax on
 end
 
-"mark .bash_aliases as a bash file
-au BufNewFile,BufRead .bash_aliases call SetFileTypeSH("bash")
-
 """""""""""""""
 " FORMATTING
 """""""""""""""
@@ -95,10 +94,14 @@ set shiftwidth=4
 set softtabstop=4
 set expandtab
 
-" 81st character
-au BufEnter,WinEnter,BufRead * let w:m1=matchadd('ErrorMsg', '\%81v.')
+" highlight long lines (81st character by default)
+au FileType * let b:col=80
+au FileType java let b:col=100
+au BufEnter,WinEnter * let w:m1=matchadd('ErrorMsg', '\%' . (b:col + 1) . 'v.')
+au BufLeave * call matchdelete(w:m1)
+
 " trailing whitespace
-au BufEnter,WinEnter,BufRead * let w:m1=matchadd('ErrorMsg', '\s\+$')
+au BufEnter,WinEnter * let w:m2=matchadd('ErrorMsg', '\s\+$')
 
 """""""""""""""
 " STATUS LINE
