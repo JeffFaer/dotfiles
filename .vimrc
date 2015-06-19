@@ -80,7 +80,7 @@ vnoremap <leader>s :s///<left>
 """""""""""""""
 
 if has("syntax")
-  syntax on
+    syntax on
 end
 
 "mark .bash_aliases as a bash file
