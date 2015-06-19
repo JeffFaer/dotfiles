@@ -95,8 +95,8 @@ set softtabstop=4
 set expandtab
 
 " highlight long lines (81st character by default)
-au FileType * let b:col=80
 au FileType java let b:col=100
+au BufEnter * if !exists("b:col") | let b:col=80 | endif
 au BufEnter,WinEnter * let w:m1=matchadd('ErrorMsg', '\%' . (b:col + 1) . 'v.')
 au BufLeave * call matchdelete(w:m1)
 
@@ -124,4 +124,6 @@ hi User2 ctermfg=167
 hi User3 ctermfg=207
 hi User4 ctermfg=155
 hi User5 ctermfg=227
+
+augroup END
 
