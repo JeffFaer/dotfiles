@@ -35,6 +35,7 @@ set wildmenu
 set wildmode=list:longest
 
 nnoremap ; :
+vnoremap ; :
 
 """""""""""""""
 " NAVIGATION
@@ -65,7 +66,13 @@ set ignorecase
 set smartcase
 set incsearch
 
+" Highlight whole words that match the one under the cursor
+" \< \>      -> whole word
+" <C-r><C-w> -> word under cursor
 nnoremap <leader>h :let @/='\<<C-r><C-w>\>'<CR>:set hls<CR>
+" Highlight text that matches the visual selection
+" <C-r>"     -> paste the yank buffer
+vnoremap <leader>h y:let @/='<C-r>"'<CR>:set hls<CR>
 nnoremap <leader><space> :nohl<CR>
 
 """""""""""""""
