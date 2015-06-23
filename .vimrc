@@ -18,6 +18,7 @@ Plugin 'bling/vim-airline'
 Plugin 'bling/vim-bufferline'
 Plugin 'airblade/vim-gitgutter'
 Plugin 'tpope/vim-fugitive'
+Plugin 'camelcasemotion'
 
 call vundle#end()
 
