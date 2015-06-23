@@ -20,6 +20,9 @@ Plugin 'camelcasemotion'
 
 call vundle#end()
 
+" Valloric/YouCompleteMe
+nnoremap <leader>jd :YcmCompleter GoTo<CR>
+
 " bling/vim-airline config
 set laststatus=2
 let g:airline_theme='simple'
@@ -85,8 +88,6 @@ inoremap <left> <nop>
 inoremap <right> <nop>
 inoremap <up> <nop>
 inoremap <down> <nop>
-
-nnoremap <leader>jd :YcmCompleter GoTo<CR>
 
 """""""""""""""
 " HIGHLIGHT
