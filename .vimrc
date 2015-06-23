@@ -1,4 +1,5 @@
 set nocompatible
+let mapleader=','
 
 """""""""""""""
 " PLUGINS
@@ -11,8 +12,25 @@ call vundle#begin()
 
 Plugin 'gmarik/Vundle.vim'
 Plugin 'Valloric/YouCompleteMe'
+Plugin 'bling/vim-airline'
+Plugin 'bling/vim-bufferline'
+Plugin 'airblade/vim-gitgutter'
+Plugin 'tpope/vim-fugitive'
 
 call vundle#end()
+
+" bling/vim-airline config
+set laststatus=2
+let g:airline_theme='simple'
+let g:airline_powerline_fonts=1
+
+" bling.vim-bufferline
+let g:gitgutter_signs=0
+nnoremap <leader>c :GitGutterSignsToggle<CR>
+
+" airblade/vim-gitgutter
+" turn off gitgutter in status line
+let g:airline#extensions#hunks#enabled=0
 
 """""""""""""""
 " GENERAL
@@ -25,8 +43,6 @@ autocmd!
 set backspace=indent,eol,start
 set hidden                              "hide buffers
 set rnu                                 "relative line numbers
-
-let mapleader=','
 
 set showmatch                           "matching brackets
 set showcmd
@@ -103,34 +119,12 @@ set expandtab
 
 " highlight long lines (81st character by default)
 au FileType java let b:col=100
-au BufEnter * if !exists("b:col") | let b:col=80 | endif
+au BufEnter,WinEnter * if !exists("b:col") | let b:col=80 | endif
 au BufEnter,WinEnter * let w:m1=matchadd('ErrorMsg', '\%' . (b:col + 1) . 'v.')
 au BufLeave * call matchdelete(w:m1)
 
 " trailing whitespace
 au BufEnter,WinEnter * let w:m2=matchadd('ErrorMsg', '\s\+$')
-
-"""""""""""""""
-" STATUS LINE
-"""""""""""""""
-
-set laststatus=2
-set statusline=
-set statusline+=%1*\ %n\ %*            "buffer number
-set statusline+=%5*%{&ff}%*            "file format
-set statusline+=%3*%y%*                "file type
-set statusline+=%4*\ %<%F%*            "full path
-set statusline+=%2*%m%*                "modified flag
-set statusline+=%1*%=%5l%*             "current line
-set statusline+=%2*/%L%*               "total lines
-set statusline+=%1*%4v\ %*             "virtual column number
-set statusline+=%2*0x%04B\ %*          "character under cursor
-
-hi User1 ctermfg=215
-hi User2 ctermfg=167
-hi User3 ctermfg=207
-hi User4 ctermfg=155
-hi User5 ctermfg=227
 
 augroup END
 
