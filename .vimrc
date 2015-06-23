@@ -26,6 +26,19 @@ set laststatus=2
 let g:airline_theme='simple'
 let g:airline_powerline_fonts=1
 let g:airline_section_z='%4l/%L %3v'
+let g:airline_mode_map = {
+    \ '__' : '-',
+    \ 'n'  : 'N',
+    \ 'i'  : 'I',
+    \ 'R'  : 'R',
+    \ 'c'  : 'C',
+    \ 'v'  : 'V',
+    \ 'V'  : 'V',
+    \ '' : 'V',
+    \ 's'  : 'S',
+    \ 'S'  : 'S',
+    \ '' : 'S',
+    \ }
 
 " bling/vim-bufferline
 let g:bufferline_echo=0
@@ -45,6 +58,7 @@ filetype plugin indent on
 set backspace=indent,eol,start
 set hidden                              "hide buffers
 set rnu                                 "relative line numbers
+set nu                                  "except for the '0' line
 
 set showmatch                           "matching brackets
 set showcmd
