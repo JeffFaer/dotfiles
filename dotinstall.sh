@@ -9,15 +9,20 @@ vim +PluginInstall +qall
 
 # Airline setup
 echo "Setting up Airline fonts"
-wget -P ~/.local/share/fonts/ https://github.com/Lokaltog/powerline/raw/develop/font/PowerlineSymbols.otf -q
+base_url=https://github.com/Lokaltog/powerline/raw/develop/font
 
+font_url=${base_url}/PowerlineSymbols.otf
+font_dir=$HOME/.local/share/fonts/
+
+font_conf_url=${base_url}/10-powerline-symbols.conf
 if [ -n "$XDG_CONFIG_HOME" ]; then
-    fontconfig="$XDG_CONFIG_HOME/fontconfig/conf.d/"
+    font_conf_dir="$XDG_CONFIG_HOME/fontconfing/conf.d/"
 else
-    fontconfig="$HOME/.fonts.conf.d/"
+    font_conf_dir="$HOME/.fonts.conf.d/"
 fi
-wget -P "$fontconfig" https://github.com/Lokaltog/powerline/raw/develop/font/10-powerline-symbols.conf -q
 
+wget -P "$font_dir" "$font_url" -q
+wget -P "$font_conf_dir" "$font_conf_url" -q
 fc-cache -f
 
 # YCM setup
