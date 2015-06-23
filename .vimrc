@@ -1,7 +1,5 @@
 set nocompatible
 let mapleader=','
-augroup personal
-autocmd!
 
 """""""""""""""
 " PLUGINS
@@ -108,6 +106,20 @@ nnoremap <leader>h :let @/='\<<C-r><C-w>\>'<CR>:set hls<CR>
 vnoremap <leader>h y:let @/='<C-r>"'<CR>:set hls<CR>
 nnoremap <leader><space> :nohl<CR>
 
+augroup highlight
+    au!
+
+    " highlight long lines (81st character by default)
+    au FileType java let b:col=100
+    au BufEnter,WinEnter * if !exists("b:col") | let b:col=80 | endif
+    au BufEnter,WinEnter * let w:m1=matchadd('ErrorMsg', '\%' . (b:col + 1)
+                \ . 'v.')
+    au BufLeave * call matchdelete(w:m1)
+
+    " trailing whitespace
+    au BufEnter,WinEnter * let w:m2=matchadd('ErrorMsg', '\s\+$')
+augroup END
+
 """""""""""""""
 " SUBSTITUTE
 """""""""""""""
@@ -133,15 +145,4 @@ set tabstop=4
 set shiftwidth=4
 set softtabstop=4
 set expandtab
-
-" highlight long lines (81st character by default)
-au FileType java let b:col=100
-au BufEnter,WinEnter * if !exists("b:col") | let b:col=80 | endif
-au BufEnter,WinEnter * let w:m1=matchadd('ErrorMsg', '\%' . (b:col + 1) . 'v.')
-au BufLeave * call matchdelete(w:m1)
-
-" trailing whitespace
-au BufEnter,WinEnter * let w:m2=matchadd('ErrorMsg', '\s\+$')
-
-augroup END
 
