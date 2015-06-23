@@ -23,6 +23,7 @@ call vundle#end()
 set laststatus=2
 let g:airline_theme='simple'
 let g:airline_powerline_fonts=1
+let g:airline_section_z='%4l/%L %3v'
 
 " bling.vim-bufferline
 let g:gitgutter_signs=0
