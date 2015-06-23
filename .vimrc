@@ -1,5 +1,7 @@
 set nocompatible
 let mapleader=','
+augroup personal
+autocmd!
 
 """""""""""""""
 " PLUGINS
@@ -25,11 +27,12 @@ let g:airline_theme='simple'
 let g:airline_powerline_fonts=1
 let g:airline_section_z='%4l/%L %3v'
 
-" bling.vim-bufferline
-let g:gitgutter_signs=0
-nnoremap <leader>c :GitGutterSignsToggle<CR>
+" bling/vim-bufferline
+let g:bufferline_echo=0
 
 " airblade/vim-gitgutter
+let g:gitgutter_signs=0
+nnoremap <leader>c :GitGutterSignsToggle<CR>
 " turn off gitgutter in status line
 let g:airline#extensions#hunks#enabled=0
 
@@ -38,8 +41,6 @@ let g:airline#extensions#hunks#enabled=0
 """""""""""""""
 
 filetype plugin indent on
-augroup personal
-autocmd!
 
 set backspace=indent,eol,start
 set hidden                              "hide buffers
