@@ -93,11 +93,11 @@ for ls_file in $(git --git-dir="$git_dir/.git" ls-files); do
             || ${mergetool} "$target_file" "$tracked_file"
     else
         mkdir -p $(dirname "$target_file")
-        cp "$tracked_file" "$target_file"
+        mv "$tracked_file" "$target_file"
     fi
 done
 
-cp -r "$git_dir/.git/" "$target"
+mv -r "$git_dir/.git/" "$target"
 cd "$target"
 
 git config status.showUntrackedFiles no
