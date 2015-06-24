@@ -81,7 +81,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
         remove_dir_or_die "$target/.git"
     fi
 
-    conflicts=
+    conflicts=""
     for ls_file in $(git --git-dir="$git_dir/.git" ls-files); do
         tracked_file="$git_dir/$ls_file"
         target_file="$target/$ls_file"
@@ -91,7 +91,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
         elif [ -f "$target_file" ]; then
             # save potential conflicts for later.
             cmp --silent "$target_file" "$tracked_file"\
-                || conflicts="$conflicts $ls_file"
+                || conflicts+=" $ls_file"
         elif [ -e "$tracked_file" ]; then
             mkdir -p $(dirname "$target_file")
             mv "$tracked_file" "$target_file"
@@ -100,8 +100,8 @@ if [ ! "$git_dir" -ef "$target" ]; then
     done
 
     if [ -n "$conflicts" ]; then
-        prompt="There are conflicts (${conflicts# }). Would you like to "\
-            "resolve them now (move changes you want to keep to the left)?"
+        prompt="There are conflicts (${conflicts# }). Would you like to "
+        prompt+="resolve them now (move changes you want to keep to the left)?"
         if user_permission "$prompt"; then
             # we can't make git config fail gracefully, so we have to ||
             # it because of set -e
@@ -161,7 +161,7 @@ if [ -n "${setup[ycm]}" ]; then
     for package in "build-essential" "cmake" "python-dev"; do
         dpkg -s "$package" 2>&1 |\
             grep -P '^Status.+(?<!-)installed' &> /dev/null\
-            || install="$install $package"
+            || install+=" $package"
     done
 
     if [ -n "$install" ]; then
