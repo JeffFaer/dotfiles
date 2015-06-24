@@ -79,8 +79,15 @@ for ls_file in $(git --git-dir="$git_dir/.git" ls-files); do
     if [ -d "$tracked_file" -a -d "$target_file" ]; then
         echo "$target_file already exists as a directory"
         echo "You need to remove it before continuing."
-        read -p "Would you like to remove it?" -n 1 response
+        read -p "Would you like to remove it now?[yN]" -n 1
+        echo
 
+        if [[ "$REPLY" =~ ^[yY]$ ]]; then
+            rm -rf "$target_file"
+        else
+            echo "You must remove it before continuing"
+            exit 1
+        fi
     elif [ -f "$target_file" ]; then
         cmp --silent "$target_file" "$tracked_file"\
             || ${mergetool} "$target_file" "$tracked_file"
@@ -137,5 +144,8 @@ if [ -n "$setup_ycm" ]; then
 
     cd "$target/.vim/bundle/YouCompleteMe"
     ./install.sh --clang-completer
+    cd "$target"
 fi
+
+rm -rf "$git_dir"
 

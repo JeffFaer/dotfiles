@@ -1,6 +1,7 @@
 ````
-git init
-git remote add origin git@github.com:JeffreyFalgout/dotfiles.git
-git fetch
-git checkout -t origin/master
+git clone git@github.com:JeffreyFalgout/dotfiles.git
+./dotfiles/dotinstall.sh
+
+git clone https://github.com/JeffreyFalgout/dotfiles.git
+./dotfiles/dotinstall.sh
 ````
