@@ -80,11 +80,6 @@ HISTIGNORE=clear:history:ls
 # replace !!, !<text>, !?<text>, !# commands inline before executing
 shopt -s histverify
 
-# Add color to our terminal
-if [ -n "$DISPLAY" -a "$TERM" == "xterm" ]; then
-    export TERM=xterm-256color
-fi
-
 # Allow Ctrl-S to look forwards in history
 stty -ixon
 
