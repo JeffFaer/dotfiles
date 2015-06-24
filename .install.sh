@@ -8,12 +8,6 @@ setup_stages[airline]="sets up the vim-airline plugin"
 setup_stages[ycm]="sets up the YouCompleteMe plugin"
 allowed_args=(all none "${!setup_stages[@]}")
 
-join() {
-    local IFS="$1"
-    shift 1
-    echo "$*"
-}
-
 usage() {
     echo "$0 [-h|--help] [$(join ',' "${allowed_args[@]}")]"
     echo "-h|--help      displays this message"
@@ -42,18 +36,9 @@ while true; do
     esac
 done
 
-# Checks to see if $1 matches one of the other arguments
-contained_in() {
-    for e in "${@:2}"; do
-        [ "$e" == "$1" ] && return 0
-    done
-
-    return 1
-}
-
 # validate positional arguments
 for arg in "$@"; do
-    if ! contained_in "$arg" "${allowed_args[@]}"; then
+    if ! contains_in "$arg" "${allowed_args[@]}"; then
         echo "Unknown arg: $arg"
         exit 1
     fi
@@ -62,11 +47,11 @@ done
 # look through all positional arguments and set the correct
 # setup variable for it
 declare -A setup
-if [ "$#" -eq "0" ] || contained_in "all" "$@"; then
+if [ "$#" -eq "0" ] || contains_in "all" "$@"; then
     setup[all]=1
 fi
 for stage in "${!setup_stages[@]}"; do
-    if [ -n "${setup[all]}" ] || contained_in "$stage" "$@"; then
+    if [ -n "${setup[all]}" ] || contains_in "$stage" "$@"; then
         setup[$stage]=1
     fi
 done
@@ -80,10 +65,7 @@ target=$HOME
 if [ ! "$git_dir" -ef "$target" ]; then
     remove_dir_or_die() {
         echo "$1 already exists as a directory"
-        read -p "Would you like to remove it now?[yN]" -n 1
-        echo
-
-        if [[ "$REPLY" =~ ^[yY]$ ]]; then
+        if user_permission "Would you like to remove it now?"; then
             rm -rf "$1"
         else
             echo "You must remove it before continuing"
