@@ -2,7 +2,8 @@
 
 set -e
 
-allowed_args=(all airline ycm none)
+setup_stages=(airline ycm)
+allowed_args=(all none "${setup_stages[@]}")
 join() {
     local IFS="$1"
     shift 1
@@ -49,15 +50,13 @@ for arg in "$@"; do
 done
 
 if [ "$#" -eq "0" ] || contained_in "all" "$@"; then
-    setup_airline=1
-    setup_ycm=1
+    setup_all=1
 fi
-if contained_in "airline" "$@"; then
-    setup_airline=1
-fi
-if contained_in "ycm" "$@"; then
-    setup_ycm=1
-fi
+for stage in "${setup_stages[@]}"; do
+    if [ -n "$setup_all" ] || contained_in "$stage" "$@"; then
+        declare setup_${stage}=1
+    fi
+done
 
 git_dir=$(dirname $0)
 git_dir=$(readlink -f $git_dir)
