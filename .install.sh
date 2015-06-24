@@ -6,7 +6,7 @@ set -e
 declare -A setup_stages
 setup_stages[airline]="sets up the vim-airline plugin"
 setup_stages[ycm]="sets up the YouCompleteMe plugin"
-allowed_args=(all none "${!setup_stages[@]}")
+allowed_args=(all none shortlist "${!setup_stages[@]}")
 
 usage() {
     echo "$0 [-h|--help] [$(join ',' "${allowed_args[@]}")]"
@@ -50,6 +50,11 @@ for arg in "$@"; do
         exit 1
     fi
 done
+
+if contains_in "shortlist" "$@"; then
+    echo "${allowed_args[*]}"
+    exit 0
+fi
 
 # look through all positional arguments and set the correct
 # setup variable for it
