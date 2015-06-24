@@ -60,45 +60,47 @@ if contained_in "ycm" "$@"; then
 fi
 
 git_dir=$(dirname $0)
+git_dir=$(readlink -f $git_dir)
 target=$HOME
 
-if [ "$git_dir" -ef "$target" ]; then
-    echo "Already been installed!"
-    exit 0
-fi
-if [ -d "$target/.git" ]; then
-    echo "There's already a git repo at $target"
-    echo "Remove it and try again!"
-    exit 1
-fi
-
-mergetool=$(git config merge.tool || echo 'vimdiff')
-for ls_file in $(git --git-dir="$git_dir/.git" ls-files); do
-    tracked_file="$git_dir/$ls_file"
-    target_file="$target/$ls_file"
-    if [ -d "$tracked_file" -a -d "$target_file" ]; then
-        echo "$target_file already exists as a directory"
-        echo "You need to remove it before continuing."
-        read -p "Would you like to remove it now?[yN]" -n 1
-        echo
-
-        if [[ "$REPLY" =~ ^[yY]$ ]]; then
-            rm -rf "$target_file"
-        else
-            echo "You must remove it before continuing"
-            exit 1
-        fi
-    elif [ -f "$target_file" ]; then
-        cmp --silent "$target_file" "$tracked_file"\
-            || ${mergetool} "$target_file" "$tracked_file"
-    else
-        mkdir -p $(dirname "$target_file")
-        mv "$tracked_file" "$target_file"
+if [ ! "$git_dir" -ef "$target" ]; then
+    if [ -d "$target/.git" ]; then
+        echo "There's already a git repo at $target"
+        echo "Remove it and try again!"
+        exit 1
     fi
-done
 
-mv -r "$git_dir/.git/" "$target"
-cd "$target"
+    mergetool=$(git config merge.tool || echo 'vimdiff')
+    for ls_file in $(git --git-dir="$git_dir/.git" ls-files); do
+        tracked_file="$git_dir/$ls_file"
+        target_file="$target/$ls_file"
+        if [ -d "$tracked_file" -a -d "$target_file" ]; then
+            # submodule
+            echo "$target_file already exists as a directory"
+            read -p "Would you like to remove it now?[yN]" -n 1
+            echo
+
+            if [[ "$REPLY" =~ ^[yY]$ ]]; then
+                rm -rf "$target_file"
+            else
+                echo "You must remove it before continuing"
+                exit 1
+            fi
+        elif [ -f "$target_file" ]; then
+            cmp --silent "$target_file" "$tracked_file"\
+                || ${mergetool} "$target_file" "$tracked_file"
+        elif [ -e "$tracked_file" ]; then
+            mkdir -p $(dirname "$target_file")
+            mv "$tracked_file" "$target_file"
+        fi
+        # else we've already moved it
+    done
+
+    mv "$git_dir/.git/" "$target"
+    cd "$target"
+
+    rm -rf "$git_dir"
+fi
 
 git config status.showUntrackedFiles no
 git submodule update --init --recursive
@@ -144,8 +146,5 @@ if [ -n "$setup_ycm" ]; then
 
     cd "$target/.vim/bundle/YouCompleteMe"
     ./install.sh --clang-completer
-    cd "$target"
 fi
-
-rm -rf "$git_dir"
 
