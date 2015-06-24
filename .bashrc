@@ -178,6 +178,7 @@ user_permission() {
 
     [[ "$reply" =~ ^[yY]$ ]]
 }
+export -f user_permission
 
 # Takes two parameters:
 # $1: a string
@@ -189,6 +190,7 @@ join() {
     local IFS="$1"
     echo "${*:2}"
 }
+export -f join
 
 # Takes two parameters:
 # $1: an element to search for
@@ -203,4 +205,5 @@ contains_in() {
     done
     return 1
 }
+export -f contains_in
 
