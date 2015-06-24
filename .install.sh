@@ -2,13 +2,16 @@
 
 set -e
 
+# Positional arguments
 setup_stages=(airline ycm)
 allowed_args=(all none "${setup_stages[@]}")
+
 join() {
     local IFS="$1"
     shift 1
     echo "$*"
 }
+
 usage() {
     echo "$0 [-h|--help] [$(join ',' "${allowed_args[@]}")]"
     echo "-h|--help      displays this message"
@@ -18,9 +21,11 @@ usage() {
     echo "none           install, but do not set up plugins"
     exit 1
 }
+
 ARGS=$(getopt -o 'h' --long 'help' -n "$(basename $0)" -- "$@")
 eval set -- "$ARGS"
 
+# Handle help flags
 while true; do
     case "$1" in
         --)
@@ -42,6 +47,8 @@ contained_in() {
 
     return 1
 }
+
+# validate positional arguments
 for arg in "$@"; do
     if ! contained_in "$arg" "${allowed_args[@]}"; then
         echo "Unknown arg: $arg"
@@ -49,6 +56,8 @@ for arg in "$@"; do
     fi
 done
 
+# look through all positional arguments and set the correct
+# setup_* variable for it
 if [ "$#" -eq "0" ] || contained_in "all" "$@"; then
     setup_all=1
 fi
@@ -62,6 +71,8 @@ git_dir=$(dirname $0)
 git_dir=$(readlink -f $git_dir)
 target=$HOME
 
+# the dot files aren't in the target yet
+# let's fix that
 if [ ! "$git_dir" -ef "$target" ]; then
     remove_dir_or_die() {
         echo "$1 already exists as a directory"
@@ -86,9 +97,9 @@ if [ ! "$git_dir" -ef "$target" ]; then
         target_file="$target/$ls_file"
         if [ -d "$tracked_file" -a -d "$target_file" ]; then
             # submodule
-            remove_dir_or_die $target_file
+            remove_dir_or_die "$target_file"
         elif [ -f "$target_file" ]; then
-            # save conflicts for later.
+            # save potential conflicts for later.
             conflicts="$conflicts $ls_file"
         elif [ -e "$tracked_file" ]; then
             mkdir -p $(dirname "$target_file")
@@ -114,6 +125,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
     mv "$git_dir/.git/" "$target"
     cd "$target"
 
+    # clean up the old directory
     rm -rf "$git_dir"
 fi
 
