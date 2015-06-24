@@ -62,6 +62,10 @@ fi
 git_dir=$(dirname $0)
 target=$HOME
 
+if [ "$git_dir" -ef "$target" ]; then
+    echo "Already been installed!"
+    exit 0
+fi
 if [ -d "$target/.git" ]; then
     echo "There's already a git repo at $target"
     echo "Remove it and try again!"
@@ -78,8 +82,8 @@ for ls_file in $(git --git-dir="$git_dir/.git" ls-files); do
         read -p "Would you like to remove it?" -n 1 response
 
     elif [ -f "$target_file" ]; then
-        cmp --silent "$target_file" "$tracked_file" ||\
-            ${mergetool} "$target_file" "$tracked_file"
+        cmp --silent "$target_file" "$tracked_file"\
+            || ${mergetool} "$target_file" "$tracked_file"
     else
         mkdir -p $(dirname "$target_file")
         cp "$tracked_file" "$target_file"
@@ -87,7 +91,6 @@ for ls_file in $(git --git-dir="$git_dir/.git" ls-files); do
 done
 
 cp -r "$git_dir/.git/" "$target"
-
 cd "$target"
 
 git config status.showUntrackedFiles no
@@ -121,8 +124,9 @@ if [ -n "$setup_ycm" ]; then
     echo "Setting up YCM"
     install=""
     for package in "build-essential" "cmake" "python-dev"; do
-        dpkg -s "$package" 2>&1 | grep -P '^Status.+(?<!-)installed' &> /dev/null ||
-            install="$install $package"
+        dpkg -s "$package" 2>&1 |\
+            grep -P '^Status.+(?<!-)installed' &> /dev/null\
+            || install="$install $package"
     done
 
     if [ -n "$install" ]; then
