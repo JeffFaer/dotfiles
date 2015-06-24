@@ -64,10 +64,21 @@ git_dir=$(readlink -f $git_dir)
 target=$HOME
 
 if [ ! "$git_dir" -ef "$target" ]; then
+    remove_dir_or_die() {
+        echo "$1 already exists as a directory"
+        read -p "Would you like to remove it now?[yN]" -n 1
+        echo
+
+        if [[ "$REPLY" =~ ^[yY]$ ]]; then
+            rm -rf "$1"
+        else
+            echo "You must remove it before continuing"
+            exit 1
+        fi
+    }
+
     if [ -d "$target/.git" ]; then
-        echo "There's already a git repo at $target"
-        echo "Remove it and try again!"
-        exit 1
+        remove_dir_or_die "$target/.git"
     fi
 
     conflicts=
@@ -76,16 +87,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
         target_file="$target/$ls_file"
         if [ -d "$tracked_file" -a -d "$target_file" ]; then
             # submodule
-            echo "$target_file already exists as a directory"
-            read -p "Would you like to remove it now?[yN]" -n 1
-            echo
-
-            if [[ "$REPLY" =~ ^[yY]$ ]]; then
-                rm -rf "$target_file"
-            else
-                echo "You must remove it before continuing"
-                exit 1
-            fi
+            remove_dir_or_die $target_file
         elif [ -f "$target_file" ]; then
             # save conflicts for later.
             conflicts="$conflicts $ls_file"
