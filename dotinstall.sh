@@ -2,43 +2,136 @@
 
 set -e
 
+allowed_args=(all airline ycm none)
+join() {
+    local IFS="$1"
+    shift 1
+    echo "$*"
+}
+usage() {
+    echo "$0 [-h|--help] [$(join ',' "${allowed_args[@]}")]"
+    echo "-h|--help      displays this message"
+    echo "all            sets up all plugins (default)"
+    echo "airline        sets up the vim-airline plugin"
+    echo "ycm            sets up the YouCompleteMe plugin"
+    echo "none           install, but do not set up plugins"
+    exit 1
+}
+ARGS=$(getopt -o 'h' --long 'help' -n "$(basename $0)" -- "$@")
+eval set -- "$ARGS"
+
+while true; do
+    case "$1" in
+        --)
+            shift 1;
+            break
+            ;;
+        *)
+            shift 1;
+            usage
+            ;;
+    esac
+done
+
+# Checks to see if $1 matches one of the other arguments
+contained_in() {
+    for e in "${@:2}"; do
+        [ "$e" == "$1" ] && return 0
+    done
+
+    return 1
+}
+for arg in "$@"; do
+    if ! contained_in "$arg" "${allowed_args[@]}"; then
+        echo "Unknown arg: $arg"
+        exit 1
+    fi
+done
+
+if [ "$#" -eq "0" ] || contained_in "all" "$@"; then
+    setup_airline=1
+    setup_ycm=1
+fi
+if contained_in "airline" "$@"; then
+    setup_airline=1
+fi
+if contained_in "ycm" "$@"; then
+    setup_ycm=1
+fi
+
+git_dir=$(dirname $0)
+target=$HOME
+
+if [ -d "$target/.git" ]; then
+    echo "There's already a git repo at $target"
+    echo "Remove it and try again!"
+    exit 1
+fi
+
+mergetool=$(git config merge.tool || echo 'vimdiff')
+for ls_file in $(git --git-dir="$git_dir/.git" ls-files); do
+    tracked_file="$git_dir/$ls_file"
+    target_file="$target/$ls_file"
+    if [ -d "$tracked_file" -a -d "$target_file" ]; then
+        echo "$target_file already exists as a directory"
+        echo "You need to remove it before continuing."
+        read -p "Would you like to remove it?" -n 1 response
+
+    elif [ -f "$target_file" ]; then
+        cmp --silent "$target_file" "$tracked_file" ||\
+            ${mergetool} "$target_file" "$tracked_file"
+    else
+        mkdir -p $(dirname "$target_file")
+        cp "$tracked_file" "$target_file"
+    fi
+done
+
+cp -r "$git_dir/.git/" "$target"
+
+cd "$target"
+
 git config status.showUntrackedFiles no
 git submodule update --init --recursive
 
 vim +PluginInstall +qall
 
 # Airline setup
-echo "Setting up Airline fonts"
-base_url=https://github.com/Lokaltog/powerline/raw/develop/font
+if [ -n "$setup_airline" ]; then
+    echo "Setting up Airline"
+    echo "Setting up fonts"
+    base_url="https://github.com/Lokaltog/powerline/raw/develop/font"
 
-font_url=${base_url}/PowerlineSymbols.otf
-font_dir=$HOME/.local/share/fonts/
+    font_url="${base_url}/PowerlineSymbols.otf"
+    font_dir="$target/.local/share/fonts/"
 
-font_conf_url=${base_url}/10-powerline-symbols.conf
-if [ -n "$XDG_CONFIG_HOME" ]; then
-    font_conf_dir="$XDG_CONFIG_HOME/fontconfing/conf.d/"
-else
-    font_conf_dir="$HOME/.fonts.conf.d/"
+    font_conf_url=${base_url}/10-powerline-symbols.conf
+    if [ -n "$XDG_CONFIG_HOME" ]; then
+        font_conf_dir="$XDG_CONFIG_HOME/fontconfing/conf.d/"
+    else
+        font_conf_dir="$target/.fonts.conf.d/"
+    fi
+
+    wget -P "$font_dir" "$font_url" -q
+    wget -P "$font_conf_dir" "$font_conf_url" -q
+    fc-cache -f
 fi
-
-wget -P "$font_dir" "$font_url" -q
-wget -P "$font_conf_dir" "$font_conf_url" -q
-fc-cache -f
 
 # YCM setup
-echo "Setting up YCM"
-install=""
-for package in "build-essential" "cmake" "python-dev"; do
-    dpkg -s "$package" 2>&1 | grep -P '^Status.+(?<!-)installed' &> /dev/null ||
-        install="$install $package"
-done
+if [ -n "$setup_ycm" ]; then
+    echo "Setting up YCM"
+    install=""
+    for package in "build-essential" "cmake" "python-dev"; do
+        dpkg -s "$package" 2>&1 | grep -P '^Status.+(?<!-)installed' &> /dev/null ||
+            install="$install $package"
+    done
 
-if [ -n "$install" ]; then
-    echo "Installing$install"
-    sudo apt-get update -qq
-    sudo apt-get install $install -yqq
+    if [ -n "$install" ]; then
+        echo "Installing$install"
+        sudo apt-get update -qq
+        sudo apt-get install $install -yqq
+    fi
+
+    cd "$target/.vim/bundle/YouCompleteMe"
+    ./install.sh --clang-completer
 fi
-
-cd ~/.vim/bundle/YouCompleteMe
-./install.sh --clang-completer
 
