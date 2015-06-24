@@ -112,10 +112,12 @@ augroup highlight
 
     " highlight long lines (81st character by default)
     au FileType java let b:col=100
-    au BufEnter,WinEnter * if !exists("b:col") | let b:col=80 | endif
-    au BufEnter,WinEnter * let w:m1=matchadd('ErrorMsg', '\%' . (b:col + 1)
-                \ . 'v.')
-    au BufLeave * call matchdelete(w:m1)
+    au FileType infolog let b:col=0
+    au BufEnter,WinEnter * if !exists('b:col') | let b:col=80 | endif
+    au BufEnter,WinEnter * if b:col
+          \| let w:m1=matchadd('ErrorMsg', '\%' . (b:col + 1) . 'v.') | endif
+    au BufLeave * if exists('w:m1')
+          \| call matchdelete(w:m1) | unlet w:m1 | endif
 
     " trailing whitespace
     au BufEnter,WinEnter * let w:m2=matchadd('ErrorMsg', '\s\+$')
