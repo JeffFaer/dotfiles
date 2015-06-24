@@ -36,6 +36,13 @@ while true; do
     esac
 done
 
+target=$HOME
+# Our .bashrc might not be in place yet,
+# we need our functions
+git_dir=$(dirname $0)
+git_dir=$(readlink -f $git_dir)
+. "${git_dir}/.bash_functions"
+
 # validate positional arguments
 for arg in "$@"; do
     if ! contains_in "$arg" "${allowed_args[@]}"; then
@@ -55,14 +62,6 @@ for stage in "${!setup_stages[@]}"; do
         setup[$stage]=1
     fi
 done
-
-git_dir=$(dirname $0)
-git_dir=$(readlink -f $git_dir)
-target=$HOME
-
-# Our .bashrc might not be in place yet,
-# we need our functions
-. "${git_dir}/.bash_functions"
 
 # the dot files aren't in the target yet
 # let's fix that
@@ -90,7 +89,8 @@ if [ ! "$git_dir" -ef "$target" ]; then
             remove_dir_or_die "$target_file"
         elif [ -f "$target_file" ]; then
             # save potential conflicts for later.
-            conflicts="$conflicts $ls_file"
+            cmp --silent "$target_file" "$tracked_file"\
+                || conflicts="$conflicts $ls_file"
         elif [ -e "$tracked_file" ]; then
             mkdir -p $(dirname "$target_file")
             mv "$tracked_file" "$target_file"
@@ -98,19 +98,27 @@ if [ ! "$git_dir" -ef "$target" ]; then
         # else we've already moved it
     done
 
-    # we can't make git config fail gracefully, so we have to ||
-    # it because of set -e
-    mergetool=$(git config merge.tool || echo)
-    if ! command -v "$mergetool" &> /dev/null; then
-        # default to vimdiff
-        mergetool="vimdiff"
+    if [ -n "$conflicts" ]; then
+        prompt="There are conflicts:$conflicts. Would you like to resolve them\
+            now (move changes you want to keep to the left)?"
+        if user_permission "$prompt"; then
+            # we can't make git config fail gracefully, so we have to ||
+            # it because of set -e
+            mergetool=$(git config merge.tool || echo)
+            if ! command -v "$mergetool" &> /dev/null; then
+                # default to vimdiff
+                mergetool="vimdiff"
+            fi
+            for conflict in $conflicts; do
+                target_file="$target/$conflict"
+                tracked_file="$git_dir/$conflict"
+                ${mergetool} "$target_file" "$tracked_file"
+            done
+        else
+            echo "You must resolve conflicts before continuing"
+            exit 1
+        fi
     fi
-    for conflict in $conflicts; do
-        target_file="$target/$conflict"
-        tracked_file="$git_dir/$conflict"
-        cmp --silent "$target_file" "$tracked_file"\
-            || ${mergetool} "$target_file" "$tracked_file"
-    done
 
     mv "$git_dir/.git/" "$target"
     cd "$target"
