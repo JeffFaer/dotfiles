@@ -60,6 +60,10 @@ git_dir=$(dirname $0)
 git_dir=$(readlink -f $git_dir)
 target=$HOME
 
+# Our .bashrc might not be in place yet,
+# we need our functions
+. "${git_dir}/.bash_functions"
+
 # the dot files aren't in the target yet
 # let's fix that
 if [ ! "$git_dir" -ef "$target" ]; then

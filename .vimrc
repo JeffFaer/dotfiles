@@ -138,6 +138,11 @@ if has("syntax")
     syntax on
 end
 
+augroup filetypes
+    au!
+    au BufNewFile,BufRead .bash_* call SetFileTypeSH('bash') | set syntax=sh
+augroup END
+
 """""""""""""""
 " FORMATTING
 """""""""""""""
