@@ -89,47 +89,50 @@ fi
 stty -ixon
 
 # Setup a pretty command prompt
-TPUT_RED=$(tput setaf 1)
-TPUT_WHITE=$(tput setaf 7)
-TPUT_BLUE=$(tput setaf 4)
-TPUT_BLACK=$(tput setaf 0)
-TPUT_GREEN=$(tput setaf 2)
-TPUT_END=$(tput sgr0)
+declare -A tput_color
+declare -A ps_color
+declare -A func_color
+
+tput_color[red]=$(tput setaf 1)
+tput_color[white]=$(tput setaf 7)
+tput_color[blue]=$(tput setaf 4)
+tput_color[black]=$(tput setaf 0)
+tput_color[green]=$(tput setaf 2)
+tput_color[end]=$(tput sgr0)
 
 if [ $(tput colors) -gt 8 ]; then
-    TPUT_GRAY=$(tput setaf 8)
+    tput_color[gray]=$(tput setaf 8)
 else
-    TPUT_GRAY=$TPUT_BLACK
+    tput_color[gray]=${tput_color[black]}
 fi
 
-for tput in ${!TPUT_*}; do
-    color=${tput#TPUT_}
-    declare PS_${color}="\[${!tput}\]"
-    declare F_${color}="\001${!tput}\002"
+for color in "${!tput_color[@]}"; do
+    ps_color[$color]="\[${tput_color[$color]}\]"
+    func_color[$color]="\001${tput_color[$color]}\002"
 done
 
 exit_status() {
     local status=$?
 
     if [ $status -eq 0 ]; then
-        echo "${F_GREEN}:)"
+        echo "${func_color[green]}:)"
     else
-        echo "${F_RED}:("
+        echo "${func_color[red]}:("
     fi
 }
 
 PS1_PRE=""
-PS1_PRE="${PS1_PRE}${PS_RED}\u"
-PS1_PRE="${PS1_PRE}${PS_GRAY}@"
-PS1_PRE="${PS1_PRE}${PS_WHITE}\h"
-PS1_PRE="${PS1_PRE}${PS_GRAY}:"
-PS1_PRE="${PS1_PRE}${PS_BLUE}\w"
-PS1_PRE="${PS1_PRE}${PS_BLACK}["
+PS1_PRE="${PS1_PRE}${ps_color[red]}\u"
+PS1_PRE="${PS1_PRE}${ps_color[gray]}@"
+PS1_PRE="${PS1_PRE}${ps_color[white]}\h"
+PS1_PRE="${PS1_PRE}${ps_color[gray]}:"
+PS1_PRE="${PS1_PRE}${ps_color[blue]}\w"
+PS1_PRE="${PS1_PRE}${ps_color[black]}["
 PS1_PRE="${PS1_PRE}\$(exit_status)"
-PS1_PRE="${PS1_PRE}${PS_BLACK}]"
+PS1_PRE="${PS1_PRE}${ps_color[black]}]"
 PS1_POST=""
-PS1_POST="${PS1_POST}${PS_GRAY}\n\$ "
-PS1_POST="${PS1_POST}${PS_END}"
+PS1_POST="${PS1_POST}${ps_color[gray]}\n\$ "
+PS1_POST="${PS1_POST}${ps_color[end]}"
 
 __smart_git_ps1() {
     if git rev-parse &> /dev/null\
@@ -146,7 +149,7 @@ __smart_git_ps1() {
 if command -v git &> /dev/null\
     && [ "$(type -t __git_ps1)" == "function" ]; then
     export PROMPT_COMMAND="__smart_git_ps1 \"$PS1_PRE\" \"$PS1_POST\" \
-        \"(%s${PS_BLACK})${PS_END}\""
+        \"(%s${ps_color[black]})${ps_color[end]}\""
     export GIT_PS1_SHOWDIRTYSTATE=true
     export GIT_PS1_SHOWUPSTREAM="verbose"
     export GIT_PS1_SHOWCOLORHINTS=true
@@ -154,5 +157,5 @@ else
     export PS1="${PS1_PRE}${PS1_POST}"
 fi
 
-unset ${!TPUT_*} ${!PS_*} ${!PS1_*}
+unset tput_color ps_color ${!PS1_*}
 

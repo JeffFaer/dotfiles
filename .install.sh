@@ -3,8 +3,10 @@
 set -e
 
 # Positional arguments
-setup_stages=(airline ycm)
-allowed_args=(all none "${setup_stages[@]}")
+declare -A setup_stages
+setup_stages[airline]="sets up the vim-airline plugin"
+setup_stages[ycm]="sets up the YouCompleteMe plugin"
+allowed_args=(all none "${!setup_stages[@]}")
 
 join() {
     local IFS="$1"
@@ -15,10 +17,11 @@ join() {
 usage() {
     echo "$0 [-h|--help] [$(join ',' "${allowed_args[@]}")]"
     echo "-h|--help      displays this message"
-    echo "all            sets up all plugins (default)"
-    echo "airline        sets up the vim-airline plugin"
-    echo "ycm            sets up the YouCompleteMe plugin"
-    echo "none           install, but do not set up plugins"
+    echo "all            install and do all setup stages (default)"
+    echo "none           install but do no extra setup"
+    for stage in "${!setup_stages[@]}"; do
+        printf "%-15s%s\n" "$stage" "${setup_stages[$stage]}"
+    done
     exit 1
 }
 
@@ -57,13 +60,14 @@ for arg in "$@"; do
 done
 
 # look through all positional arguments and set the correct
-# setup_* variable for it
+# setup variable for it
+declare -A setup
 if [ "$#" -eq "0" ] || contained_in "all" "$@"; then
-    setup_all=1
+    setup[all]=1
 fi
-for stage in "${setup_stages[@]}"; do
-    if [ -n "$setup_all" ] || contained_in "$stage" "$@"; then
-        declare setup_${stage}=1
+for stage in "${!setup_stages[@]}"; do
+    if [ -n "${setup[all]}" ] || contained_in "$stage" "$@"; then
+        setup[$stage]=1
     fi
 done
 
@@ -135,7 +139,7 @@ git submodule update --init --recursive
 vim +PluginInstall +qall
 
 # Airline setup
-if [ -n "$setup_airline" ]; then
+if [ -n "${setup[airline]}" ]; then
     echo "Setting up Airline"
     echo "Setting up fonts"
     base_url="https://github.com/Lokaltog/powerline/raw/develop/font"
@@ -156,7 +160,7 @@ if [ -n "$setup_airline" ]; then
 fi
 
 # YCM setup
-if [ -n "$setup_ycm" ]; then
+if [ -n "${setup[ycm]}" ]; then
     echo "Setting up YCM"
     install=""
     for package in "build-essential" "cmake" "python-dev"; do
