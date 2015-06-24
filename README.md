@@ -1,7 +1,7 @@
 ````
 git clone git@github.com:JeffreyFalgout/dotfiles.git
-./dotfiles/dotinstall.sh
+./dotfiles/.install.sh
 
 git clone https://github.com/JeffreyFalgout/dotfiles.git
-./dotfiles/dotinstall.sh
+./dotfiles/.install.sh
 ````
