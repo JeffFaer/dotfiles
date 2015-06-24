@@ -132,7 +132,7 @@ if [ -n "$setup_airline" ]; then
     font_url="${base_url}/PowerlineSymbols.otf"
     font_dir="$target/.local/share/fonts/"
 
-    font_conf_url=${base_url}/10-powerline-symbols.conf
+    font_conf_url="${base_url}/10-powerline-symbols.conf"
     if [ -n "$XDG_CONFIG_HOME" ]; then
         font_conf_dir="$XDG_CONFIG_HOME/fontconfing/conf.d/"
     else
