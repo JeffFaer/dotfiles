@@ -96,7 +96,13 @@ if [ ! "$git_dir" -ef "$target" ]; then
         # else we've already moved it
     done
 
-    mergetool=$(git config merge.tool || echo 'vimdiff')
+    # we can't make git config fail gracefully, so we have to ||
+    # it because of set -e
+    mergetool=$(git config merge.tool || echo)
+    if ! command -v "$mergetool" &> /dev/null; then
+        # default to vimdiff
+        mergetool="vimdiff"
+    fi
     for conflict in $conflicts; do
         target_file="$target/$conflict"
         tracked_file="$git_dir/$conflict"
