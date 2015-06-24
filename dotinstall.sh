@@ -70,7 +70,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
         exit 1
     fi
 
-    mergetool=$(git config merge.tool || echo 'vimdiff')
+    conflicts=
     for ls_file in $(git --git-dir="$git_dir/.git" ls-files); do
         tracked_file="$git_dir/$ls_file"
         target_file="$target/$ls_file"
@@ -87,13 +87,21 @@ if [ ! "$git_dir" -ef "$target" ]; then
                 exit 1
             fi
         elif [ -f "$target_file" ]; then
-            cmp --silent "$target_file" "$tracked_file"\
-                || ${mergetool} "$target_file" "$tracked_file"
+            # save conflicts for later.
+            conflicts="$conflicts $ls_file"
         elif [ -e "$tracked_file" ]; then
             mkdir -p $(dirname "$target_file")
             mv "$tracked_file" "$target_file"
         fi
         # else we've already moved it
+    done
+
+    mergetool=$(git config merge.tool || echo 'vimdiff')
+    for conflict in $conflicts; do
+        target_file="$target/$conflict"
+        tracked_file="$git_dir/$conflict"
+        cmp --silent "$target_file" "$tracked_file"\
+            || ${mergetool} "$target_file" "$tracked_file"
     done
 
     mv "$git_dir/.git/" "$target"
