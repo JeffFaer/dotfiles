@@ -69,6 +69,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
     remove_dir_or_die() {
         echo "$1 already exists as a directory"
         if user_permission "Would you like to remove it now?"; then
+            echo "Removing $1"
             rm -rf "$1"
         else
             echo "You must remove it before continuing"
@@ -99,8 +100,8 @@ if [ ! "$git_dir" -ef "$target" ]; then
     done
 
     if [ -n "$conflicts" ]; then
-        prompt="There are conflicts:$conflicts. Would you like to resolve them\
-            now (move changes you want to keep to the left)?"
+        prompt="There are conflicts (${conflicts# }). Would you like to "\
+            "resolve them now (move changes you want to keep to the left)?"
         if user_permission "$prompt"; then
             # we can't make git config fail gracefully, so we have to ||
             # it because of set -e
@@ -115,7 +116,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
                 ${mergetool} "$target_file" "$tracked_file"
             done
         else
-            echo "You must resolve conflicts before continuing"
+            echo "You must resolve conflicts before continuing."
             exit 1
         fi
     fi
