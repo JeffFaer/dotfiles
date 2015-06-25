@@ -56,6 +56,7 @@ let g:airline#extensions#hunks#enabled=0
 """""""""""""""
 
 filetype plugin indent on
+syntax on
 
 set backspace=indent,eol,start
 set hidden                              "hide buffers
@@ -139,19 +140,6 @@ set gdefault
 
 nmap <leader>s <leader>h:%s///<left>
 vnoremap <leader>s :s///<left>
-
-"""""""""""""""
-" SYNTAX
-"""""""""""""""
-
-if has("syntax")
-    syntax on
-end
-
-augroup filetypes
-    au!
-    au BufNewFile,BufRead .bash_* call SetFileTypeSH('bash') | set syntax=sh
-augroup END
 
 """""""""""""""
 " FORMATTING
