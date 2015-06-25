@@ -146,7 +146,7 @@ __smart_git_ps1() {
 if command -v git &> /dev/null\
     && [ "$(type -t __git_ps1)" == "function" ]; then
     prompt="__smart_git_ps1 \"$PS1_PRE\" \"$PS1_POST\" "
-    prompt+="(%s${ps_color[black]})${ps_color[end]}\""
+    prompt+="\"(%s${ps_color[black]})${ps_color[end]}\""
     export PROMPT_COMMAND=$prompt
 
     export GIT_PS1_SHOWDIRTYSTATE=true
