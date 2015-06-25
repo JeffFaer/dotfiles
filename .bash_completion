@@ -1,9 +1,8 @@
-dir=$(dirname "$BASH_SOURCE")
-_install_sh_commands=$($dir/.install.sh shortlist)
-_install_sh() {
+_shortlist_completer() {
+    local commands=$($1 shortlist)
     local cur=${COMP_WORDS[COMP_CWORD]}
-    COMPREPLY=( $(compgen -W "$_install_sh_commands" -- $cur) )
+    COMPREPLY=( $(compgen -W "$commands" -- $cur) )
 }
 
-complete -F _install_sh .install.sh
+complete -F _shortlist_completer .install.sh
 
