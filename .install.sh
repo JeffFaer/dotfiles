@@ -90,7 +90,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
     for ls_file in $(git --git-dir="$git_dir/.git" ls-files); do
         tracked_file="$git_dir/$ls_file"
         target_file="$target/$ls_file"
-        if [ -d "$tracked_file" -a -d "$target_file" ]; then
+        if [ -d "$tracked_file" ] && [ -d "$target_file" ]; then
             # submodule
             remove_dir_or_die "$target_file"
         elif [ -f "$target_file" ]; then

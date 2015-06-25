@@ -133,8 +133,8 @@ PS1_POST="${PS1_POST}${ps_color[end]}"
 
 __smart_git_ps1() {
     if git rev-parse &> /dev/null\
-        && [ "$(git config status.showUntrackedFiles)" == "no"\
-             -a -z "$(git ls-files)" ]; then
+        && [ "$(git config status.showUntrackedFiles)" == "no" ]\
+        && [ -z "$(git ls-files)" ]; then
         # if we don't care about untracked files and there are no
         # tracked files in this directory, don't show git_ps1
         export PS1="$1$2"
@@ -145,8 +145,10 @@ __smart_git_ps1() {
 
 if command -v git &> /dev/null\
     && [ "$(type -t __git_ps1)" == "function" ]; then
-    export PROMPT_COMMAND="__smart_git_ps1 \"$PS1_PRE\" \"$PS1_POST\" \
-        \"(%s${ps_color[black]})${ps_color[end]}\""
+    prompt="__smart_git_ps1 \"$PS1_PRE\" \"$PS1_POST\" "
+    prompt+="(%s${ps_color[black]})${ps_color[end]}\""
+    export PROMPT_COMMAND=$prompt
+
     export GIT_PS1_SHOWDIRTYSTATE=true
     export GIT_PS1_SHOWUPSTREAM="verbose"
     export GIT_PS1_SHOWCOLORHINTS=true
