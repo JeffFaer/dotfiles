@@ -40,3 +40,24 @@ contains_in() {
 }
 export -f contains_in
 
+# Runs maven in the parent directory which contains pom.xml
+smart-mvn() {
+    local old_pwd="$PWD"
+    local return_value=""
+    while [ "$PWD" != "/" ] && [ ! -f "pom.xml" ]; do
+        cd ..
+    done
+
+    if [ "$PWD" == "/" ] && [ ! -f "pom.xml" ]; then
+        echo "There's no maven project in the hierarchy."
+        return_value=1
+    else
+        mvn "$@"
+        return_value=$?
+    fi
+
+    cd "$old_pwd"
+    return $return_value
+}
+export -f smart-mvn
+

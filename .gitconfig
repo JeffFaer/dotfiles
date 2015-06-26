@@ -8,3 +8,5 @@
 [mergetool "meld"]
 	trustExitCode = true
 
+[push]
+	default = simple
