@@ -42,35 +42,35 @@ export -f contains_in
 
 # Runs maven in the parent directory which contains pom.xml
 smart-mvn() {
-    local old_pwd="$PWD"
-
-    mvnd
-    local return_value=$?
-    if [ $return_value -eq 0 ]; then
-        mvn "$@"
-        return_value=$?
-    fi
-    cd "$old_pwd"
-
-    return $return_value
+    (mvnd && mvn "$@")
 }
 export -f smart-mvn
 
-# cd to the closest parent directory which contains pom.xml
+# Works exactly the same way as cd except when invoking without
+# any arguments. cd will take you to $HOME, mvnd will take you
+# to the closest directory, including $PWD, that contains pom.xml
 mvnd() {
-    local old_pwd="$PWD"
-    local return_value=0
-    while [ "$PWD" != "/" ] && [ ! -f "pom.xml" ]; do
-        cd ..
-    done
+    if [ "$#" -eq "0" ]; then
+        # Find the maven directory
+        local cwd="$PWD"
+        while [ ! -f "$cwd/pom.xml" ]; do
+            local next_cwd=$(dirname "$cwd")
+            if [ "$next_cwd" -ef "$cwd" ]; then
+                # We've hit the root
+                break
+            fi
+            cwd="$next_cwd"
+        done
 
-    if [ "$PWD" == "/" ] && [ ! -f "pom.xml" ]; then
-        echo "There's no maven project in the hierarchy."
-        cd "$old_pwd"
-        return_value=1
+        if [ ! -f "$cwd/pom.xml" ]; then
+            echo "There's no maven project in the hierarchy."
+            return 1
+        fi
+
+        cd "$cwd"
+    else
+        cd "$@"
     fi
-
-    return $return_value
 }
 export -f mvnd
 
