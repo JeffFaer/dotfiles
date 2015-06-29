@@ -111,10 +111,10 @@ if [ ! "$git_dir" -ef "$target" ]; then
             _meld_builder() {
                 local build=""
                 if [ -z "$1" ]; then
-                    build+="$2 "
+                    build+="$2"
                 fi
 
-                build+="--diff \"$3\" \"$4\" "
+                build+=" --diff \"$3\" \"$4\""
 
                 echo "$build"
             }
