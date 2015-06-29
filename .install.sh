@@ -120,7 +120,13 @@ if [ ! "$git_dir" -ef "$target" ]; then
             }
 
             _default_builder() {
-                echo "$2 \"$3\" \"$4\"; "
+                local build=""
+                if [ -n "$1" ]; then
+                    build+="; "
+                fi
+                build+="$2 \"$3\" \"$4\""
+
+                echo "$build"
             }
             # we can't make git config fail gracefully, so we have to ||
             # it because of set -e
