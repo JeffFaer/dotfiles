@@ -163,3 +163,8 @@ if [ -f ~/.bash_functions ]; then
     . ~/.bash_functions
 fi
 
+# Bash settings local to a machine
+if [ -f ~/.bash_local ]; then
+    . ~/.bash_local
+fi
+
