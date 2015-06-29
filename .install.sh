@@ -108,6 +108,20 @@ if [ ! "$git_dir" -ef "$target" ]; then
         prompt="There are conflicts (${conflicts# }). Would you like to "
         prompt+="resolve them now (move changes you want to keep to the left)?"
         if user_permission "$prompt"; then
+            _meld_builder() {
+                local build=""
+                if [ -z "$1" ]; then
+                    build+="$2 "
+                fi
+
+                build+="--diff \"$3\" \"$4\" "
+
+                echo "$build"
+            }
+
+            _default_builder() {
+                echo "$2 \"$3\" \"$4\"; "
+            }
             # we can't make git config fail gracefully, so we have to ||
             # it because of set -e
             mergetool=$(git config merge.tool || echo)
@@ -115,11 +129,22 @@ if [ ! "$git_dir" -ef "$target" ]; then
                 # default to vimdiff
                 mergetool="vimdiff"
             fi
+
+            if [ "$mergetool" == "meld" ]; then
+                command_builder=_meld_builder
+            else
+                command_builder=_default_builder
+            fi
+            conflict_command=""
             for conflict in $conflicts; do
                 target_file="$target/$conflict"
                 tracked_file="$git_dir/$conflict"
-                ${mergetool} "$target_file" "$tracked_file"
+
+                conflict_command+=$($command_builder "$conflict_command" \
+                    "$mergetool" "$target_file" "$tracked_file")
             done
+
+            eval $conflict_command
         else
             echo "You must resolve conflicts before continuing."
             exit 1
