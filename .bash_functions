@@ -67,10 +67,10 @@ mvnd() {
             return 1
         fi
 
-        cd "$cwd"
-    else
-        cd "$@"
+        set -- "$cwd"
     fi
+
+    cd "$@"
 }
 export -f mvnd
 
