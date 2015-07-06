@@ -17,13 +17,14 @@ Plugin 'bling/vim-bufferline'
 Plugin 'airblade/vim-gitgutter'
 Plugin 'tpope/vim-fugitive'
 Plugin 'camelcasemotion'
+Plugin 'noahfrederick/vim-skeleton'
 
 call vundle#end()
 
 " Valloric/YouCompleteMe
 nnoremap <leader>jd :YcmCompleter GoTo<CR>
 
-" bling/vim-airline config
+" bling/vim-airline
 set laststatus=2
 let g:airline_theme='simple'
 let g:airline_powerline_fonts=1
@@ -50,6 +51,9 @@ let g:gitgutter_signs=0
 nnoremap <leader>c :GitGutterSignsToggle<CR>
 " turn off gitgutter in status line
 let g:airline#extensions#hunks#enabled=0
+
+" noahfrederick/vim-skeleton
+let g:skeleton_template_dir='~/.vim/closet'
 
 """""""""""""""
 " GENERAL
