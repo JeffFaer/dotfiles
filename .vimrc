@@ -62,7 +62,7 @@ function! g:skeleton_find_template.java(path)
 endfunction
 
 " SirVer/ultisnips
-let g:UltiSnipsExpandTrigger="<enter>"
+let g:UltiSnipsExpandTrigger="<c-j>"
 let g:UltiSnipsListSnippets="<c-l>"
 
 """""""""""""""
