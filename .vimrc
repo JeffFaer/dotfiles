@@ -18,6 +18,8 @@ Plugin 'airblade/vim-gitgutter'
 Plugin 'tpope/vim-fugitive'
 Plugin 'camelcasemotion'
 Plugin 'noahfrederick/vim-skeleton'
+Plugin 'SirVer/ultisnips'
+Plugin 'honza/vim-snippets'
 
 call vundle#end()
 
@@ -58,6 +60,10 @@ let g:skeleton_find_template = {}
 function! g:skeleton_find_template.java(path)
     return match(a:path, 'Test\.java$') != -1 ? 'test.java' : ''
 endfunction
+
+" SirVer/ultisnips
+let g:UltiSnipsExpandTrigger="<enter>"
+let g:UltiSnipsListSnippets="<c-l>"
 
 """""""""""""""
 " GENERAL
