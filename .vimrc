@@ -54,6 +54,10 @@ let g:airline#extensions#hunks#enabled=0
 
 " noahfrederick/vim-skeleton
 let g:skeleton_template_dir='~/.vim/closet'
+let g:skeleton_find_template = {}
+function! g:skeleton_find_template.java(path)
+    return match(a:path, 'Test\.java$') != -1 ? 'test.java' : ''
+endfunction
 
 """""""""""""""
 " GENERAL
