@@ -11,7 +11,6 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
 Plugin 'gmarik/Vundle.vim'
-Plugin 'Valloric/YouCompleteMe'
 Plugin 'bling/vim-airline'
 Plugin 'bling/vim-bufferline'
 Plugin 'airblade/vim-gitgutter'
@@ -21,7 +20,17 @@ Plugin 'noahfrederick/vim-skeleton'
 Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
 
+if !filereadable(expand('~/.at_google'))
+    Plugin 'Valloric/YouCompleteMe'
+endif
+
 call vundle#end()
+
+if filereadable(expand('~/.at_google'))
+    source /usr/share/vim/google/google.vim
+    Glug youcompleteme-google
+    Glug ultisnips-google
+endif
 
 " Valloric/YouCompleteMe
 nnoremap <leader>jd :YcmCompleter GoTo<CR>
