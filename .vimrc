@@ -158,4 +158,6 @@ set tabstop=4
 set shiftwidth=4
 set softtabstop=4
 set expandtab
+" j = Remove comment leader when joining
+set formatoptions+=j
 
