@@ -126,15 +126,9 @@ augroup highlight
     au!
 
     " highlight long lines (81st character by default)
-    au FileType java let b:col=100
-    au FileType infolog let b:col=0
     au BufEnter,WinEnter *
-          \ if !exists('b:col')
-          \|    let b:col=80
-          \|endif
-    au BufEnter,WinEnter *
-          \ if b:col
-          \|    let w:m1=matchadd('ErrorMsg', '\%' . (b:col + 1) . 'v.')
+          \ if &textwidth
+          \|    let w:m1=matchadd('ErrorMsg', '\%' . (&textwidth + 1) . 'v.')
           \|endif
     au BufLeave *
           \ if exists('w:m1')
@@ -159,6 +153,7 @@ vnoremap <leader>s :s///<left>
 " FORMATTING
 """""""""""""""
 
+set textwidth=80
 set tabstop=4
 set shiftwidth=4
 set softtabstop=4
