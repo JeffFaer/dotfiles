@@ -77,10 +77,16 @@ let g:skeleton_replacements_java={}
 
 " This function tries to find the relative path from a directory whose name is
 " in parents to the given path.
-" Ex: find_subpath('src/foo/bar/file.ext', ['src']) = 'foo/bar'
-"     find_subpath('src/foo/bar/file.ext', ['src', 'foo']) = 'bar'
+" Ex: find_subpath('src/foo/bar', ['src']) = 'foo/bar'
+"       - We find 'src'
+"     find_subpath('src/foo/bar', ['src', 'foo']) = 'bar'
+"       - We find 'foo' first
+"     find_subpath('src/foo/bar', ['src', 'foo', 'bar']) = '.'
+"       - We find 'bar' first
+"     find_subpath('src/foo/bar', ['parent']) = ''
+"       - We don't find 'parent' before we hit the root ('/')
 function! s:find_subpath(path, parents)
-    let l:path=a:path
+    let l:path=fnamemodify(a:path, ':p')
     let l:head=fnamemodify(l:path, ':t')
     while l:path != '/' && index(a:parents, l:head) == -1
         let l:path=fnamemodify(l:path, ':h')
@@ -90,7 +96,12 @@ function! s:find_subpath(path, parents)
     if l:path == '/'
         return ''
     else
-        return a:path[stridx(a:path,l:path) + len(l:path) + 1:]
+        let l:subpath=a:path[stridx(a:path,l:path) + len(l:path) + 1:]
+        if len(l:subpath) == 0
+            return '.'
+        else
+            return l:subpath
+        endif
     endif
 endfunction
 
@@ -100,7 +111,7 @@ function! g:skeleton_replacements.INCLUDEGUARD()
     let l:path=expand('%:p:h')
     let l:subpath=s:find_subpath(l:path, ['src'])
 
-    if len(l:subpath) != 0
+    if len(l:subpath) != 0 && l:subpath != '.'
         let l:subpath=toupper(substitute(l:subpath, '/', '_', 'g'))
         let l:guard=l:subpath . '_' . l:guard
     endif
@@ -108,12 +119,11 @@ function! g:skeleton_replacements.INCLUDEGUARD()
     return l:guard
 endfunction
 
-
 function! g:skeleton_replacements_java.PACKAGE()
     let l:path=expand('%:p:h')
     let l:subpath=s:find_subpath(l:path, ['src', 'java'])
 
-    if len(l:subpath) == 0
+    if len(l:subpath) == 0 || l:subpath == '.'
         return ''
     else
         return 'package ' . substitute(l:subpath, '/', '.', 'g') . ';'
