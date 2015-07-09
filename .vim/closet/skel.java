@@ -1,4 +1,4 @@
-public class @BASENAME@ {
+@PACKAGE@public class @BASENAME@ {
   @CURSOR@
 }
 

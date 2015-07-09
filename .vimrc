@@ -73,8 +73,51 @@ function! g:skeleton_find_template.java(path)
 endfunction
 
 let g:skeleton_replacements={}
+let g:skeleton_replacements_java={}
+
+" This function tries to find the relative path from a directory whose name is
+" in parents to the given path.
+" Ex: find_subpath('src/foo/bar/file.ext', ['src']) = 'foo/bar'
+"     find_subpath('src/foo/bar/file.ext', ['src', 'foo']) = 'bar'
+function! s:find_subpath(path, parents)
+    let l:path=a:path
+    let l:head=fnamemodify(l:path, ':t')
+    while l:path != '/' && index(a:parents, l:head) == -1
+        let l:path=fnamemodify(l:path, ':h')
+        let l:head=fnamemodify(l:path, ':t')
+    endwhile
+
+    if l:path == '/'
+        return ''
+    else
+        return a:path[stridx(a:path,l:path) + len(l:path) + 1:]
+    endif
+endfunction
+
 function! g:skeleton_replacements.INCLUDEGUARD()
-    return toupper(expand('%:t:r')) . '_H'
+    let l:guard=toupper(expand('%:t:r')) . '_H'
+
+    let l:path=expand('%:p:h')
+    let l:subpath=s:find_subpath(l:path, ['src'])
+
+    if len(l:subpath) != 0
+        let l:subpath=toupper(substitute(l:subpath, '/', '_', 'g'))
+        let l:guard=l:subpath . '_' . l:guard
+    endif
+
+    return l:guard
+endfunction
+
+
+function! g:skeleton_replacements_java.PACKAGE()
+    let l:path=expand('%:p:h')
+    let l:subpath=s:find_subpath(l:path, ['src', 'java'])
+
+    if len(l:subpath) == 0
+        return ''
+    else
+        return 'package ' . substitute(l:subpath, '/', '.', 'g') . ';'
+    endif
 endfunction
 
 " SirVer/ultisnips
