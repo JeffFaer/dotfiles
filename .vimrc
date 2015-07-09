@@ -18,11 +18,11 @@ Plugin 'bling/vim-bufferline'
 Plugin 'airblade/vim-gitgutter'
 Plugin 'tpope/vim-fugitive'
 Plugin 'camelcasemotion'
-Plugin 'noahfrederick/vim-skeleton'
 Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
 
 if !s:at_google
+    Plugin 'noahfrederick/vim-skeleton'
     Plugin 'Valloric/YouCompleteMe'
 endif
 
