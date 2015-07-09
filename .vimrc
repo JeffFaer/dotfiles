@@ -107,10 +107,19 @@ function! s:find_subpath(path, parents)
     endif
 endfunction
 
+" Returns true is the given path is absolute
+" Returns false if it is not
+function! s:is_absolute(path)
+    return stridx(a:path, getcwd()) == 0
+endfunction
+
 " expand('%:p') doesn't work for new files if their parent directories don't
 " exist.
 function! s:absolute(path)
-    return getcwd() . '/' . a:path
+    let l:path=fnamemodify(a:path, ':p')
+    " strip trailing / that we may have just added
+    let l:path=substitute(l:path, '/$', '', '')
+    return s:is_absolute(l:path) ? l:path : getcwd() . '/' . l:path
 endfunction
 
 function! g:skeleton_replacements.INCLUDEGUARD()
