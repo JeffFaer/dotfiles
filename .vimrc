@@ -81,22 +81,24 @@ let g:skeleton_replacements_java={}
 "       - We find 'src'
 "     find_subpath('src/foo/bar', ['src', 'foo']) = 'bar'
 "       - We find 'foo' first
-"     find_subpath('src/foo/bar', ['src', 'foo', 'bar']) = '.'
-"       - We find 'bar' first
+"     find_subpath('src/foo/bar', ['foo/bar', 'src']) = '.'
+"       - We find 'foo/bar' first
 "     find_subpath('src/foo/bar', ['parent']) = ''
-"       - We don't find 'parent' before we hit the root ('/')
+"       - We don't find 'parent'
 function! s:find_subpath(path, parents)
-    let l:path=fnamemodify(a:path, ':p')
-    let l:head=fnamemodify(l:path, ':t')
-    while l:path != '/' && index(a:parents, l:head) == -1
-        let l:path=fnamemodify(l:path, ':h')
-        let l:head=fnamemodify(l:path, ':t')
-    endwhile
+    let l:idx=-1
 
-    if l:path == '/'
+    for parent in a:parents
+        let l:parent_idx=stridx(a:path,l:parent)
+        if l:parent_idx != -1
+            let l:idx=max([stridx(a:path,l:parent) + len(l:parent), l:idx])
+        endif
+    endfor
+
+    if l:idx == -1
         return ''
     else
-        let l:subpath=a:path[stridx(a:path,l:path) + len(l:path) + 1:]
+        let l:subpath=a:path[l:idx + 1:]
         if len(l:subpath) == 0
             return '.'
         else
@@ -105,10 +107,16 @@ function! s:find_subpath(path, parents)
     endif
 endfunction
 
+" expand('%:p') doesn't work for new files if their parent directories don't
+" exist.
+function! s:absolute(path)
+    return getcwd() . '/' . a:path
+endfunction
+
 function! g:skeleton_replacements.INCLUDEGUARD()
     let l:guard=toupper(expand('%:t:r')) . '_H'
 
-    let l:path=expand('%:p:h')
+    let l:path=s:absolute(expand('%:h'))
     let l:subpath=s:find_subpath(l:path, ['src'])
 
     if len(l:subpath) != 0 && l:subpath != '.'
@@ -120,7 +128,7 @@ function! g:skeleton_replacements.INCLUDEGUARD()
 endfunction
 
 function! g:skeleton_replacements_java.PACKAGE()
-    let l:path=expand('%:p:h')
+    let l:path=s:absolute(expand('%:h'))
     let l:subpath=s:find_subpath(l:path, ['src', 'java'])
 
     if len(l:subpath) == 0 || l:subpath == '.'
