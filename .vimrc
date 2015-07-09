@@ -1,6 +1,8 @@
 set nocompatible
 let mapleader=','
 
+let s:at_google=filereadable(expand('~/.at_google'))
+
 """""""""""""""
 " PLUGINS
 """""""""""""""
@@ -20,13 +22,13 @@ Plugin 'noahfrederick/vim-skeleton'
 Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
 
-if !filereadable(expand('~/.at_google'))
+if !s:at_google
     Plugin 'Valloric/YouCompleteMe'
 endif
 
 call vundle#end()
 
-if filereadable(expand('~/.at_google'))
+if s:at_google
     source /usr/share/vim/google/google.vim
     Glug youcompleteme-google
     Glug ultisnips-google
@@ -65,9 +67,14 @@ let g:airline#extensions#hunks#enabled=0
 
 " noahfrederick/vim-skeleton
 let g:skeleton_template_dir='~/.vim/closet'
-let g:skeleton_find_template = {}
+let g:skeleton_find_template={}
 function! g:skeleton_find_template.java(path)
     return match(a:path, 'Test\.java$') != -1 ? 'test.java' : ''
+endfunction
+
+let g:skeleton_replacements={}
+function! g:skeleton_replacements.INCLUDEGUARD()
+    return toupper(expand('%:t:r')) . '_H'
 endfunction
 
 " SirVer/ultisnips
