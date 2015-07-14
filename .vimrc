@@ -172,6 +172,8 @@ set wildmode=list:longest
 nnoremap ; :
 vnoremap ; :
 
+nnoremap <leader>l :ls<CR>:b
+
 """""""""""""""
 " NAVIGATION
 """""""""""""""
