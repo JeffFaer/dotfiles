@@ -75,8 +75,8 @@ endfunction
 let g:skeleton_replacements={}
 let g:skeleton_replacements_java={}
 
-" This function tries to find the relative path from a directory whose name is
-" in parents to the given path.
+" This function tries to find the relative path from a parent directory to the
+" given path.
 " Ex: find_subpath('src/foo/bar', ['src']) = 'foo/bar'
 "       - We find 'src'
 "     find_subpath('src/foo/bar', ['src', 'foo']) = 'bar'
