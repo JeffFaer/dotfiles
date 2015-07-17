@@ -119,17 +119,17 @@ exit_status() {
 }
 
 PS1_PRE=""
-PS1_PRE="${PS1_PRE}${ps_color[red]}\u"
-PS1_PRE="${PS1_PRE}${ps_color[gray]}@"
-PS1_PRE="${PS1_PRE}${ps_color[white]}\h"
-PS1_PRE="${PS1_PRE}${ps_color[gray]}:"
-PS1_PRE="${PS1_PRE}${ps_color[blue]}\w"
-PS1_PRE="${PS1_PRE}${ps_color[black]}["
-PS1_PRE="${PS1_PRE}\$(exit_status)"
-PS1_PRE="${PS1_PRE}${ps_color[black]}]"
+PS1_PRE+="${ps_color[red]}\u"
+PS1_PRE+="${ps_color[gray]}@"
+PS1_PRE+="${ps_color[white]}\h"
+PS1_PRE+="${ps_color[gray]}:"
+PS1_PRE+="${ps_color[blue]}\w"
+PS1_PRE+="${ps_color[black]}["
+PS1_PRE+="\$(exit_status)"
+PS1_PRE+="${ps_color[black]}]"
 PS1_POST=""
-PS1_POST="${PS1_POST}${ps_color[gray]}\n\$ "
-PS1_POST="${PS1_POST}${ps_color[end]}"
+PS1_POST+="${ps_color[gray]}\n\$ "
+PS1_POST+="${ps_color[end]}"
 
 __smart_git_ps1() {
     if git rev-parse &> /dev/null\
@@ -145,8 +145,10 @@ __smart_git_ps1() {
 
 if command -v git &> /dev/null\
     && [ "$(type -t __git_ps1)" == "function" ]; then
-    prompt="__smart_git_ps1 \"$PS1_PRE\" \"$PS1_POST\" "
-    prompt+="\"(%s${ps_color[black]})${ps_color[end]}\""
+    prompt="__smart_git_ps1"
+    prompt+=" \"$PS1_PRE\""
+    prompt+=" \"$PS1_POST\""
+    prompt+=" \"(%s${ps_color[black]})${ps_color[end]}\""
     export PROMPT_COMMAND=$prompt
 
     export GIT_PS1_SHOWDIRTYSTATE=true
