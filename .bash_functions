@@ -40,6 +40,22 @@ contains_in() {
 }
 export -f contains_in
 
+# Takes three parameters:
+# $1: an element
+# $2: an index
+# $3: the name of an array variable
+#
+# Prints the result of inserting $1 at index $2 in $3
+# array=( "a 1" "b 2" "c 3" )
+# insert "foo bar" 2 "array"
+# echo "${array[@]}"   # a 1 b 2 foo bar c 3
+# echo "${array[2]}"   # foo bar
+# echo "${#array[@]}"  # 4
+insert() {
+    eval $3=\( \"\${$3[@]:0:$2}\" \"$1\" \"\${$3[@]:$2}\" \)
+}
+export -f insert
+
 # Runs maven in the parent directory which contains pom.xml
 smart-mvn() {
     (mvnd && mvn "$@")
