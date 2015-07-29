@@ -90,3 +90,12 @@ mvnd() {
 }
 export -f mvnd
 
+# Takes one parameter:
+# $1: A regex to find on the $PATH
+#
+# Prints the path of the files it finds.
+find_path() {
+  find ${PATH//:/ } -regextype posix-extended -regex ".*?$1.*?"
+}
+export -f find_path
+
