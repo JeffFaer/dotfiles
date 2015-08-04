@@ -2,17 +2,17 @@
 
 set -e
 
-# Positional arguments
+# Declare plugin installers in an associative array.
 declare -A setup_stages
-setup_stages[airline]="sets up the vim-airline plugin"
-setup_stages[ycm]="sets up the YouCompleteMe plugin"
+setup_stages[airline]="Sets up the vim-airline plugin."
+setup_stages[ycm]="Sets up the YouCompleteMe plugin."
 allowed_args=(all none shortlist "${!setup_stages[@]}")
 
 usage() {
     echo "$0 [-h|--help] [$(join ',' "${allowed_args[@]}")]"
-    echo "-h|--help      displays this message"
-    echo "all            install and do all setup stages (default)"
-    echo "none           install but do no extra setup"
+    echo "-h|--help      Displays this message."
+    echo "all            Install and do all setup stages (default)."
+    echo "none           Install but do no extra setup."
     for stage in "${!setup_stages[@]}"; do
         printf "%-15s%s\n" "$stage" "${setup_stages[$stage]}"
     done
@@ -22,7 +22,7 @@ usage() {
 ARGS=$(getopt -o 'h' --long 'help' -n "$(basename $0)" -- "$@")
 eval set -- "$ARGS"
 
-# Handle help flags
+# Handle flags.
 while true; do
     case "$1" in
         --)
@@ -37,13 +37,12 @@ while true; do
 done
 
 target=$HOME
-# Our .bashrc might not be in place yet,
-# we need our functions
+# Our .bashrc might not be in place yet, source functions.
 git_dir=$(dirname $0)
 git_dir=$(readlink -f $git_dir)
 . "${git_dir}/.bash_functions"
 
-# validate positional arguments
+# Validate positional arguments.
 for arg in "$@"; do
     if ! contains_in "$arg" "${allowed_args[@]}"; then
         echo "Unknown arg: $arg"
@@ -56,8 +55,7 @@ if contains_in "shortlist" "$@"; then
     exit 0
 fi
 
-# look through all positional arguments and set the correct
-# setup variable for it
+# Figure out which plugins we want to install from the positional arguments.
 declare -A setup
 if [ "$#" -eq "0" ] || contains_in "all" "$@"; then
     setup[all]=1
@@ -68,8 +66,8 @@ for stage in "${!setup_stages[@]}"; do
     fi
 done
 
-# the dot files aren't in the target yet
-# let's fix that
+# We're running .install.sh from a directory other than $target.
+# We need to move the dotfiles into $target.
 if [ ! "$git_dir" -ef "$target" ]; then
     remove_dir_or_die() {
         echo "$1 already exists as a directory"
@@ -91,17 +89,19 @@ if [ ! "$git_dir" -ef "$target" ]; then
         tracked_file="$git_dir/$ls_file"
         target_file="$target/$ls_file"
         if [ -d "$tracked_file" ] && [ -d "$target_file" ]; then
-            # submodule
+            # We're tracking a submodule and the directory already exists in the
+            # target.
             remove_dir_or_die "$target_file"
         elif [ -f "$target_file" ]; then
-            # save potential conflicts for later.
+            # Save potential conflicts for later.
             cmp --silent "$target_file" "$tracked_file"\
                 || conflicts+=" $ls_file"
         elif [ -e "$tracked_file" ]; then
             mkdir -p $(dirname "$target_file")
             mv "$tracked_file" "$target_file"
+        # else
+        # We've already moved the file.
         fi
-        # else we've already moved it
     done
 
     if [ -n "$conflicts" ]; then
@@ -128,11 +128,10 @@ if [ ! "$git_dir" -ef "$target" ]; then
 
                 echo "$build"
             }
-            # we can't make git config fail gracefully, so we have to ||
-            # it because of set -e
+            # git config will not fail gracefully because of set -e
             mergetool=$(git config merge.tool || echo)
             if ! command -v "$mergetool" &> /dev/null; then
-                # default to vimdiff
+                # Default to vimdiff.
                 mergetool="vimdiff"
             fi
 
@@ -160,7 +159,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
     mv "$git_dir/.git/" "$target"
     cd "$target"
 
-    # clean up the old directory
+    # Clean up the old directory.
     rm -rf "$git_dir"
 fi
 
@@ -195,8 +194,7 @@ if [ -n "${setup[ycm]}" ]; then
     echo "Setting up YCM"
     install=""
     for package in "build-essential" "cmake" "python-dev"; do
-        dpkg -s "$package" 2>&1 |\
-            grep -P '^Status.+(?<!-)installed' &> /dev/null\
+        dpkg -s "$package" |& grep -qP '^Status.+(?<!-)installed'\
             || install+=" $package"
     done
 
