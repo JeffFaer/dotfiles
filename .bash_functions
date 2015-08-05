@@ -17,11 +17,19 @@ export -f user_permission
 # $1: a string
 # $2+: an array
 #
-# prints the result of joining the array
-# with $1
+# prints the result of joining the array with $1
 join() {
-    local IFS="$1"
-    echo "${*:2}"
+    local e=""
+    local is_first="1"
+    for e in "${@:2}"; do
+        if [ "$is_first" != "1" ]; then
+            echo -n "$1"
+        fi
+
+        echo -n "$e"
+        is_first=0
+    done
+    echo
 }
 export -f join
 
