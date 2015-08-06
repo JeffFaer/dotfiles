@@ -32,6 +32,7 @@ if s:at_google
     source /usr/share/vim/google/google.vim
     Glug youcompleteme-google
     Glug ultisnips-google
+    Glug codefmt plugin[mappings]
 endif
 
 " Valloric/YouCompleteMe
