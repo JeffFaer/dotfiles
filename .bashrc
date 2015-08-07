@@ -86,9 +86,8 @@ stty -ixon
 ##################
 # Command Prompt #
 ##################
+declare -A color
 declare -A tput_color
-declare -A ps_color
-declare -A func_color
 
 tput_color[red]=$(tput setaf 1)
 tput_color[white]=$(tput setaf 7)
@@ -103,33 +102,33 @@ else
     tput_color[gray]=${tput_color[black]}
 fi
 
-for color in "${!tput_color[@]}"; do
-    ps_color[$color]="\[${tput_color[$color]}\]"
-    func_color[$color]="\001${tput_color[$color]}\002"
+# Set up colors for PS1 string literals.
+for c in "${!tput_color[@]}"; do
+    color[$c]="\[${tput_color[$c]}\]"
 done
 
 exit_status() {
     local status=$?
 
     if [ $status -eq 0 ]; then
-        echo "${func_color[green]}:)"
+        echo "${color[green]}:)"
     else
-        echo "${func_color[red]}:("
+        echo "${color[red]}:("
     fi
 }
 
 PS1_PRE=""
-PS1_PRE+="${ps_color[red]}\u"
-PS1_PRE+="${ps_color[gray]}@"
-PS1_PRE+="${ps_color[white]}\h"
-PS1_PRE+="${ps_color[gray]}:"
-PS1_PRE+="${ps_color[blue]}\w"
-PS1_PRE+="${ps_color[black]}["
+PS1_PRE+="${color[red]}\u"
+PS1_PRE+="${color[gray]}@"
+PS1_PRE+="${color[white]}\h"
+PS1_PRE+="${color[gray]}:"
+PS1_PRE+="${color[blue]}\w"
+PS1_PRE+="${color[black]}["
 PS1_PRE+="\$(exit_status)"
-PS1_PRE+="${ps_color[black]}]"
+PS1_PRE+="${color[black]}]"
 PS1_POST=""
-PS1_POST+="${ps_color[gray]}\n\$ "
-PS1_POST+="${ps_color[end]}"
+PS1_POST+="${color[gray]}\n\$ "
+PS1_POST+="${color[end]}"
 
 __smart_git_ps1() {
     if git rev-parse &> /dev/null\
@@ -148,7 +147,7 @@ if command -v git &> /dev/null\
     prompt="__smart_git_ps1"
     prompt+=" \"$PS1_PRE\""
     prompt+=" \"$PS1_POST\""
-    prompt+=" \"(%s${ps_color[black]})${ps_color[end]}\""
+    prompt+=" \"(%s${color[black]})${color[end]}\""
     export PROMPT_COMMAND=$prompt
 
     export GIT_PS1_SHOWDIRTYSTATE=true
@@ -158,7 +157,12 @@ else
     export PS1="${PS1_PRE}${PS1_POST}"
 fi
 
-unset tput_color ps_color ${!PS1_*}
+# Set up colors for PS1 functions calls.
+for c in "${!tput_color[@]}"; do
+    color[$c]="\001${tput_color[$c]}\002"
+done
+
+unset tput_color ${!PS1_*}
 
 # Functions
 if [ -f ~/.bash_functions ]; then
