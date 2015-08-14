@@ -127,8 +127,8 @@ PS1_PRE+="${color[black]}["
 PS1_PRE+="\$(exit_status)"
 PS1_PRE+="${color[black]}]"
 PS1_POST=""
-PS1_POST+="${color[gray]}\n\$ "
-PS1_POST+="${color[end]}"
+PS1_POST+="${color[gray]}\n\$"
+PS1_POST+="${color[end]} "
 
 __smart_git_ps1() {
     if git rev-parse &> /dev/null\
