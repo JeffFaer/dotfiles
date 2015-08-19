@@ -103,7 +103,7 @@ export -f mvnd
 #
 # Prints the path of the files it finds.
 find_path() {
-  find ${PATH//:/ } -regextype posix-extended -regex ".*?$1.*?"
+    find ${PATH//:/ } -regextype posix-extended -regex ".*?$1.*?"
 }
 export -f find_path
 
