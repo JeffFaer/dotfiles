@@ -19,7 +19,7 @@ export -f user_permission
 #
 # prints the result of joining the array with $1
 join() {
-    local e=""
+    local e
     local is_first="1"
     for e in "${@:2}"; do
         if [ "$is_first" != "1" ]; then

@@ -109,7 +109,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
         prompt+="resolve them now (move changes you want to keep to the left)?"
         if user_permission "$prompt"; then
             _meld_builder() {
-                local build=""
+                local build
                 if [ -z "$1" ]; then
                     build+="$2"
                 fi
@@ -120,7 +120,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
             }
 
             _default_builder() {
-                local build=""
+                local build
                 if [ -n "$1" ]; then
                     build+="; "
                 fi
