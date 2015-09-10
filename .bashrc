@@ -94,6 +94,7 @@ tput_color[white]=$(tput setaf 7)
 tput_color[blue]=$(tput setaf 4)
 tput_color[black]=$(tput setaf 0)
 tput_color[green]=$(tput setaf 2)
+tput_color[yellow]=$(tput setaf 3)
 tput_color[end]=$(tput sgr0)
 
 if [ $(tput colors) -gt 8 ]; then
@@ -117,10 +118,16 @@ exit_status() {
     fi
 }
 
+hostname_color=${color[white]}
+
+if [ "$(hostname)" == "jeffrey.falgout.name" ]; then
+    hostname_color=${color[yellow]}
+fi
+
 PS1_PRE=""
 PS1_PRE+="${color[red]}\u"
 PS1_PRE+="${color[gray]}@"
-PS1_PRE+="${color[white]}\h"
+PS1_PRE+="${hostname_color}\h"
 PS1_PRE+="${color[gray]}:"
 PS1_PRE+="${color[blue]}\w"
 PS1_PRE+="${color[black]}["
