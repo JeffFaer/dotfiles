@@ -83,6 +83,16 @@ shopt -s histverify
 # Allow Ctrl-S to look forwards in history
 stty -ixon
 
+# Functions
+if [ -f ~/.bash_functions ]; then
+    . ~/.bash_functions
+fi
+
+# Bash settings local to a machine
+if [ -f ~/.bash_local ]; then
+    . ~/.bash_local
+fi
+
 ##################
 # Command Prompt #
 ##################
@@ -118,16 +128,10 @@ exit_status() {
     fi
 }
 
-hostname_color=${color[white]}
-
-if [ "$(hostname)" == "jeffrey.falgout.name" ]; then
-    hostname_color=${color[yellow]}
-fi
-
 PS1_PRE=""
 PS1_PRE+="${color[red]}\u"
 PS1_PRE+="${color[gray]}@"
-PS1_PRE+="${hostname_color}\h"
+PS1_PRE+="${hostname_color:-${color[white]}}\h"
 PS1_PRE+="${color[gray]}:"
 PS1_PRE+="${color[blue]}\w"
 PS1_PRE+="${color[black]}["
@@ -170,14 +174,4 @@ for c in "${!tput_color[@]}"; do
 done
 
 unset tput_color ${!PS1_*}
-
-# Functions
-if [ -f ~/.bash_functions ]; then
-    . ~/.bash_functions
-fi
-
-# Bash settings local to a machine
-if [ -f ~/.bash_local ]; then
-    . ~/.bash_local
-fi
 
