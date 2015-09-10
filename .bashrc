@@ -131,7 +131,7 @@ exit_status() {
 PS1_PRE=""
 PS1_PRE+="${color[red]}\u"
 PS1_PRE+="${color[gray]}@"
-PS1_PRE+="${hostname_color:-${color[white]}}\h"
+PS1_PRE+="${color[${hostname_color:-white}]}\h"
 PS1_PRE+="${color[gray]}:"
 PS1_PRE+="${color[blue]}\w"
 PS1_PRE+="${color[black]}["
