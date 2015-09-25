@@ -107,11 +107,17 @@ tput_color[green]=$(tput setaf 2)
 tput_color[yellow]=$(tput setaf 3)
 tput_color[end]=$(tput sgr0)
 
-if [ $(tput colors) -gt 8 ]; then
-    tput_color[gray]=$(tput setaf 8)
-else
-    tput_color[gray]=${tput_color[black]}
-fi
+num_colors=$(tput colors)
+load_color() {
+    if [ $num_colors -gt $1 ]; then
+        tput setaf $1
+    else
+        echo "${tput_color[$2]}"
+    fi
+}
+
+tput_color[gray]=$(load_color 8 black)
+tput_color[bright_green]=$(load_color 10 green)
 
 # Set up colors for PS1 string literals.
 for c in "${!tput_color[@]}"; do
@@ -173,5 +179,5 @@ for c in "${!tput_color[@]}"; do
     color[$c]="\001${tput_color[$c]}\002"
 done
 
-unset tput_color ${!PS1_*}
+unset num_colors tput_color ${!PS1_*}
 
