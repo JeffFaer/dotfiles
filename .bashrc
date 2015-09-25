@@ -170,6 +170,7 @@ if command -v git &> /dev/null\
     export GIT_PS1_SHOWDIRTYSTATE=true
     export GIT_PS1_SHOWUPSTREAM="verbose"
     export GIT_PS1_SHOWCOLORHINTS=true
+    export GIT_PS1_SHOWSTASHSTATE=true
 else
     export PS1="${PS1_PRE}${PS1_POST}"
 fi
