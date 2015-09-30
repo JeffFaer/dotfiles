@@ -237,4 +237,6 @@ set softtabstop=4
 set expandtab
 " j = Remove comment leader when joining
 set formatoptions+=j
+" t = Auto-wrap text using textwidth
+set formatoptions-=t
 
