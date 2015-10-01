@@ -236,7 +236,9 @@ set shiftwidth=4
 set softtabstop=4
 set expandtab
 " j = Remove comment leader when joining
-set formatoptions+=j
+" r = Add comment leader automatically
+" o = Add comment leader automatically when entering insert mode
+set formatoptions+=jro
 " t = Auto-wrap text using textwidth
 set formatoptions-=t
 
