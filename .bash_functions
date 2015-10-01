@@ -107,6 +107,13 @@ find_path() {
 }
 export -f find_path
 
+# This function has two forms:
+# progress clear
+#   - Clears the progress bar from the output line
+# progress show MIN MAX
+#   - Shows the progress bar MIN/MAX percent complete.
+#
+# You do not need to clear before showing twice in a row.
 progress() {
     local action=$1
 
