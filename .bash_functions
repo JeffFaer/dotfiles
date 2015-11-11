@@ -144,3 +144,9 @@ progress() {
 }
 export -f progress
 
+# cd to a temporary directory.
+cdt() {
+    cd $(mktemp -d)
+}
+export -f cdt
+
