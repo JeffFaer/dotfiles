@@ -63,6 +63,7 @@ endfunction
 
 let g:skeleton_replacements={}
 let g:skeleton_replacements_java={}
+let g:skeleton_replacements_ruby={}
 
 " This function tries to find the relative path from a parent directory to the
 " given path.
@@ -134,6 +135,11 @@ function! g:skeleton_replacements_java.PACKAGE()
     else
         return 'package ' . substitute(l:subpath, '/', '.', 'g') . ';'
     endif
+endfunction
+
+function! g:skeleton_replacements_ruby.CLASSNAME()
+    let l:name=expand('%:r')
+    return substitute(l:name, '\<.', '\u&', '')
 endfunction
 
 " SirVer/ultisnips
