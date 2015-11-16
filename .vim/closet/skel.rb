@@ -1,6 +1,6 @@
 class @CLASSNAME@
-    def initialize()
-        @CURSOR@
-    end
+  def initialize()
+    @CURSOR@
+  end
 end
 
