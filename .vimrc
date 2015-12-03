@@ -138,7 +138,7 @@ function! g:skeleton_replacements_java.PACKAGE()
 endfunction
 
 function! g:skeleton_replacements_ruby.CLASSNAME()
-    let l:name=expand('%:r')
+    let l:name=expand('%:t:r')
     " \v: Every ASCII character not A-Z,a-z,0-9,_ have their special meanings
     " \u: Uppercase
     let l:name = substitute(l:name, '\v_(\w+)', '\u\1', 'g')
