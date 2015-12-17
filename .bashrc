@@ -79,6 +79,7 @@ fi
 HISTIGNORE=clear:history:ls
 # replace !!, !<text>, !?<text>, !# commands inline before executing
 shopt -s histverify
+shopt -s globstar
 
 # Allow Ctrl-S to look forwards in history
 stty -ixon
