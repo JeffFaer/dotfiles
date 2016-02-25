@@ -2,4 +2,5 @@ alias gcc="gcc -ansi -Wall -g -O0 -Wwrite-strings -Wshadow -pedantic-errors -fst
 alias du="du -h"
 alias ls="${BASH_ALIASES[ls]} -h"
 alias ulimit="ulimit -S"
+alias vim="vim --servername vim"
 
