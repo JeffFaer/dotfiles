@@ -20,6 +20,8 @@ Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
 Plugin 'noahfrederick/vim-skeleton'
 Plugin 'Valloric/YouCompleteMe'
+Plugin 'vim-pandoc/vim-pandoc'
+Plugin 'vim-pandoc/vim-pandoc-syntax'
 
 call vundle#end()
 
@@ -149,6 +151,10 @@ endfunction
 " SirVer/ultisnips
 let g:UltiSnipsExpandTrigger="<c-j>"
 let g:UltiSnipsListSnippets="<c-l>"
+
+" vim-pandoc
+let g:pandoc#command#autoexec_on_writes=1
+let g:pandoc#command#autoexec_command="Pandoc pdf"
 
 """""""""""""""
 " GENERAL
