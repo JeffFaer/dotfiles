@@ -5,6 +5,7 @@ set -e
 # Declare plugin installers in an associative array.
 declare -A setup_stages
 setup_stages[airline]="Sets up the vim-airline plugin."
+setup_stages[pandoc]="Sets up pandoc."
 setup_stages[ycm]="Sets up the YouCompleteMe plugin."
 allowed_args=(all none shortlist "${!setup_stages[@]}")
 
@@ -189,20 +190,16 @@ if [ -n "${setup[airline]}" ]; then
     fc-cache -f
 fi
 
+# pandoc setup
+if [ -n "${setup[pandoc]}" ]; then
+    echo "Setting up pandoc"
+    install-packages pandoc
+fi
+
 # YCM setup
 if [ -n "${setup[ycm]}" ]; then
     echo "Setting up YCM"
-    install=""
-    for package in "build-essential" "cmake" "python-dev"; do
-        dpkg -s "$package" |& grep -qP '^Status.+(?<!-)installed'\
-            || install+=" $package"
-    done
-
-    if [ -n "$install" ]; then
-        echo "Installing$install"
-        sudo apt-get update -qq
-        sudo apt-get install $install -yqq
-    fi
+    install-packages build-essential cmake python-dev
 
     cd "$target/.vim/bundle/YouCompleteMe"
     ./install.sh --clang-completer

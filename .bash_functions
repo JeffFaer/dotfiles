@@ -150,3 +150,20 @@ cdt() {
 }
 export -f cdt
 
+# Determine if the given packages are installed. If they are not, try to install
+# them.
+install-packages() {
+    install=""
+    for package in "$@"; do
+        dpkg -s "$package" |& grep -qP '^Status.+(?<!-)installed'\
+            || install+=" $package"
+    done
+
+    if [ -n "$install" ]; then
+        echo "Installing$install"
+        sudo apt-get update -qq
+        sudo apt-get install $install -yqq
+    fi
+}
+export -f install-packages
+
