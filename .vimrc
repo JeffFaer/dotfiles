@@ -128,6 +128,10 @@ function! g:skeleton_replacements.INCLUDEGUARD()
     return l:guard
 endfunction
 
+function! g:skeleton_replacements.DATE()
+    return strftime("%B %d, %Y")
+endfunction
+
 function! g:skeleton_replacements_java.PACKAGE()
     let l:path=s:absolute(expand('%:h'))
     let l:subpath=s:find_subpath(l:path, ['src', 'java'])
