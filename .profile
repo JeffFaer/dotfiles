@@ -16,10 +16,13 @@ if [ -n "$BASH_VERSION" ]; then
     fi
 fi
 
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ]; then
-    if [[ ":$PATH:" != *":$HOME/bin"* ]]; then
-        PATH="$HOME/bin:$PATH"
+add_to_path() {
+    if [ -d "$1" ]; then
+        if [[ ":$PATH:" != *":$1"* ]]; then
+            PATH="$1:$PATH"
+        fi
     fi
-fi
+}
+add_to_path "$HOME/bin"
+add_to_path "$HOME/.local/bin"
 
