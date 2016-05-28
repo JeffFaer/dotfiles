@@ -193,7 +193,7 @@ fi
 # pandoc setup
 if [ -n "${setup[pandoc]}" ]; then
     echo "Setting up pandoc"
-    install-packages pandoc
+    install-packages pandoc texlive texlive-xetex
 fi
 
 # YCM setup
