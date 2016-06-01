@@ -106,6 +106,7 @@ tput_color[blue]=$(tput setaf 4)
 tput_color[black]=$(tput setaf 0)
 tput_color[green]=$(tput setaf 2)
 tput_color[yellow]=$(tput setaf 3)
+tput_color[magenta]=$(tput setaf 5)
 tput_color[end]=$(tput sgr0)
 
 num_colors=$(tput colors)
@@ -120,6 +121,7 @@ load_color() {
 tput_color[gray]=$(load_color 8 black)
 tput_color[bright_green]=$(load_color 10 green)
 tput_color[deep_blue]=$(load_color 20 blue)
+tput_color[purple]=$(load_color 135 magenta)
 
 # Set up colors for PS1 string literals.
 for c in "${!tput_color[@]}"; do
