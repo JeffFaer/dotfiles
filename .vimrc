@@ -1,6 +1,8 @@
 set nocompatible
 let mapleader=','
 
+let s:at_google=filereadable(expand('~/.at_google'))
+
 """""""""""""""
 " PLUGINS
 """""""""""""""
@@ -18,12 +20,22 @@ Plugin 'tpope/vim-fugitive'
 Plugin 'camelcasemotion'
 Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
-Plugin 'noahfrederick/vim-skeleton'
-Plugin 'Valloric/YouCompleteMe'
 Plugin 'vim-pandoc/vim-pandoc'
 Plugin 'vim-pandoc/vim-pandoc-syntax'
 
+if !s:at_google
+    Plugin 'noahfrederick/vim-skeleton'
+    Plugin 'Valloric/YouCompleteMe'
+endif
+
 call vundle#end()
+
+if s:at_google
+    source /usr/share/vim/google/google.vim
+    Glug youcompleteme-google
+    Glug ultisnips-google
+    Glug codefmt plugin[mappings]
+endif
 
 " Valloric/YouCompleteMe
 nnoremap <leader>jd :YcmCompleter GoTo<CR>
