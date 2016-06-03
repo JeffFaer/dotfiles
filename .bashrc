@@ -132,9 +132,9 @@ exit_status() {
     local status=$?
 
     if [ $status -eq 0 ]; then
-        echo "${color[green]}:)"
+        echo "${color[green]}☺ "
     else
-        echo "${color[red]}:("
+        echo "${color[red]}☹ "
     fi
 }
 
