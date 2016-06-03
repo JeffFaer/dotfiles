@@ -85,7 +85,8 @@ if [ ! "$git_dir" -ef "$target" ]; then
         remove_dir_or_die "$target/.git"
     fi
 
-    conflicts=""
+    conflicts=()
+    files_to_move=()
     for ls_file in $(git --git-dir="$git_dir/.git" ls-files); do
         tracked_file="$git_dir/$ls_file"
         target_file="$target/$ls_file"
@@ -94,19 +95,18 @@ if [ ! "$git_dir" -ef "$target" ]; then
             # target.
             remove_dir_or_die "$target_file"
         elif [ -f "$target_file" ]; then
-            # Save potential conflicts for later.
+            # Either the two files are the same, or there are conflicts we need
+            # to resolve.
             cmp --silent "$target_file" "$tracked_file"\
-                || conflicts+=" $ls_file"
-        elif [ -e "$tracked_file" ]; then
-            mkdir -p $(dirname "$target_file")
-            mv "$tracked_file" "$target_file"
-        # else
-        # We've already moved the file.
+                || conflicts+=( "$ls_file" )
+        else # $target_file doesn't exist, we can move with no conflicts.
+            files_to_move+=( "$ls_file" )
         fi
     done
 
+    # Resolve conflicts first.
     if [ -n "$conflicts" ]; then
-        prompt="There are conflicts (${conflicts# }). Would you like to "
+        prompt="There are conflicts (${conflicts[*]}). Would you like to "
         prompt+="resolve them now (move changes you want to keep to the left)?"
         if user_permission "$prompt"; then
             _meld_builder() {
@@ -142,7 +142,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
                 command_builder=_default_builder
             fi
             conflict_command=""
-            for conflict in $conflicts; do
+            for conflict in "${conflicts[@]}"; do
                 target_file="$target/$conflict"
                 tracked_file="$git_dir/$conflict"
 
@@ -156,6 +156,15 @@ if [ ! "$git_dir" -ef "$target" ]; then
             exit 1
         fi
     fi
+
+    # Move all non-conflicting files.
+    for move in "${files_to_move[@]}"; do
+        target_file="$target/$move"
+        tracked_file="$git_dir/$move"
+
+        mkdir -p $(dirname "$target_file")
+        mv "$tracked_file" "$target_file"
+    done
 
     mv "$git_dir/.git/" "$target"
     cd "$target"
