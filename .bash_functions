@@ -152,6 +152,7 @@ export -f cdt
 
 # Determine if the given packages are installed. If they are not, try to install
 # them.
+# $1+: packages to install
 install-packages() {
     install=""
     for package in "$@"; do
