@@ -105,7 +105,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
     done
 
     # Resolve conflicts first.
-    if [ -n "$conflicts" ]; then
+    if [ "${#conflicts[@]}" -gt "0" ]; then
         prompt="There are conflicts (${conflicts[*]}). Would you like to "
         prompt+="resolve them now (move changes you want to keep to the left)?"
         if user_permission "$prompt"; then

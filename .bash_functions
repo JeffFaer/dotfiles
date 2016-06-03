@@ -154,16 +154,16 @@ export -f cdt
 # them.
 # $1+: packages to install
 install-packages() {
-    install=""
+    install=()
     for package in "$@"; do
         dpkg -s "$package" |& grep -qP '^Status.+(?<!-)installed'\
-            || install+=" $package"
+            || install+=( "$package" )
     done
 
-    if [ -n "$install" ]; then
-        echo "Installing$install"
+    if [ "${#install[@]}" -gt "0" ]; then
+        echo "Installing ${install[*]}"
         sudo apt-get update -qq
-        sudo apt-get install $install -yqq
+        sudo apt-get install "${install[@]}" -yqq
     fi
 }
 export -f install-packages
