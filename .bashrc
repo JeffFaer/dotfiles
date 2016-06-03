@@ -81,7 +81,7 @@ HISTIGNORE=clear:history:ls
 shopt -s histverify
 shopt -s globstar
 
-# Allow Ctrl-S to look forwards in history
+# Allow Ctrl-S to look forward in history
 stty -ixon
 
 # Functions
