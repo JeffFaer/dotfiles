@@ -38,10 +38,13 @@ while true; do
 done
 
 target=$HOME
-# Our .bashrc might not be in place yet, source functions.
 git_dir=$(dirname $0)
 git_dir=$(readlink -f $git_dir)
-. "${git_dir}/.bash_functions"
+
+# Our .bashrc might not be in place yet, source functions.
+if [ "$(type -t contains_in)" != "function" ]; then
+    . "${git_dir}/.bash_functions"
+fi
 
 # Validate positional arguments.
 for arg in "$@"; do
