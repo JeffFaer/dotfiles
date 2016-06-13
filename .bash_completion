@@ -6,7 +6,7 @@ _shortlist_completer() {
 
 complete -F _shortlist_completer .install.sh
 
-tmux_completion=/usr/share/doc/tmux/examples/bash_completion/tmux.sh
+tmux_completion=/usr/share/doc/tmux/examples/bash_completion_tmux.sh
 if [ -r "$tmux_completion" ]; then
     . "$tmux_completion"
     # Remove the default tmux completion.
