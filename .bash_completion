@@ -36,6 +36,12 @@ if [ -r "$tmux_completion" ]; then
         else
             # tmux -> tmux #{command}
             _tmux
+
+            # If there are no sesions to attach to, don't offer it as a
+            # suggestion
+            if ! tmux ls &>/dev/null; then
+                remove_first "attach-session" COMPREPLY
+            fi
         fi
     }
 

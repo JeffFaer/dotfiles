@@ -33,6 +33,24 @@ join() {
 }
 export -f join
 
+# $1: An element to search for
+# $2+: An array
+#
+# prints the 0 based index of the element in the array.
+# prints -1 and returns 1 if the element is not found.
+index_of() {
+    local e
+    local i=0
+    for e in "${@:2}"; do
+        [ "$e" == "$1" ] && echo $i && return 0
+        ((i++))
+    done
+
+    echo "-1"
+    return 1
+}
+export -f index_of
+
 # Takes two parameters:
 # $1: an element to search for
 # $2+: an array
@@ -40,11 +58,7 @@ export -f join
 # returns true is $1 is in the array
 # returns false otherwise
 contains_in() {
-    local e
-    for e in "${@:2}"; do
-        [ "$e" == "$1" ] && return 0
-    done
-    return 1
+    index_of "$@" > /dev/null
 }
 export -f contains_in
 
@@ -63,6 +77,31 @@ insert() {
     eval $3=\( \"\${$3[@]:0:$2}\" \"$1\" \"\${$3[@]:$2}\" \)
 }
 export -f insert
+
+# $1: an index
+# $2: the name of an array variable
+#
+# Removes the the index of the array, shifting all other elements as necessary.
+remove_index() {
+    eval $2=\( \"\${$2[@]:0:$1}\" \"\${$2[@]:$1+1}\" \)
+}
+export -f remove_index
+
+# $1: an element
+# $2: the name of an array variable
+#
+# Removes the first occurance of the element.
+remove_first() {
+    local tmp
+    eval tmp=\( \"\${$2[@]}\" \)
+    local i=$(index_of $1 "${tmp[@]}")
+    if [ "$i" != "-1" ]; then
+        remove_index $i $2
+    else
+        return 1
+    fi
+}
+export -f remove_first
 
 # Runs maven in the parent directory which contains pom.xml
 smart-mvn() {
