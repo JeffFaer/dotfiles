@@ -6,4 +6,6 @@ _shortlist_completer() {
 
 complete -F _shortlist_completer .install.sh
 
-. ~/.bash_completion_tmux
+if [ "$(type -t tmux)" == "file" ]; then
+    . ~/.bash_completion_tmux
+fi
