@@ -2,7 +2,7 @@
 complete -r tmux
 
 # Commands that can be run with no existing session.
-initial_commands=( "new-session" )
+initial_commands=( "start-server" "new-session" )
 
 _num_tmux_sessions() {
     tmux ls 2>/dev/null | wc -l
@@ -48,6 +48,7 @@ _better_tmux() {
     # Figure out what our command is and what options have been enabled.
     local i skip_next
     local more_opts=1
+    # Start at i=1 so we can skip tmux.
     for ((i=1; $i<$COMP_CWORD; i++)); do
         local word=${COMP_WORDS[i]}
 
@@ -58,11 +59,16 @@ _better_tmux() {
         elif [ "$more_opts" == "1" ] && [[ "$word" == -* ]]; then
             enabled_opts+=( "$word" )
             skip_next=1
-        else
+        elif [ -z "$cmd" ]; then
             cmd="$word"
             # We don't want options to tmux, we want options to the command.
             enabled_opts=()
             more_opts=1
+        else
+            :
+            # A standard argument was passed to the command. This happens with
+            # new-session if the user supplies a shell command or with
+            # source-file.
         fi
     done
 
