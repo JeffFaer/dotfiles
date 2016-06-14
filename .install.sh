@@ -5,6 +5,7 @@ set -e
 # Declare plugin installers in an associative array.
 declare -A setup_stages
 setup_stages[airline]="Sets up the vim-airline plugin."
+setup_stages[bats]="Sets up Bash unit tester."
 setup_stages[pandoc]="Sets up pandoc."
 setup_stages[ycm]="Sets up the YouCompleteMe plugin."
 allowed_args=(all none shortlist "${!setup_stages[@]}")
@@ -215,5 +216,10 @@ if [ -n "${setup[ycm]}" ]; then
 
     cd "$target/.vim/bundle/YouCompleteMe"
     ./install.sh --clang-completer
+fi
+
+if [ -n "${setup[bats]}" ]; then
+    echo "Installing Bats"
+    sudo ~/src/bats/install.sh /usr/local
 fi
 
