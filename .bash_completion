@@ -6,45 +6,4 @@ _shortlist_completer() {
 
 complete -F _shortlist_completer .install.sh
 
-tmux_completion=/usr/share/doc/tmux/examples/bash_completion_tmux.sh
-if [ -r "$tmux_completion" ]; then
-    . "$tmux_completion"
-    # Remove the default tmux completion.
-    complete -r tmux
-
-    _is_attach() {
-        [ "${#1}" -gt "0" ] && [[ "attach-session" == ${1}* ]]
-    }
-    _better_tmux_completer() {
-        local cur prev prev2
-        if [ "${#COMP_WORDS[@]}" -gt 0 ]; then
-            prev=${COMP_WORDS[COMP_CWORD - 1]}
-        fi
-        if [ "${#COMP_WORDS[@]}" -gt 1 ]; then
-            prev2=${COMP_WORDS[COMP_CWORD - 2]}
-        fi
-
-        local cur=${COMP_WORDS[COMP_CWORD]}
-
-        if _is_attach "$prev"; then
-            # tmux attach-session -> tmux attach-session -t
-            COMPREPLY=( $(compgen -W "-t" -- $cur) )
-        elif _is_attach "$prev2" && [ "-t" == "$prev" ]; then
-            # tmux attach-session -t -> tmux attach-session -t #{session_name}
-            local sessions=( $(tmux ls -F '#{session_name}') )
-            COMPREPLY=( $(compgen -W "${sessions[*]}" -- $cur) )
-        else
-            # Delegate to the default tmux completer
-            _tmux "$@"
-
-            # If there are no sesions to attach to, don't offer it as a
-            # suggestion
-            if ! tmux ls &>/dev/null; then
-                remove_first "attach-session" COMPREPLY
-            fi
-        fi
-    }
-
-    complete -F _better_tmux_completer tmux
-fi
-
+. ~/.bash_completion_tmux
