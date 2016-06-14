@@ -34,8 +34,8 @@ if [ -r "$tmux_completion" ]; then
             local sessions=( $(tmux ls -F '#{session_name}') )
             COMPREPLY=( $(compgen -W "${sessions[*]}" -- $cur) )
         else
-            # tmux -> tmux #{command}
-            _tmux
+            # Delegate to the default tmux completer
+            _tmux "$@"
 
             # If there are no sesions to attach to, don't offer it as a
             # suggestion
