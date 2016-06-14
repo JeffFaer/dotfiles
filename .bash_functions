@@ -67,7 +67,7 @@ export -f contains_in
 # $2: an index
 # $3: the name of an array variable
 #
-# Prints the result of inserting $1 at index $2 in $3
+# Inserts $1 at index $2 in $3
 # array=( "a 1" "b 2" "c 3" )
 # insert "foo bar" 2 "array"
 # echo "${array[@]}"   # a 1 b 2 foo bar c 3
