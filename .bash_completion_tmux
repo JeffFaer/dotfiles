@@ -38,10 +38,17 @@ _tmux_client_format() {
     local suggestions=()
     local name
     for name in "${format_names[@]}"; do
-        suggestions+=( "\"#{client_${name}}\"" )
+        # Escape quotations for compgen.
+        suggestions+=( "\\\"#{client_${name}}\\\"" )
     done
 
-    COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${suggestions[*]}" -- $1) )
+    # Escape quotation in $cur for compgen.
+    local cur=$1
+    if [ "${cur:0:1}" == "\"" ]; then
+      cur="\\$cur"
+    fi
+
+    COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${suggestions[*]}" -- $cur) )
 }
 
 # Creates an extglob which must match $1, but additionally any letters found in
@@ -62,6 +69,8 @@ _prefix() {
 _better_tmux() {
     local cur=${COMP_WORDS[COMP_CWORD]}
     local prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    echo $cur
 
     # What has the user already typed?
     local cmd
