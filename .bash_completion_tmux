@@ -228,7 +228,7 @@ _better_tmux() {
                 -t) _tmux_clients "$cur" ;;
                 *) [ "$(_num_tmux_clients)" -gt "1" ] && options+=( -t ) ;;
             esac ;;
-        # $(_prefix so urce-file)) TODO
+        $(_prefix so urce-file)) _filedir ;;
         suspendc|$(_prefix su spend-client))
             case "$prev" in
                 -t) _tmux_clients "$cur" ;;
