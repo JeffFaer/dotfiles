@@ -31,15 +31,15 @@ _tmux_windows() {
     COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${clients[*]}" -- $1) )
 }
 
-_tmux_client_format() {
-    local format_names=( "activity" "activity_string" "created"\
-        "created_string" "cwd" "height" "last_session" "prefix"\
-        "readonly" "session" "termname" "tty" "utf8" "width" )
+# $1: $cur
+# $2: Prefix (client_/session_)
+# $3+: format variable names
+_format_suggestions() {
     local suggestions=()
     local name
-    for name in "${format_names[@]}"; do
+    for name in "${@:3}"; do
         # Escape quotations for compgen.
-        suggestions+=( "\\\"#{client_${name}}\\\"" )
+        suggestions+=( "\\\"#{${2}${name}}\\\"" )
     done
 
     # Escape quotation in $cur for compgen.
@@ -49,6 +49,19 @@ _tmux_client_format() {
     fi
 
     COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${suggestions[*]}" -- $cur) )
+}
+
+_tmux_client_format() {
+    local format_names=( "activity" "activity_string" "created"\
+        "created_string" "cwd" "height" "last_session" "prefix"\
+        "readonly" "session" "termname" "tty" "utf8" "width" )
+    _format_suggestions "$1" "client_" "${format_names[@]}"
+}
+
+_tmux_session_format() {
+    local format_names=( "attached" "created" "created_string" "group"\
+        "grouped" "height" "id" "name" "width" "windows" )
+    _format_suggestions "$1" "session_" "${format_names[@]}"
 }
 
 # Creates an extglob which must match $1, but additionally any letters found in
@@ -70,11 +83,9 @@ _better_tmux() {
     local cur=${COMP_WORDS[COMP_CWORD]}
     local prev=${COMP_WORDS[COMP_CWORD-1]}
 
-    echo $cur
-
     # What has the user already typed?
     local cmd
-    local enabled_opts=()
+    local enabled_options=()
 
     # What options can we suggest?
     local options=()
@@ -105,7 +116,7 @@ _better_tmux() {
         local word=${COMP_WORDS[i]}
 
         if [[ "$word" == -* ]]; then
-            enabled_opts+=( "$word" )
+            enabled_options+=( "$word" )
         fi
     done
 
@@ -147,9 +158,7 @@ _better_tmux() {
         $(_prefix h as-session))
             case "$prev" in
                 -t) _tmux_sessions "$cur" ;;
-                *)
-                    [ "$(_num_tmux_sessions)" -gt "1" ] && options+=( -t )
-                    ;;
+                *) [ "$(_num_tmux_sessions)" -gt "1" ] && options+=( -t ) ;;
             esac ;;
         $(_prefix kill-ses sion))
             case "$prev" in
@@ -168,13 +177,80 @@ _better_tmux() {
                     [ "$(_num_tmux_sessions)" -gt "1" ] && options+=( -t )
                     ;;
             esac ;;
+        ls|$(_prefix list-s essions))
+            case "$prev" in
+                -F) _tmux_session_format "$cur" ;;
+                *) options=( -F ) ;;
+            esac ;;
+        lockc|$(_prefix lock-c lient))
+            case "$prev" in
+                -t) _tmux_clients "$cur" ;;
+                *) [ "$(_num_tmux_clients)" -gt "1" ] && options+=( -t ) ;;
+            esac ;;
+        locks|$(_prefix lock-s ession))
+            case "$prev" in
+                -t) _tmux_sessions "$cur" ;;
+                *) [ "$(_num_tmux_sessions)" -gt "1" ] && options+=( -t ) ;;
+            esac ;;
+        $(_prefix new -session))
+            case "$prev" in
+                -s)
+                    if contains_in "-A" "${enabled_options[@]}"; then
+                        _tmux_sessions "$cur"
+                    fi
+                    ;;
+                -F) _tmux_session_format "$cur" ;;
+                -t) _tmux_sessions "$cur" ;;
+                *)
+                    options=( -A -d -D -P -n -s -x -y )
+                    if contains_in "-P" "${enabled_options[@]}"; then
+                        # You only use -F with -P
+                        options+=( -F )
+                    fi
+                    [ "$(_num_tmux_sessions)" -gt "1" ] && options+=( -t )
+                    ;;
+            esac ;;
+        $(_prefix ref resh-client))
+            case "$prev" in
+                -t) _tmux_clients "$cur" ;;
+                *)
+                    options=( -S )
+                    [ "$(_num_tmux_clients)" -gt "1" ] && options+=( -t )
+                    ;;
+            esac ;;
+        $(_prefix rename-s ession))
+            case "$prev" in
+                -t) _tmux_sessions "$cur" ;;
+                *) [ "$(_num_tmux_sessions)" -gt "1" ] && options+=( -t ) ;;
+            esac ;;
+        showmsgs|$(_prefix show-m essages))
+            case "$prev" in
+                -t) _tmux_clients "$cur" ;;
+                *) [ "$(_num_tmux_clients)" -gt "1" ] && options+=( -t ) ;;
+            esac ;;
+        # $(_prefix so urce-file)) TODO
+        suspendc|$(_prefix su spend-client))
+            case "$prev" in
+                -t) _tmux_clients "$cur" ;;
+                *) [ "$(_num_tmux_clients)" -gt "1" ] && options+=( -t ) ;;
+            esac ;;
+        switchc|$(_prefix swi tch-client))
+            case "$prev" in
+                -c) _tmux_clients "$cur" ;;
+                -t) _tmux_sessions "$cur" ;;
+                *)
+                    options=( -l -n -p -r )
+                    [ "$(_num_tmux_clients)" -gt "1" ] && options+=( -c )
+                    [ "$(_num_tmux_sessions)" -gt "1" ] && options+=( -t )
+                    ;;
+            esac ;;
     esac
     eval $old_extglob
 
     if [ "${#options[@]}" -gt "0" ]; then
         # Remove options that have already been enabled.
-        local opt
-        for opt in "${enabled_opts[@]}"; do
+        local option
+        for option in "${enabled_options[@]}"; do
             remove_first "$opt" options
         done
 
