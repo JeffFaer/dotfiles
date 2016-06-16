@@ -81,6 +81,9 @@ HISTIGNORE=clear:history:ls
 shopt -s histverify
 shopt -s globstar
 
+# vi mode for Bash/Readline
+set -o vi
+
 # Allow Ctrl-S to look forward in history
 stty -ixon
 
