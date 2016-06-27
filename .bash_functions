@@ -168,7 +168,7 @@ progress() {
         local fill=$(printf "%${progress}s")
         local empty=$(printf "%${to_complete}s")
 
-        printf "\r${fill// /#}${empty// /-}"
+        printf "\r${fill// /"#"}${empty// /-}"
     elif [ "$action" == "clear" ]; then
         for i in $(seq 1 $length); do
             printf "\b"
@@ -206,3 +206,14 @@ install-packages() {
     fi
 }
 export -f install-packages
+
+# Adds an alias for $1 which appends the remaining arguments to an existing
+# alias. If there is no existing alias, then the arguments are appended to the
+# command itself.
+#
+# $1: Command name to alias
+# $2+: Things to append to the alias.
+alias-append() {
+  alias $1="${BASH_ALIASES[$1]:-$1} ${*:2}"
+}
+export -f alias-append
