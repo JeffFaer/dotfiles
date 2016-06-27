@@ -188,4 +188,3 @@ for c in "${!tput_color[@]}"; do
 done
 
 unset num_colors tput_color ${!PS1_*}
-

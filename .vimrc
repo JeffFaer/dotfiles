@@ -274,4 +274,3 @@ set expandtab
 set formatoptions+=jro
 " t = Auto-wrap text using textwidth
 set formatoptions-=t
-

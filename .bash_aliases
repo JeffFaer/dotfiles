@@ -3,4 +3,3 @@ alias du="du -h"
 alias ls="${BASH_ALIASES[ls]} -h"
 alias ulimit="ulimit -S"
 alias vim="vim --servername vim"
-

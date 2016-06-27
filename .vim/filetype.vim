@@ -8,4 +8,3 @@ augroup filetypedetect
     au! BufNewFile,BufRead .tmux/* setf sh
     au! BufNewFile,BufRead .tmux.conf setf sh
 augroup END
-

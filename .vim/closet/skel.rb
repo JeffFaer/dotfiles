@@ -3,4 +3,3 @@ class @CLASSNAME@
     @CURSOR@
   end
 end
-

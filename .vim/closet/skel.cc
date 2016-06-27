@@ -1,4 +1,3 @@
 #include "@BASENAME@.h"
 
 @CURSOR@
-
