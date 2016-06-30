@@ -104,3 +104,9 @@ load ~/.bash_functions
     run contains_in 3 "${arr[@]}"
     [ "$status" == 0 ]
 }
+
+@test "alias-append" {
+    alias foo=bar
+    alias-append foo --flag
+    [ "${BASH_ALIASES[foo]}" == "bar --flag" ]
+}
