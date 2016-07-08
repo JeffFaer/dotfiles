@@ -126,7 +126,7 @@ mvnd() {
         done
 
         if [ ! -f "$cwd/pom.xml" ]; then
-            echo "There's no maven project in the hierarchy."
+            echo "There is no Maven project in the hierarchy."
             return 1
         fi
 
