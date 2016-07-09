@@ -44,7 +44,7 @@ _format_suggestions() {
 
     # Escape quotation in $cur for compgen.
     local cur=$1
-    if [ "${cur:0:1}" == "\"" ]; then
+    if [ "${cur:0:1}" == '"' ]; then
       cur="\\$cur"
     fi
 
