@@ -17,16 +17,26 @@ Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'bling/vim-bufferline'
 Plugin 'airblade/vim-gitgutter'
+" ,g (Configured below)
 Plugin 'tpope/vim-fugitive'
 Plugin 'camelcasemotion'
+" ,w
+" ,e
+" ,b
 Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
+" Ctrl-j to insert
+" Ctrl-l to list
 Plugin 'vim-pandoc/vim-pandoc'
 Plugin 'vim-pandoc/vim-pandoc-syntax'
+Plugin 'scrooloose/nerdcommenter'
+" <leader>c<space> toggle comment
+" <leader>cl to comment
 
 if !s:at_google
     Plugin 'noahfrederick/vim-skeleton'
     Plugin 'Valloric/YouCompleteMe'
+    " <leader>jd Jump to definition
 endif
 
 call vundle#end()
@@ -65,7 +75,7 @@ let g:bufferline_echo=0
 
 " airblade/vim-gitgutter
 let g:gitgutter_signs=0
-nnoremap <leader>c :GitGutterSignsToggle<CR>
+nnoremap <leader>g :GitGutterSignsToggle<CR>
 " turn off gitgutter in status line
 let g:airline#extensions#hunks#enabled=0
 
