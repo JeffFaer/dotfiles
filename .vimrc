@@ -183,6 +183,9 @@ let g:UltiSnipsListSnippets="<c-l>"
 let g:pandoc#command#autoexec_on_writes=1
 let g:pandoc#command#autoexec_command="Pandoc pdf"
 
+" scrooloose/nerdcommenter
+let NERDDefaultAlign='left'
+
 """""""""""""""
 " GENERAL
 """""""""""""""
