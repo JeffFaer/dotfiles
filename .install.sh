@@ -212,10 +212,10 @@ fi
 # YCM setup
 if [ -n "${setup[ycm]}" ]; then
     echo "Setting up YCM"
-    install-packages build-essential cmake python-dev
+    install-packages build-essential cmake python-dev python3-dev
 
     cd "$target/.vim/bundle/YouCompleteMe"
-    ./install.sh --clang-completer
+    ./install.py --clang-completer
 fi
 
 # Bats setup
