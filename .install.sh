@@ -215,7 +215,7 @@ if [ -n "${setup[ycm]}" ]; then
     install-packages build-essential cmake python-dev python3-dev
 
     cd "$target/.vim/bundle/YouCompleteMe"
-    ./install.py --clang-completer
+    python3 install.py --clang-completer
 fi
 
 # Bats setup
