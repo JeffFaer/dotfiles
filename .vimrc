@@ -192,6 +192,7 @@ let NERDDefaultAlign='left'
 
 filetype plugin indent on
 syntax on
+colorscheme default
 
 set backspace=indent,eol,start
 set hidden                              "hide buffers
