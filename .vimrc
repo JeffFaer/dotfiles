@@ -152,7 +152,7 @@ function! g:skeleton_replacements.INCLUDEGUARD()
 endfunction
 
 function! g:skeleton_replacements.DATE()
-    return strftime("%B %d, %Y")
+    return strftime("%B %-d, %Y")
 endfunction
 
 function! g:skeleton_replacements_java.PACKAGE()
