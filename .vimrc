@@ -181,7 +181,7 @@ let g:UltiSnipsListSnippets="<c-l>"
 
 " vim-pandoc
 let g:pandoc#command#autoexec_on_writes=1
-let g:pandoc#command#autoexec_command="Pandoc pdf"
+let g:pandoc#command#autoexec_command="exec 'Pandoc pdf --latex-engine=' b:pandoc_command_latex_engine"
 
 " scrooloose/nerdcommenter
 let NERDDefaultAlign='left'
