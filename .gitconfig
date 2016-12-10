@@ -13,3 +13,5 @@
 	fullName = true
 	lineNumber = true
 	extendedRegexp = true
+[difftool]
+	prompt = false
