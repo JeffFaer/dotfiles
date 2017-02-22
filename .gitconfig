@@ -12,6 +12,6 @@
 [grep]
 	fullName = true
 	lineNumber = true
-	extendedRegexp = true
+	patternType = extended
 [difftool]
 	prompt = false
