@@ -207,6 +207,7 @@ set wildmode=list:longest
 
 nnoremap ; :
 vnoremap ; :
+cmap w!! w !sudo tee %
 
 nnoremap <leader>l :ls<CR>:b
 
