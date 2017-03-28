@@ -27,13 +27,13 @@ Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
 " Ctrl-j to insert
 " Ctrl-l to list
-Plugin 'vim-pandoc/vim-pandoc'
-Plugin 'vim-pandoc/vim-pandoc-syntax'
 Plugin 'scrooloose/nerdcommenter'
 " <leader>c<space> toggle comment
 " <leader>cl to comment
 
 if !s:at_google
+    Plugin 'vim-pandoc/vim-pandoc'
+    Plugin 'vim-pandoc/vim-pandoc-syntax'
     Plugin 'noahfrederick/vim-skeleton'
     Plugin 'Valloric/YouCompleteMe'
     " <leader>jd Jump to definition
