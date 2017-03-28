@@ -46,6 +46,13 @@ if s:at_google
     Glug youcompleteme-google
     Glug ultisnips-google
     Glug codefmt plugin[mappings]
+    Glug codefmt-google
+    Glug blaze plugin[mappings]='<leader>b'
+    let g:blazevim_notify_after_blaze=1
+
+    augroup autoformat_settings
+        autocmd FileType bzl AutoFormatBuffer buildifier
+    augroup end
 endif
 
 " Valloric/YouCompleteMe
@@ -152,7 +159,7 @@ function! g:skeleton_replacements.INCLUDEGUARD()
 endfunction
 
 function! g:skeleton_replacements.DATE()
-    return strftime("%B %-d, %Y")
+    return strftime('%B %-d, %Y')
 endfunction
 
 function! g:skeleton_replacements_java.PACKAGE()
@@ -176,12 +183,12 @@ function! g:skeleton_replacements_ruby.CLASSNAME()
 endfunction
 
 " SirVer/ultisnips
-let g:UltiSnipsExpandTrigger="<c-j>"
-let g:UltiSnipsListSnippets="<c-l>"
+let g:UltiSnipsExpandTrigger='<c-j>'
+let g:UltiSnipsListSnippets='<c-l>'
 
 " vim-pandoc
 let g:pandoc#command#autoexec_on_writes=1
-let g:pandoc#command#autoexec_command="Pandoc pdf"
+let g:pandoc#command#autoexec_command='Pandoc pdf'
 
 " scrooloose/nerdcommenter
 let NERDDefaultAlign='left'
