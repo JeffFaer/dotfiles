@@ -251,7 +251,7 @@ _better_tmux() {
         # Remove options that have already been enabled.
         local option
         for option in "${enabled_options[@]}"; do
-            remove_first "$opt" options
+            remove_first "$option" options
         done
 
         COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${options[*]}" -- $cur) )
