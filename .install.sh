@@ -71,6 +71,8 @@ for stage in "${!setup_stages[@]}"; do
     fi
 done
 
+install-packages gconf-editor meld
+
 # We're running .install.sh from a directory other than $target.
 # We need to move the dotfiles into $target.
 if [ ! "$git_dir" -ef "$target" ]; then
@@ -136,8 +138,12 @@ if [ ! "$git_dir" -ef "$target" ]; then
             # git config will not fail gracefully because of set -e
             mergetool=$(git config merge.tool || echo)
             if ! command -v "$mergetool" &> /dev/null; then
-                # Default to vimdiff.
-                mergetool="vimdiff"
+                # Default to meld or vimdiff.
+                if command -v "meld" &> /dev/null; then
+                    mergetool="meld"
+                else
+                    mergetool="vimdiff"
+                fi
             fi
 
             if [ "$mergetool" == "meld" ]; then
@@ -177,6 +183,13 @@ if [ ! "$git_dir" -ef "$target" ]; then
     rm -rf "$git_dir"
 fi
 
+echo "Setting up gnome-terminal"
+gconftool --set /apps/gnome-terminal/profiles/Default/custom_command \
+    --type=string "env TERM=xterm-256color bash"
+gconftool --set /apps/gnome-terminal/profiles/Default/use_custom_command \
+    --type=bool true
+
+echo "Setting up git"
 git config status.showUntrackedFiles no
 git submodule update --init --recursive
 
