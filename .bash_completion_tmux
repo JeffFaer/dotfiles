@@ -1,14 +1,47 @@
 . /usr/share/doc/tmux/examples/bash_completion_tmux.sh
 complete -r tmux
 
+# $1: word to maybe quote.
+_escape() {
+    local escaped=$(printf "%q" "$1")
+    # Double up each backslash for completion.
+    echo "${escaped/\\/\\\\}"
+}
+
+# $1: $cur
+# $2: Prefix (#{client_/#{session_)
+# $3: Suffix (})
+# $4+: infixes
+#
+# This function handles escaping each suggestion and $cur.
+_format_suggestions() {
+    local suggestions=()
+    local infix
+    local suggestion
+    for infix in "${@:4}"; do
+        suggestion="${2}${infix}${3}"
+        suggestion=$(_escape "$suggestion")
+        suggestions+=( "$suggestion" )
+    done
+
+    # Escape cur for compgen.
+    local cur=$(_escape "$1")
+
+    IFS=$'\n'
+    COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${suggestions[*]}" -- $cur) )
+    unset IFS
+}
+
 _num_tmux_sessions() {
     tmux ls 2>/dev/null | wc -l
     return 0
 }
 
 _tmux_sessions() {
-    local sessions=( "$(tmux ls -F '#{session_name}' 2>/dev/null)" )
-    COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${sessions[*]}" -- $1) )
+    IFS=$'\n'
+    local sessions=( $(tmux ls -F '#{session_name}' 2>/dev/null) )
+    unset IFS
+    _format_suggestions "$1" "" "" "${sessions[@]}"
 }
 
 _num_tmux_clients() {
@@ -17,8 +50,10 @@ _num_tmux_clients() {
 }
 
 _tmux_clients() {
-    local clients=( "$(tmux lsc -F '#{client_tty}' 2>/dev/null)" )
-    COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${clients[*]}" -- $1) )
+    IFS=$'\n'
+    local clients=( $(tmux lsc -F '#{client_tty}' 2>/dev/null) )
+    unset IFS
+    _format_suggestions "$1" "" "" "${clients[@]}"
 }
 
 _num_tmux_windows() {
@@ -27,41 +62,23 @@ _num_tmux_windows() {
 }
 
 _tmux_windows() {
-    local clients=( "$(tmux lsw -a -F '#{window_id}' 2>/dev/null)" )
-    COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${clients[*]}" -- $1) )
-}
-
-# $1: $cur
-# $2: Prefix (client_/session_)
-# $3+: format variable names
-_format_suggestions() {
-    local suggestions=()
-    local name
-    for name in "${@:3}"; do
-        # Escape quotations for compgen.
-        suggestions+=( "\\\"#{${2}${name}}\\\"" )
-    done
-
-    # Escape quotation in $cur for compgen.
-    local cur=$1
-    if [ "${cur:0:1}" == '"' ]; then
-      cur="\\$cur"
-    fi
-
-    COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${suggestions[*]}" -- $cur) )
+    IFS=$'\n'
+    local windows=( $(tmux lsw -a -F '#{window_id}' 2>/dev/null) )
+    unset IFS
+    _format_suggestions "$1" "" "" "${windows[@]}"
 }
 
 _tmux_client_format() {
     local format_names=( "activity" "activity_string" "created"\
         "created_string" "cwd" "height" "last_session" "prefix"\
         "readonly" "session" "termname" "tty" "utf8" "width" )
-    _format_suggestions "$1" "client_" "${format_names[@]}"
+    _format_suggestions "$1" "#{client_" "}" "${format_names[@]}"
 }
 
 _tmux_session_format() {
     local format_names=( "attached" "created" "created_string" "group"\
         "grouped" "height" "id" "name" "width" "windows" )
-    _format_suggestions "$1" "session_" "${format_names[@]}"
+    _format_suggestions "$1" "#{session_" "}" "${format_names[@]}"
 }
 
 # Creates an extglob which must match $1, but additionally any letters found in
