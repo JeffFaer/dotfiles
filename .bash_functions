@@ -168,7 +168,7 @@ progress() {
         local fill=$(printf "%${progress}s")
         local empty=$(printf "%${to_complete}s")
 
-        printf "\r${fill// /"#"}${empty// /-}"
+        printf "\r${fill// /\#}${empty// /-}"
     elif [ "$action" == "clear" ]; then
         for i in $(seq 1 $length); do
             printf "\b"
@@ -214,6 +214,17 @@ export -f install-packages
 # $1: Command name to alias
 # $2+: Things to append to the alias.
 alias-append() {
-  alias $1="${BASH_ALIASES[$1]:-$1} ${*:2}"
+    alias $1="${BASH_ALIASES[$1]:-$1} ${*:2}"
 }
 export -f alias-append
+
+# Prints each argument in order with a numbered label.
+print-args() {
+    echo "0: $0"
+    local i=1
+    for arg in "$@"; do
+        echo "$i: $arg"
+        ((i++))
+    done
+}
+export -f print-args
