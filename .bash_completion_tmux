@@ -1,11 +1,20 @@
 . /usr/share/doc/tmux/examples/bash_completion_tmux.sh
 complete -r tmux
 
-# $1: word to maybe quote.
-_escape() {
-    local escaped=$(printf "%q" "$1")
+# $1: $cur
+_escape_cur() {
+    printf "%q" "$1"
+}
+
+# $1: suggestion to escape.
+_escape_suggestion() {
+    local escaped=$(_escape_cur "$1")
     # Double up each backslash for completion.
-    echo "${escaped/\\/\\\\}"
+    escaped="${escaped//\\/\\\\}"
+    # Add an extra backslash for dollar signs.
+    # Otherwise, the variable will be expanded.
+    escaped="${escaped//\$/\\\$}"
+    echo "$escaped"
 }
 
 # $1: $cur
@@ -20,12 +29,12 @@ _format_suggestions() {
     local suggestion
     for infix in "${@:4}"; do
         suggestion="${2}${infix}${3}"
-        suggestion=$(_escape "$suggestion")
+        suggestion=$(_escape_suggestion "$suggestion")
         suggestions+=( "$suggestion" )
     done
 
     # Escape cur for compgen.
-    local cur=$(_escape "$1")
+    local cur=$(_escape_cur "$1")
 
     IFS=$'\n'
     COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${suggestions[*]}" -- $cur) )
