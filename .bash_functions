@@ -1,4 +1,3 @@
-# Takes one parameter:
 # $1: user prompt
 #
 # Prompts the user for a single letter (y or n).
@@ -13,11 +12,10 @@ user_permission() {
 }
 export -f user_permission
 
-# Takes two parameters:
 # $1: a string
 # $2+: an array
 #
-# prints the result of joining the array with $1
+# Prints the result of joining the array with $1
 join() {
     local e
     local is_first="1"
@@ -51,7 +49,6 @@ index_of() {
 }
 export -f index_of
 
-# Takes two parameters:
 # $1: an element to search for
 # $2+: an array
 #
@@ -62,7 +59,6 @@ contains_in() {
 }
 export -f contains_in
 
-# Takes three parameters:
 # $1: an element
 # $2: an index
 # $3: the name of an array variable
@@ -137,7 +133,6 @@ mvnd() {
 }
 export -f mvnd
 
-# Takes one parameter:
 # $1: A regex to find on the $PATH
 #
 # Prints the path of the files it finds.
@@ -189,9 +184,10 @@ cdt() {
 }
 export -f cdt
 
+# $1+: packages to install
+#
 # Determine if the given packages are installed. If they are not, try to install
 # them.
-# $1+: packages to install
 install_packages() {
     install=()
     for package in "$@"; do
@@ -207,12 +203,12 @@ install_packages() {
 }
 export -f install_packages
 
+# $1: Command name to alias
+# $2+: Things to append to the alias.
+#
 # Adds an alias for $1 which appends the remaining arguments to an existing
 # alias. If there is no existing alias, then the arguments are appended to the
 # command itself.
-#
-# $1: Command name to alias
-# $2+: Things to append to the alias.
 alias_append() {
     alias $1="${BASH_ALIASES[$1]:-$1} ${*:2}"
 }
