@@ -105,8 +105,8 @@ load ~/.bash_functions
     [ "$status" == 0 ]
 }
 
-@test "alias-append" {
+@test "alias_append" {
     alias foo=bar
-    alias-append foo --flag
+    alias_append foo --flag
     [ "${BASH_ALIASES[foo]}" == "bar --flag" ]
 }

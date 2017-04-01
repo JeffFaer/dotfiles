@@ -104,10 +104,10 @@ remove_first() {
 export -f remove_first
 
 # Runs maven in the parent directory which contains pom.xml
-smart-mvn() {
+smart_mvn() {
     (mvnd && mvn "$@")
 }
-export -f smart-mvn
+export -f smart_mvn
 
 # Works exactly the same way as cd except when invoking without
 # any arguments. cd will take you to $HOME, mvnd will take you
@@ -192,7 +192,7 @@ export -f cdt
 # Determine if the given packages are installed. If they are not, try to install
 # them.
 # $1+: packages to install
-install-packages() {
+install_packages() {
     install=()
     for package in "$@"; do
         dpkg -s "$package" |& grep -qP '^Status.+(?<!-)installed'\
@@ -205,7 +205,7 @@ install-packages() {
         sudo apt-get install "${install[@]}" -yqq
     fi
 }
-export -f install-packages
+export -f install_packages
 
 # Adds an alias for $1 which appends the remaining arguments to an existing
 # alias. If there is no existing alias, then the arguments are appended to the
@@ -213,13 +213,13 @@ export -f install-packages
 #
 # $1: Command name to alias
 # $2+: Things to append to the alias.
-alias-append() {
+alias_append() {
     alias $1="${BASH_ALIASES[$1]:-$1} ${*:2}"
 }
-export -f alias-append
+export -f alias_append
 
 # Prints each argument in order with a numbered label.
-print-args() {
+print_args() {
     echo "0: $0"
     local i=1
     for arg in "$@"; do
@@ -227,4 +227,4 @@ print-args() {
         ((i++))
     done
 }
-export -f print-args
+export -f print_args

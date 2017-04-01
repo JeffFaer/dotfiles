@@ -71,7 +71,7 @@ for stage in "${!setup_stages[@]}"; do
     fi
 done
 
-install-packages gconf-editor meld
+install_packages gconf-editor meld
 
 # We're running .install.sh from a directory other than $target.
 # We need to move the dotfiles into $target.
@@ -219,13 +219,13 @@ fi
 # pandoc setup
 if [ -n "${setup[pandoc]}" ]; then
     echo "Setting up pandoc"
-    install-packages pandoc texlive texlive-xetex
+    install_packages pandoc texlive texlive-xetex
 fi
 
 # YCM setup
 if [ -n "${setup[ycm]}" ]; then
     echo "Setting up YCM"
-    install-packages build-essential cmake python-dev python3-dev
+    install_packages build-essential cmake python-dev python3-dev
 
     cd "$target/.vim/bundle/YouCompleteMe"
     python3 install.py --clang-completer
