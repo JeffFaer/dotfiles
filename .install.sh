@@ -71,7 +71,9 @@ for stage in "${!setup_stages[@]}"; do
     fi
 done
 
-install_packages gconf-editor meld
+if [ -n "$DISPLAY" ]; then
+    install_packages gconf-editor meld || true
+fi
 
 # We're running .install.sh from a directory other than $target.
 # We need to move the dotfiles into $target.
@@ -136,7 +138,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
                 echo "$build"
             }
             # git config will not fail gracefully because of set -e
-            mergetool=$(git config merge.tool || echo)
+            mergetool=$(git config merge.tool || true)
             if ! command -v "$mergetool" &> /dev/null; then
                 # Default to meld or vimdiff.
                 if command -v "meld" &> /dev/null; then
@@ -183,11 +185,13 @@ if [ ! "$git_dir" -ef "$target" ]; then
     rm -rf "$git_dir"
 fi
 
-echo "Setting up gnome-terminal"
-gconftool --set /apps/gnome-terminal/profiles/Default/custom_command \
-    --type=string "env TERM=xterm-256color bash"
-gconftool --set /apps/gnome-terminal/profiles/Default/use_custom_command \
-    --type=bool true
+if [ -n "$DISPLAY" ]; then
+    echo "Setting up gnome-terminal"
+    gconftool --set /apps/gnome-terminal/profiles/Default/custom_command \
+        --type=string "env TERM=xterm-256color bash"
+    gconftool --set /apps/gnome-terminal/profiles/Default/use_custom_command \
+        --type=bool true
+fi
 
 echo "Setting up git"
 git config status.showUntrackedFiles no
@@ -225,10 +229,12 @@ fi
 # YCM setup
 if [ -n "${setup[ycm]}" ]; then
     echo "Setting up YCM"
-    install_packages build-essential cmake python-dev python3-dev
-
-    cd "$target/.vim/bundle/YouCompleteMe"
-    python3 install.py --clang-completer
+    if install_packages build-essential cmake python-dev python3-dev; then
+        cd "$target/.vim/bundle/YouCompleteMe"
+        python3 install.py --clang-completer
+    else
+        echo "Those packages must be installed before you can install YCM."
+    fi
 fi
 
 # Bats setup

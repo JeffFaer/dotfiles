@@ -189,16 +189,22 @@ export -f cdt
 # Determine if the given packages are installed. If they are not, try to install
 # them.
 install_packages() {
-    install=()
+    local install=()
     for package in "$@"; do
         dpkg -s "$package" |& grep -qP '^Status.+(?<!-)installed'\
             || install+=( "$package" )
     done
 
     if [ "${#install[@]}" -gt "0" ]; then
-        echo "Installing ${install[*]}"
-        sudo apt-get update -qq
-        sudo apt-get install "${install[@]}" -yqq
+        local prompt="Would you like to install: "
+        prompt+="${install[*]}?"
+        if user_permission "$prompt"; then
+            echo "Installing ${install[*]}"
+            sudo apt-get update -qq
+            sudo apt-get install "${install[@]}" -yqq
+        else
+            return 1
+        fi
     fi
 }
 export -f install_packages
