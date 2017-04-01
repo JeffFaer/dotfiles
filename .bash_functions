@@ -184,15 +184,27 @@ cdt() {
 }
 export -f cdt
 
+# $1+: packages to check
+#
+# Determine if all of the given packages are installed.
+package_installed() {
+    for package in "$@"; do
+        if ! dpkg -s "$package" |& grep -qP '^Status.+(?<!-)installed'; then
+            return 1
+        fi
+    done
+}
+export -f package_installed
+
 # $1+: packages to install
 #
-# Determine if the given packages are installed. If they are not, try to install
-# them.
+# Try to install any packages that are not already installed.
 install_packages() {
     local install=()
     for package in "$@"; do
-        dpkg -s "$package" |& grep -qP '^Status.+(?<!-)installed'\
-            || install+=( "$package" )
+        if ! package_installed "$package"; then
+            install+=( "$package" )
+        fi
     done
 
     if [ "${#install[@]}" -gt "0" ]; then

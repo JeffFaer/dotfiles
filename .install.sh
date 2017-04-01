@@ -72,7 +72,8 @@ for stage in "${!setup_stages[@]}"; do
 done
 
 if [ -n "$DISPLAY" ]; then
-    install_packages gconf-editor meld || true
+    install_packages gconf-editor || true
+    install_packages meld || true
 fi
 
 # We're running .install.sh from a directory other than $target.
@@ -185,7 +186,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
     rm -rf "$git_dir"
 fi
 
-if [ -n "$DISPLAY" ]; then
+if [ -n "$DISPLAY" ] && command -v gconftool &> /dev/null; then
     echo "Setting up gnome-terminal"
     gconftool --set /apps/gnome-terminal/profiles/Default/custom_command \
         --type=string "env TERM=xterm-256color bash"

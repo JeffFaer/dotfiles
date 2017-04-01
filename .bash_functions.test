@@ -110,3 +110,10 @@ load ~/.bash_functions
     alias_append foo --flag
     [ "${BASH_ALIASES[foo]}" == "bar --flag" ]
 }
+
+@test "packaged_installed" {
+    run package_installed abc123
+    [ "$status" != 0 ]
+    run package_installed bash
+    [ "$status" == 0 ]
+}
