@@ -117,3 +117,9 @@ load ~/.bash_functions
     run package_installed bash
     [ "$status" == 0 ]
 }
+
+@test "install_packages" {
+    run install_packages bash
+    [ "$status" == 0 ]
+    [ -z "$output" ]
+}
