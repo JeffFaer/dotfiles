@@ -72,7 +72,7 @@ _num_tmux_windows() {
 
 _tmux_windows() {
     IFS=$'\n'
-    local windows=( $(tmux lsw -a -F '#{window_id}' 2>/dev/null) )
+    local windows=( $(tmux lsw -a -F '#{window_name}' 2>/dev/null) )
     unset IFS
     _format_suggestions "$1" "" "" "${windows[@]}"
 }
@@ -88,6 +88,12 @@ _tmux_session_format() {
     local format_names=( "attached" "created" "created_string" "group"\
         "grouped" "height" "id" "name" "width" "windows" )
     _format_suggestions "$1" "#{session_" "}" "${format_names[@]}"
+}
+
+_tmux_window_format() {
+    local format_names=( "active" "find_matches" "flags" "height" "id"\
+        "index" "layout" "name" "panes" "width" "wrap_flag" )
+    _format_suggestions "$1" "#{window_" "}" "${format_names[@]}"
 }
 
 # Creates an extglob which must match $1, but additionally any letters found in
@@ -194,6 +200,14 @@ _better_tmux() {
                     [ "$(_num_tmux_sessions)" -gt "1" ] && options+=( -t )
                     ;;
             esac ;;
+        killw|$(_prefix kill-w indow))
+           case "$prev" in
+               -t) _tmux_windows "$cur" ;;
+               *)
+                   options=( -a )
+                   [ "$(_num_tmux_windows)" -gt "1" ] && options+=( -t )
+                   ;;
+           esac ;;
         lsc|$(_prefix list-cl ients))
             case "$prev" in
                 -t) _tmux_sessions "$cur" ;;
@@ -207,6 +221,15 @@ _better_tmux() {
             case "$prev" in
                 -F) _tmux_session_format "$cur" ;;
                 *) options=( -F ) ;;
+            esac ;;
+        lsw|$(_prefix list-w indows))
+            case "$prev" in
+                -F) _tmux_window_format "$cur" ;;
+                -t) _tmux_sessions "$cur" ;;
+                *)
+                    options=( -a  -F )
+                    [ "$(_num_tmux_sessions)" -gt "1" ] && options+=( -t )
+                    ;;
             esac ;;
         lockc|$(_prefix lock-c lient))
             case "$prev" in
