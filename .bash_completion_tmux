@@ -36,9 +36,11 @@ _format_suggestions() {
     # Escape cur for compgen.
     local cur=$(_escape_cur "$1")
 
-    IFS=$'\n'
-    COMPREPLY=( ${COMPREPLY[@]:-} $(compgen -W "${suggestions[*]}" -- $cur) )
+    local IFS=$'\n'
+    suggestions=( $(compgen -W "${suggestions[*]}" -- "$cur") )
     unset IFS
+
+    COMPREPLY+=( "${suggestions[@]}" )
 }
 
 _num_tmux_sessions() {
@@ -47,7 +49,7 @@ _num_tmux_sessions() {
 }
 
 _tmux_sessions() {
-    IFS=$'\n'
+    local IFS=$'\n'
     local sessions=( $(tmux ls -F '#{session_name}' 2>/dev/null) )
     unset IFS
     _format_suggestions "$1" "" "" "${sessions[@]}"
@@ -59,7 +61,7 @@ _num_tmux_clients() {
 }
 
 _tmux_clients() {
-    IFS=$'\n'
+    local IFS=$'\n'
     local clients=( $(tmux lsc -F '#{client_tty}' 2>/dev/null) )
     unset IFS
     _format_suggestions "$1" "" "" "${clients[@]}"
@@ -71,7 +73,7 @@ _num_tmux_windows() {
 }
 
 _tmux_windows() {
-    IFS=$'\n'
+    local IFS=$'\n'
     local windows=( $(tmux lsw -a -F '#{window_name}' 2>/dev/null) )
     unset IFS
     _format_suggestions "$1" "" "" "${windows[@]}"
@@ -162,7 +164,7 @@ _better_tmux() {
 
             # Commands that can be run with no existing session.
             local initial_commands=( "start-server" "new-session" )
-            COMPREPLY=( $(compgen -W "${initial_commands[*]}" -- $cur) )
+            COMPREPLY=( $(compgen -W "${initial_commands[*]}" -- "$cur") )
         fi
 
         return 0
@@ -364,17 +366,14 @@ _better_tmux() {
         if [ ${#valid_options[@]} -gt 0 ]; then
             if [ $COMP_TYPE -eq 63 ]; then
                 # Provide option help text.
-                local IFS=$'\n'
-                local sorted=( $(sort <<< "${valid_options[*]}") )
-                unset IFS
-
-                echo
-                for option in "${sorted[@]}"; do
-                    echo "$option: ${options[$option]}"
+                local i
+                for ((i = 0; i < ${#valid_options[@]}; i++)); do
+                    option=${valid_options[i]}
+                    valid_options[i]="${option}: ${options[$option]}"
                 done
             fi
 
-            COMPREPLY=( ${COMPREPLY[@]:-} ${valid_options[@]} )
+            COMPREPLY+=( "${valid_options[@]}" )
         fi
     fi
 }
