@@ -155,9 +155,9 @@ progress() {
     if [ "$action" == "show" ]; then
         local current=$2
         local max=$3
-        local progress=$(echo "$length * $current / $max" | bc -l)
+        local progress=$(bc -l <<< "$length * $current / $max")
         progress=$(printf "%.0f" $progress)
-        local to_complete=
+        local to_complete
         let to_complete=$length-$progress
 
         local fill=$(printf "%${progress}s")
