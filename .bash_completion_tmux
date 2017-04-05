@@ -154,7 +154,7 @@ _better_tmux() {
 
     # There is no command yet.
     if [ -z "$cmd" ]; then
-        if tmux has-session; then
+        if tmux has-session &> /dev/null; then
             # Let the default tmux completer suggest commands.
             _tmux "$@"
         else
