@@ -30,7 +30,7 @@ Plugin 'honza/vim-snippets'
 Plugin 'scrooloose/nerdcommenter'
 " <leader>c<space> toggle comment
 " <leader>cl to comment
-Plugin 'freeo/vim-kalisi'
+Plugin 'jacoborus/tender.vim'
 
 if !s:at_google
     Plugin 'vim-pandoc/vim-pandoc'
@@ -61,7 +61,7 @@ nnoremap <leader>jd :YcmCompleter GoTo<CR>
 
 " bling/vim-airline
 set laststatus=2
-let g:airline_theme='simple'
+let g:airline_theme='tender'
 let g:airline_powerline_fonts=1
 let g:airline_section_z='%4l/%L %3v'
 let g:airline_mode_map = {
@@ -201,9 +201,7 @@ let NERDDefaultAlign='left'
 filetype plugin indent on
 syntax on
 
-colorscheme kalisi
-set background=dark
-
+colorscheme tender
 
 set backspace=indent,eol,start
 set hidden                              "hide buffers
