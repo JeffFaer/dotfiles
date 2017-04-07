@@ -147,9 +147,9 @@ PS1_PRE+="${color[gray]}@"
 PS1_PRE+="${color[${hostname_color:-white}]}\h"
 PS1_PRE+="${color[gray]}:"
 PS1_PRE+="${color[blue]}\w"
-PS1_PRE+="${color[black]}["
+PS1_PRE+="${color[gray]}["
 PS1_PRE+="\$(exit_status)"
-PS1_PRE+="${color[black]}]"
+PS1_PRE+="${color[gray]}]"
 PS1_POST=""
 PS1_POST+="${color[gray]}\n\$"
 PS1_POST+="${color[end]} "
@@ -171,7 +171,7 @@ if command -v git &> /dev/null\
     prompt="__smart_git_ps1"
     prompt+=" \"$PS1_PRE\""
     prompt+=" \"$PS1_POST\""
-    prompt+=" \"(%s${color[black]})${color[end]}\""
+    prompt+=" \"(%s${color[gray]})${color[end]}\""
     export PROMPT_COMMAND=$prompt
 
     export GIT_PS1_SHOWDIRTYSTATE=true
