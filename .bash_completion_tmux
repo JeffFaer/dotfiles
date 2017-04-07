@@ -1,6 +1,3 @@
-. /usr/share/doc/tmux/examples/bash_completion_tmux.sh
-complete -r tmux
-
 # $1: $cur
 _escape_cur() {
     printf "%q" "$1"
@@ -41,6 +38,14 @@ _format_suggestions() {
     unset IFS
 
     COMPREPLY+=( "${suggestions[@]}" )
+}
+
+_tmux_commands() {
+    local IFS=$'\n'
+    local commands=( $(tmux list-commands -F "#{command_list_name}") )
+    unset IFS
+
+    _format_suggestions "$1" "" "" "${commands[@]}"
 }
 
 _num_tmux_sessions() {
@@ -157,8 +162,7 @@ _better_tmux() {
     # There is no command yet.
     if [ -z "$cmd" ]; then
         if tmux has-session &> /dev/null; then
-            # Let the default tmux completer suggest commands.
-            _tmux "$@"
+            _tmux_commands "$cur"
         else
             # There are no existing sessions.
 
