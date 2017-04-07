@@ -30,6 +30,7 @@ Plugin 'honza/vim-snippets'
 Plugin 'scrooloose/nerdcommenter'
 " <leader>c<space> toggle comment
 " <leader>cl to comment
+Plugin 'freeo/vim-kalisi'
 
 if !s:at_google
     Plugin 'vim-pandoc/vim-pandoc'
@@ -199,7 +200,10 @@ let NERDDefaultAlign='left'
 
 filetype plugin indent on
 syntax on
-colorscheme default
+
+colorscheme kalisi
+set background=dark
+
 
 set backspace=indent,eol,start
 set hidden                              "hide buffers
