@@ -201,6 +201,9 @@ let NERDDefaultAlign='left'
 filetype plugin indent on
 syntax on
 
+if has("termguicolors")
+    set termguicolors
+end
 colorscheme tender
 
 set backspace=indent,eol,start
