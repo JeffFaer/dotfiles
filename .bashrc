@@ -78,9 +78,6 @@ set -o vi
 # Allow Ctrl-S to look forward in history
 stty -ixon
 
-export EDITOR=vim
-export VISUAL=vim
-
 # Functions
 if [ -f ~/.bash_functions ]; then
     . ~/.bash_functions
