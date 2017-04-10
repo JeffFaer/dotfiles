@@ -201,7 +201,7 @@ let NERDDefaultAlign='left'
 filetype plugin indent on
 syntax on
 
-if has("termguicolors")
+if !s:at_google && has("termguicolors")
     set termguicolors
 end
 colorscheme tender
