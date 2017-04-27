@@ -7,4 +7,5 @@ augroup filetypedetect
     au! BufNewFile,BufRead *.jsont setf javascript
     au! BufNewFile,BufRead .tmux/* setf sh
     au! BufNewFile,BufRead .tmux.conf setf sh
+    au! BufNewfile,BufRead *.log setf log
 augroup END

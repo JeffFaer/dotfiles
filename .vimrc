@@ -31,6 +31,7 @@ Plugin 'scrooloose/nerdcommenter'
 " <leader>c<space> toggle comment
 " <leader>cl to comment
 Plugin 'jacoborus/tender.vim'
+Plugin 'powerman/vim-plugin-AnsiEsc'
 
 if !s:at_google
     Plugin 'vim-pandoc/vim-pandoc'

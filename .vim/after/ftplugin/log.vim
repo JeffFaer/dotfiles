@@ -1,0 +1,1 @@
+au BufEnter <buffer> AnsiEsc
