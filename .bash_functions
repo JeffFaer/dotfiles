@@ -232,6 +232,40 @@ alias_append() {
 }
 export -f alias_append
 
+# $1: The command that is aliased.
+# $2?: The command whose completion should be copied. If not provided, it will
+# be determined from the first word of the alias.
+#
+# Determines which completion is used for the aliased command and applies it to
+# the alias itself.
+alias_completion() {
+    local command=$1
+    local alias=$2
+    if [ $# -eq 1 ]; then
+        local alias_spec=$(alias "$command")
+        if [ $? -ne 0 ] || [ -z "$alias_spec" ]; then
+            return 1
+        fi
+
+        local alias_command=$(sed -re "s/alias $command='(.+)'/\1/"\
+            <<< "$alias_spec")
+        if [ $? -ne 0 ]; then
+            return 1
+        fi
+
+        local words=( $alias_command )
+        alias=${words[0]}
+    fi
+
+    local completion=$(complete -p "$alias")
+    if [ $? -ne 0 ]; then
+        return 1
+    fi
+
+    eval $(sed -re "s/$alias$/$command/" <<< "$completion")
+}
+export -f alias_completion
+
 # Prints each argument in order with a numbered label.
 print_args() {
     echo "0: $0"
