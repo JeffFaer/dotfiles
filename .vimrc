@@ -34,8 +34,6 @@ Plugin 'jacoborus/tender.vim'
 Plugin 'powerman/vim-plugin-AnsiEsc'
 
 if !s:at_google
-    Plugin 'vim-pandoc/vim-pandoc'
-    Plugin 'vim-pandoc/vim-pandoc-syntax'
     Plugin 'noahfrederick/vim-skeleton'
     Plugin 'Valloric/YouCompleteMe'
     " <leader>jd Jump to definition
@@ -187,10 +185,6 @@ endfunction
 " SirVer/ultisnips
 let g:UltiSnipsExpandTrigger='<c-j>'
 let g:UltiSnipsListSnippets='<c-l>'
-
-" vim-pandoc
-let g:pandoc#command#autoexec_on_writes=1
-let g:pandoc#command#autoexec_command='Pandoc pdf'
 
 " scrooloose/nerdcommenter
 let NERDDefaultAlign='left'
