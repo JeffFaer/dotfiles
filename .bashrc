@@ -125,6 +125,7 @@ tput_color[bright_green]=$(load_color 10 green)
 tput_color[deep_blue]=$(load_color 20 blue)
 tput_color[purple]=$(load_color 135 magenta)
 tput_color[brown]=$(load_color 94 yellow)
+tput_color[deep_green]=$(load_color 28 green)
 
 # Set up colors for PS1 string literals.
 for c in "${!tput_color[@]}"; do
