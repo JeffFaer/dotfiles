@@ -223,12 +223,6 @@ if [ -n "${setup[airline]}" ]; then
     fc-cache -f
 fi
 
-# pandoc setup
-if [ -n "${setup[pandoc]}" ]; then
-    echo "Setting up pandoc"
-    install_packages pandoc texlive texlive-xetex
-fi
-
 # YCM setup
 if [ -n "${setup[ycm]}" ]; then
     echo "Setting up YCM"
