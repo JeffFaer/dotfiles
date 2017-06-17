@@ -76,6 +76,8 @@ if [ -n "$DISPLAY" ]; then
     install_packages meld || true
 fi
 
+install_packages xclip || true
+
 # We're running .install.sh from a directory other than $target.
 # We need to move the dotfiles into $target.
 if [ ! "$git_dir" -ef "$target" ]; then
