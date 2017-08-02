@@ -1,7 +1,7 @@
 _shortlist_completer() {
     local commands=$($1 shortlist)
     local cur=${COMP_WORDS[COMP_CWORD]}
-    COMPREPLY=( $(compgen -W "$commands" -- $cur) )
+    COMPREPLY+=( $(compgen -W "$commands" -- $cur) )
 }
 
 complete -F _shortlist_completer .install.sh
