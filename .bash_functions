@@ -276,3 +276,9 @@ print_args() {
     done
 }
 export -f print_args
+
+# Runs mkdir -p and cd on the argument.
+mkcd() {
+  mkdir -p "$@" && cd "$@"
+}
+export -f mkcd
