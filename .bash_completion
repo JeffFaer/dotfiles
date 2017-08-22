@@ -4,6 +4,60 @@ _shortlist_completer() {
     COMPREPLY+=( $(compgen -W "$commands" -- $cur) )
 }
 
+getopt_completer() {
+    if [[ -z "$__GETOPT_COMPLETER" ]]; then
+        getopt "$@"
+        return
+    fi
+
+    local options=()
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -o|--options)
+                local IFS=','
+                local shortopts=( $2 )
+                unset IFS
+
+                for opt in "${shortopts[@]}"; do
+                  options+=( "-$opt" )
+                done
+
+                shift 2
+                ;;
+            -l|--long*)
+                local IFS=','
+                local longopts=( $2 )
+                unset IFS
+
+                for opt in "${longopts[@]}"; do
+                  options+=( "--$opt" )
+                done
+
+                shift 2
+                ;;
+            *)
+                shift
+                ;;
+            --)
+                break
+                ;;
+        esac
+    done
+
+    echo "${options[@]}"
+    return 5
+}
+export -f getopt_completer
+
+_getopt_completer() {
+    export __GETOPT_COMPLETER=1
+    local commands=$($1)
+    export __GETOPT_COMPLETER
+
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    COMPREPLY+=( $(compgen -W "$commands" -- $cur) )
+}
+
 complete -F _shortlist_completer .install.sh
 
 if command -v tmux &> /dev/null; then
