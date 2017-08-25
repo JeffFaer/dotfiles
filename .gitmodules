@@ -4,3 +4,6 @@
 [submodule "src/bats"]
 	path = src/bats
 	url = https://github.com/sstephenson/bats.git
+[submodule "src/bash-preexec"]
+	path = src/bash-preexec
+	url = https://github.com/rcaloras/bash-preexec

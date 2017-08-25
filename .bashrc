@@ -189,3 +189,15 @@ for c in "${!tput_color[@]}"; do
 done
 
 unset num_colors tput_color ${!PS1_*}
+
+##################
+#  tmux Hacking  #
+##################
+
+if [[ -n $TMUX ]]; then
+    . ~/src/bash-preexec/bash-preexec.sh
+
+    function preexec() {
+        eval $(tmux show-environment -s)
+    }
+fi
