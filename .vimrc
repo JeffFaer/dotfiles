@@ -2,7 +2,7 @@ set nocompatible
 let mapleader=','
 
 let s:at_google=filereadable(expand('~/.at_google'))
-let s:termguicolors=s:at_google || !filereadable(expand('~/.no_termguicolors'))
+let s:termguicolors=!filereadable(expand('~/.no_termguicolors'))
 
 """""""""""""""
 " PLUGINS
