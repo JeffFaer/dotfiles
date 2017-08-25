@@ -52,7 +52,7 @@ export -f getopt_completer
 _getopt_completer() {
     export __GETOPT_COMPLETER=1
     local commands=$($1)
-    export __GETOPT_COMPLETER
+    export -n __GETOPT_COMPLETER
 
     local cur=${COMP_WORDS[COMP_CWORD]}
     COMPREPLY+=( $(compgen -W "$commands" -- $cur) )
