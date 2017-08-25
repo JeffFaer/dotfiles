@@ -2,6 +2,7 @@ set nocompatible
 let mapleader=','
 
 let s:at_google=filereadable(expand('~/.at_google'))
+let s:termguicolors=s:at_google || !filereadable(expand('~/.no_termguicolors'))
 
 """""""""""""""
 " PLUGINS
@@ -196,7 +197,7 @@ let NERDDefaultAlign='left'
 filetype plugin indent on
 syntax on
 
-if !s:at_google && has("termguicolors")
+if s:termguicolors && has("termguicolors")
     set termguicolors
 end
 colorscheme tender
