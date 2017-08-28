@@ -28,10 +28,10 @@ shopt -s checkwinsize
 #shopt -s globstar
 
 # make less more friendly for non-text input files, see lesspipe(1)
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+[[ -x /usr/bin/lesspipe ]] && eval "$(SHELL=/bin/sh lesspipe)"
 
 # enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
+if [[ -x /usr/bin/dircolors ]]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
     #alias dir='dir --color=auto'
@@ -55,9 +55,9 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
 if ! shopt -oq posix; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
+  if [[ -f /usr/share/bash-completion/bash_completion ]]; then
     . /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
+  elif [[ -f /etc/bash_completion ]]; then
     . /etc/bash_completion
   fi
 fi
@@ -79,7 +79,7 @@ set -o vi
 stty -ixon
 
 # Functions
-if [ -f ~/.bash_functions ]; then
+if [[ -f ~/.bash_functions ]]; then
     . ~/.bash_functions
 fi
 
@@ -87,12 +87,12 @@ fi
 # You may want to put all your additions into a separate file like
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
-if [ -f ~/.bash_aliases ]; then
+if [[ -f ~/.bash_aliases ]]; then
     . ~/.bash_aliases
 fi
 
 # Bash settings local to a machine
-if [ -f ~/.bash_local ]; then
+if [[ -f ~/.bash_local ]]; then
     . ~/.bash_local
 fi
 
@@ -113,7 +113,7 @@ tput_color[end]=$(tput sgr0)
 
 num_colors=$(tput colors)
 load_color() {
-    if [ $num_colors -gt $1 ]; then
+    if [[ $num_colors -gt $1 ]]; then
         tput setaf $1
     else
         echo "${tput_color[$2]}"
@@ -135,7 +135,7 @@ done
 exit_status() {
     local status=$?
 
-    if [ $status -eq 0 ]; then
+    if [[ $status -eq 0 ]]; then
         echo "${color[green]}☺ "
     else
         echo "${color[red]}☹ "
@@ -157,8 +157,8 @@ PS1_POST+="${color[end]} "
 
 __smart_git_ps1() {
     if git rev-parse &> /dev/null\
-        && [ "$(git config status.showUntrackedFiles)" == "no" ]\
-        && [ -z "$(git ls-files)" ]; then
+        && [[ $(git config status.showUntrackedFiles) == no\
+        && -z $(git ls-files) ]]; then
         # if we don't care about untracked files and there are no
         # tracked files in this directory, don't show git_ps1
         export PS1="$1$2"
@@ -168,7 +168,7 @@ __smart_git_ps1() {
 }
 
 if command -v git &> /dev/null\
-    && [ "$(type -t __git_ps1)" == "function" ]; then
+    && [[ $(type -t __git_ps1) == function ]]; then
     prompt="__smart_git_ps1"
     prompt+=" \"$PS1_PRE\""
     prompt+=" \"$PS1_POST\""

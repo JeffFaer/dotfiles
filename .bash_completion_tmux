@@ -135,13 +135,10 @@ _better_tmux() {
     for ((i=1; $i<$COMP_CWORD; i++)); do
         local word=${COMP_WORDS[i]}
 
-        if [ "$word" == "-c" ]\
-            || [ "$word" == "-f" ]\
-            || [ "$word" == "-L" ]\
-            || [ "$word" == "-S" ]; then
+        if [[ $word == -c || $word == -f || $word == -L || $word == -S ]]; then
             # These tmux options take a parameter. Skip the parameter.
             ((i++))
-        elif [[ "$word" == -* ]]; then
+        elif [[ $word == -* ]]; then
             :
             # Skip this option, we don't care.
         else
@@ -154,13 +151,13 @@ _better_tmux() {
     for ((; $i<$COMP_CWORD; i++)); do
         local word=${COMP_WORDS[i]}
 
-        if [[ "$word" == -* ]]; then
+        if [[ $word == -* ]]; then
             enabled_options+=( "$word" )
         fi
     done
 
     # There is no command yet.
-    if [ -z "$cmd" ]; then
+    if [[ -z $cmd ]]; then
         if tmux has-session &> /dev/null; then
             _tmux_commands "$cur"
         else
@@ -183,7 +180,7 @@ _better_tmux() {
                 *)
                     options[-d]="detach other clients"
                     options[-r]="readonly"
-                    [ $(_num_tmux_sessions) -gt 1 ] &&\
+                    [[ $(_num_tmux_sessions) -gt 1 ]] &&\
                         options[-t]="target session"
                     ;;
             esac ;;
@@ -194,9 +191,9 @@ _better_tmux() {
                 *)
                     options[-P]="SIGHUP"
                     options[-a]="kill all but -t"
-                    [ $(_num_tmux_sessions) -gt 1 ] &&\
+                    [[ $(_num_tmux_sessions) -gt 1 ]] &&\
                         options[-s]="target session"
-                    [ $(_num_tmux_clients) -gt 1 ] &&\
+                    [[ $(_num_tmux_clients) -gt 1 ]] &&\
                         options[-t]="target client"
                     ;;
             esac ;;
@@ -204,7 +201,7 @@ _better_tmux() {
             case "$prev" in
                 -t) _tmux_sessions "$cur" ;;
                 *)
-                    [ $(_num_tmux_sessions) -gt 1 ] &&\
+                    [[ $(_num_tmux_sessions) -gt 1 ]] &&\
                         options[-t]="target session"
                     ;;
             esac ;;
@@ -213,7 +210,7 @@ _better_tmux() {
                 -t) _tmux_sessions "$cur" ;;
                 *)
                     options[-a]="kill all but -t"
-                    [ $(_num_tmux_sessions) -gt 1 ] &&\
+                    [[ $(_num_tmux_sessions) -gt 1 ]] &&\
                         options[-t]="target session"
                     ;;
             esac ;;
@@ -222,7 +219,7 @@ _better_tmux() {
                -t) _tmux_windows "$cur" ;;
                *)
                    options[-a]="kill all but -t"
-                   [ $(_num_tmux_windows) -gt 1 ] &&\
+                   [[ $(_num_tmux_windows) -gt 1 ]] &&\
                        options[-t]="target window"
                    ;;
            esac ;;
@@ -232,7 +229,7 @@ _better_tmux() {
                 -F) _tmux_client_format "$cur" ;;
                 *)
                     options[-F]="format string"
-                    [ $(_num_tmux_sessions) -gt 1 ] &&\
+                    [[ $(_num_tmux_sessions) -gt 1 ]] &&\
                         options[-t]="target session"
                     ;;
             esac ;;
@@ -248,7 +245,7 @@ _better_tmux() {
                 *)
                     options[-a]="all windows"
                     options[-F]="format string"
-                    [ $(_num_tmux_sessions) -gt 1 ] &&\
+                    [[ $(_num_tmux_sessions) -gt 1 ]] &&\
                         options[-t]="target session"
                     ;;
             esac ;;
@@ -256,7 +253,7 @@ _better_tmux() {
             case "$prev" in
                 -t) _tmux_clients "$cur" ;;
                 *)
-                    [ $(_num_tmux_clients) -gt 1 ] &&\
+                    [[ $(_num_tmux_clients) -gt 1 ]] &&\
                         options[-t]="target client"
                     ;;
             esac ;;
@@ -264,7 +261,7 @@ _better_tmux() {
             case "$prev" in
                 -t) _tmux_sessions "$cur" ;;
                 *)
-                    [ $(_num_tmux_sessions) -gt 1 ] &&\
+                    [[ $(_num_tmux_sessions) -gt 1 ]] &&\
                         options[-t]="target session"
                     ;;
             esac ;;
@@ -295,7 +292,7 @@ _better_tmux() {
                         options[-x]="window width"
                         options[-y]="window height"
                     fi
-                    [ $(_num_tmux_sessions) -gt 1 ] &&\
+                    [[ $(_num_tmux_sessions) -gt 1 ]] &&\
                         options[-t]="group with target session"
                     ;;
             esac ;;
@@ -304,7 +301,7 @@ _better_tmux() {
                 -t) _tmux_clients "$cur" ;;
                 *)
                     options[-S]="only update status bar"
-                    [ $(_num_tmux_clients) -gt 1 ] &&\
+                    [[ $(_num_tmux_clients) -gt 1 ]] &&\
                         options[-t]="target client"
                     ;;
             esac ;;
@@ -312,7 +309,7 @@ _better_tmux() {
             case "$prev" in
                 -t) _tmux_sessions "$cur" ;;
                 *)
-                    [ $(_num_tmux_sessions) -gt 1 ] &&\
+                    [[ $(_num_tmux_sessions) -gt 1 ]] &&\
                         options[-t]="target session"
                     ;;
             esac ;;
@@ -320,7 +317,7 @@ _better_tmux() {
             case "$prev" in
                 -t) _tmux_clients "$cur" ;;
                 *)
-                    [ $(_num_tmux_clients) -gt 1 ] &&\
+                    [[ $(_num_tmux_clients) -gt 1 ]] &&\
                         options[-t]="target client"
                     ;;
             esac ;;
@@ -329,7 +326,7 @@ _better_tmux() {
             case "$prev" in
                 -t) _tmux_clients "$cur" ;;
                 *)
-                    [ $(_num_tmux_clients) -gt 1 ] &&\
+                    [[ $(_num_tmux_clients) -gt 1 ]] &&\
                         options[-t]="target client"
                     ;;
             esac ;;
@@ -348,17 +345,17 @@ _better_tmux() {
                         options[-l]="go to last session"
                         options[-n]="go to next session"
                         options[-p]="go to prev session"
-                        [ $(_num_tmux_sessions) -gt 1 ] &&\
+                        [[ $(_num_tmux_sessions) -gt 1 ]] &&\
                             options[-t]="target session"
                     fi
-                    [ $(_num_tmux_clients) -gt 1 ] &&\
+                    [[ $(_num_tmux_clients) -gt 1 ]] &&\
                         options[-c]="target client"
                     ;;
             esac ;;
     esac
     eval $old_extglob
 
-    if [ ${#options[@]} -gt 0 ]; then
+    if [[ ${#options[@]} -gt 0 ]]; then
         # Use compgen to narrow down the choices.
         local valid_options=( $(compgen -W "${!options[*]}" -- "$cur") )
         # Remove options that have already been enabled.
@@ -367,8 +364,8 @@ _better_tmux() {
             remove_first "$option" valid_options
         done
 
-        if [ ${#valid_options[@]} -gt 0 ]; then
-            if [ $COMP_TYPE -eq 63 ]; then
+        if [[ ${#valid_options[@]} -gt 0 ]]; then
+            if [[ $COMP_TYPE -eq 63 ]]; then # ? = 63
                 # Provide option help text.
                 local i
                 for ((i = 0; i < ${#valid_options[@]}; i++)); do

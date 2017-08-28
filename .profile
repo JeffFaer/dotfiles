@@ -8,14 +8,14 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
-if [ -n "$BASH_VERSION" ] && [ -f "$HOME/.bashrc" ]; then
+if [[ -n $BASH_VERSION && -f $HOME/.bashrc ]]; then
     . "$HOME/.bashrc"
 fi
 
 export EDITOR=vim
 
 add_to_path() {
-    if [ -d "$1" ] && [[ :$PATH != *:$1* ]]; then
+    if [[ -d $1 && :$PATH != *:$1* ]]; then
         PATH="$1:$PATH"
     fi
 }

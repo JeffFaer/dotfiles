@@ -20,7 +20,7 @@ join() {
     local e
     local is_first="1"
     for e in "${@:2}"; do
-        if [ "$is_first" != "1" ]; then
+        if [[ $is_first != 1 ]]; then
             echo -n "$1"
         fi
 
@@ -40,7 +40,7 @@ index_of() {
     local e
     local i=0
     for e in "${@:2}"; do
-        [ "$e" == "$1" ] && echo $i && return 0
+        [[ $e == $1 ]] && echo $i && return 0
         ((i++))
     done
 
@@ -91,7 +91,7 @@ remove_first() {
     local tmp
     eval tmp=\( \"\${$2[@]}\" \)
     local i=$(index_of $1 "${tmp[@]}")
-    if [ "$i" != "-1" ]; then
+    if [[ $i != -1 ]]; then
         remove_index $i $2
     else
         return 1
@@ -109,19 +109,19 @@ export -f smart_mvn
 # any arguments. cd will take you to $HOME, mvnd will take you
 # to the closest directory, including $PWD, that contains pom.xml
 mvnd() {
-    if [ "$#" -eq "0" ]; then
+    if [[ $# -eq 0 ]]; then
         # Find the maven directory
         local cwd="$PWD"
-        while [ ! -f "$cwd/pom.xml" ]; do
+        while [[ ! -f $cwd/pom.xml ]]; do
             local next_cwd=$(dirname "$cwd")
-            if [ "$next_cwd" -ef "$cwd" ]; then
+            if [[ $next_cwd -ef $cwd ]]; then
                 # We've hit the root
                 break
             fi
             cwd="$next_cwd"
         done
 
-        if [ ! -f "$cwd/pom.xml" ]; then
+        if [[ ! -f $cwd/pom.xml ]]; then
             echo "There is no Maven project in the hierarchy."
             return 1
         fi
@@ -152,7 +152,7 @@ progress() {
     local action=$1
 
     local length=50
-    if [ "$action" == "show" ]; then
+    if [[ $action == show ]]; then
         local current=$2
         local max=$3
         local progress=$(bc -l <<< "$length * $current / $max")
@@ -164,7 +164,7 @@ progress() {
         local empty=$(printf "%${to_complete}s")
 
         printf "\r${fill// /\#}${empty// /-}"
-    elif [ "$action" == "clear" ]; then
+    elif [[ $action == clear ]]; then
         for i in $(seq 1 $length); do
             printf "\b"
         done
@@ -207,7 +207,7 @@ install_packages() {
         fi
     done
 
-    if [ "${#install[@]}" -gt "0" ]; then
+    if [[ ${#install[@]} -gt 0 ]]; then
         local prompt="Would you like to install: "
         prompt+="${install[*]}?"
         if user_permission "$prompt"; then
@@ -241,15 +241,15 @@ export -f alias_append
 alias_completion() {
     local command=$1
     local alias=$2
-    if [ $# -eq 1 ]; then
+    if [[ $# -eq 1 ]]; then
         local alias_spec=$(alias "$command")
-        if [ $? -ne 0 ] || [ -z "$alias_spec" ]; then
+        if [[ $? -ne 0 || -z $alias_spec ]]; then
             return 1
         fi
 
         local alias_command=$(sed -re "s/alias $command='(.+)'/\1/"\
             <<< "$alias_spec")
-        if [ $? -ne 0 ]; then
+        if [[ $? -ne 0 ]]; then
             return 1
         fi
 
@@ -258,7 +258,7 @@ alias_completion() {
     fi
 
     local completion=$(complete -p "$alias")
-    if [ $? -ne 0 ]; then
+    if [[ $? -ne 0 ]]; then
         return 1
     fi
 

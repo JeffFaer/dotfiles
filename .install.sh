@@ -43,7 +43,7 @@ git_dir=$(dirname $0)
 git_dir=$(readlink -f $git_dir)
 
 # Our .bashrc might not be in place yet, source functions.
-if [ "$(type -t contains_in)" != "function" ]; then
+if [[ $(type -t contains_in) != function ]]; then
     . "${git_dir}/.bash_functions"
 fi
 
@@ -62,16 +62,16 @@ fi
 
 # Figure out which plugins we want to install from the positional arguments.
 declare -A setup
-if [ "$#" -eq "0" ] || contains_in "all" "$@"; then
+if [[ $# -eq 0 ]] || contains_in "all" "$@"; then
     setup[all]=1
 fi
 for stage in "${!setup_stages[@]}"; do
-    if [ -n "${setup[all]}" ] || contains_in "$stage" "$@"; then
+    if [[ -n ${setup[all]} ]] || contains_in "$stage" "$@"; then
         setup[$stage]=1
     fi
 done
 
-if [ -n "$DISPLAY" ]; then
+if [[ -n $DISPLAY ]]; then
     install_packages gconf-editor || true
     install_packages meld || true
 fi
@@ -80,7 +80,7 @@ install_packages xclip || true
 
 # We're running .install.sh from a directory other than $target.
 # We need to move the dotfiles into $target.
-if [ ! "$git_dir" -ef "$target" ]; then
+if [[ ! $git_dir -ef $target ]]; then
     remove_dir_or_die() {
         echo "$1 already exists as a directory"
         if user_permission "Would you like to remove it now?"; then
@@ -92,7 +92,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
         fi
     }
 
-    if [ -d "$target/.git" ]; then
+    if [[ -d $target/.git ]]; then
         remove_dir_or_die "$target/.git"
     fi
 
@@ -101,11 +101,11 @@ if [ ! "$git_dir" -ef "$target" ]; then
     for ls_file in $(git --git-dir="$git_dir/.git" ls-files); do
         tracked_file="$git_dir/$ls_file"
         target_file="$target/$ls_file"
-        if [ -d "$tracked_file" ] && [ -d "$target_file" ]; then
+        if [[ -d $tracked_file && -d $target_file ]]; then
             # We're tracking a submodule and the directory already exists in the
             # target.
             remove_dir_or_die "$target_file"
-        elif [ -f "$target_file" ]; then
+        elif [[ -f $target_file ]]; then
             # Either the two files are the same, or there are conflicts we need
             # to resolve.
             cmp --silent "$target_file" "$tracked_file"\
@@ -116,13 +116,13 @@ if [ ! "$git_dir" -ef "$target" ]; then
     done
 
     # Resolve conflicts first.
-    if [ "${#conflicts[@]}" -gt "0" ]; then
+    if [[ ${#conflicts[@]} -gt 0 ]]; then
         prompt="There are conflicts (${conflicts[*]}). Would you like to "
         prompt+="resolve them now (move changes you want to keep to the left)?"
         if user_permission "$prompt"; then
             _meld_builder() {
                 local build
-                if [ -z "$1" ]; then
+                if [[ -z $1 ]]; then
                     build+="$2"
                 fi
 
@@ -133,7 +133,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
 
             _default_builder() {
                 local build
-                if [ -n "$1" ]; then
+                if [[ -n $1 ]]; then
                     build+="; "
                 fi
                 build+="$2 \"$3\" \"$4\""
@@ -151,7 +151,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
                 fi
             fi
 
-            if [ "$mergetool" == "meld" ]; then
+            if [[ $mergetool == meld ]]; then
                 command_builder=_meld_builder
             else
                 command_builder=_default_builder
@@ -188,7 +188,7 @@ if [ ! "$git_dir" -ef "$target" ]; then
     rm -rf "$git_dir"
 fi
 
-if [ -n "$DISPLAY" ] && command -v gconftool &> /dev/null; then
+if [[ -n $DISPLAY ]] && command -v gconftool &> /dev/null; then
     echo "Setting up gnome-terminal"
     gconftool --set /apps/gnome-terminal/profiles/Default/custom_command \
         --type=string "env TERM=xterm-256color bash"
@@ -205,7 +205,7 @@ git submodule update --init --recursive
 vim +PluginInstall +qall
 
 # Airline setup
-if [ -n "${setup[airline]}" ]; then
+if [[ -n ${setup[airline]} ]]; then
     echo "Setting up Airline"
     echo "Setting up fonts"
     base_url="https://github.com/Lokaltog/powerline/raw/develop/font"
@@ -214,7 +214,7 @@ if [ -n "${setup[airline]}" ]; then
     font_dir="$target/.local/share/fonts/"
 
     font_conf_url="${base_url}/10-powerline-symbols.conf"
-    if [ -n "$XDG_CONFIG_HOME" ]; then
+    if [[ -n $XDG_CONFIG_HOME ]]; then
         font_conf_dir="$XDG_CONFIG_HOME/fontconfing/conf.d/"
     else
         font_conf_dir="$target/.fonts.conf.d/"
@@ -226,7 +226,7 @@ if [ -n "${setup[airline]}" ]; then
 fi
 
 # YCM setup
-if [ -n "${setup[ycm]}" ]; then
+if [[ -n ${setup[ycm]} ]]; then
     echo "Setting up YCM"
     if install_packages build-essential cmake python-dev python3-dev; then
         cd "$target/.vim/bundle/YouCompleteMe"
@@ -237,7 +237,7 @@ if [ -n "${setup[ycm]}" ]; then
 fi
 
 # Bats setup
-if [ -n "${setup[bats]}" ]; then
+if [[ -n ${setup[bats]} ]]; then
     echo "Installing Bats to /usr/local/"
     sudo ~/src/bats/install.sh /usr/local
 fi
