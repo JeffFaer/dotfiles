@@ -155,6 +155,8 @@ exit_status() {
 }
 
 abbreviated_working_directory() {
+    local status=$?
+
     local dir=$(pwd)
     local abbreviater
     for abbreviater in "${directory_abbreviaters[@]}"; do
@@ -162,12 +164,12 @@ abbreviated_working_directory() {
             local path=$($abbreviater "$dir")
             if [[ $? == 0 ]]; then
                 echo "$path"
-                return
+                break
             fi
         fi
     done
 
-    return 1
+    return $status
 }
 
 default_directory_abbreviater() {
