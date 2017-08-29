@@ -93,6 +93,10 @@ fi
 
 # Settings that might be overridden by .bash_local.
 hostname_color=white
+# Each entry in this array should be a function that accepts a path. If the
+# function can abbreviate the given path, it should print the abbreviated path
+# and return 0, otherwise it should return a non-zero value.
+directory_abbreviaters=()
 
 # Bash settings local to a machine
 if [[ -f ~/.bash_local ]]; then
@@ -150,12 +154,33 @@ exit_status() {
     printf "%s\n" "$face"
 }
 
+abbreviated_working_directory() {
+    local dir=$(pwd)
+    local abbreviater
+    for abbreviater in "${directory_abbreviaters[@]}"; do
+        local path=$($abbreviater "$dir")
+        if [[ $? == 0 ]]; then
+            echo "$path"
+            return
+        fi
+    done
+
+    return 1
+}
+
+default_directory_abbreviater() {
+    local home=${PROMPT_DIRTRIM:-$HOME}
+    echo "${1/"$home"/\~}"
+}
+
+directory_abbreviaters+=( "default_directory_abbreviater" )
+
 PS1_PRE=""
 PS1_PRE+="${color[red]}\u"
 PS1_PRE+="${color[gray]}@"
 PS1_PRE+="${color[${hostname_color}]}\H"
 PS1_PRE+="${color[gray]}:"
-PS1_PRE+="${color[blue]}\w"
+PS1_PRE+="${color[blue]}\$(abbreviated_working_directory)"
 PS1_PRE+="${color[gray]}["
 PS1_PRE+="\$(exit_status)"
 PS1_PRE+="${color[gray]}]"
