@@ -161,7 +161,8 @@ abbreviated_working_directory() {
     local abbreviater
     for abbreviater in "${directory_abbreviaters[@]}"; do
         if type -t "$abbreviater" > /dev/null; then
-            local path=$($abbreviater "$dir")
+            local path
+            path=$($abbreviater "$dir")
             if [[ $? == 0 ]]; then
                 echo "$path"
                 break
