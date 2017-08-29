@@ -279,6 +279,19 @@ export -f print_args
 
 # Runs mkdir -p and cd on the argument.
 mkcd() {
-  mkdir -p "$@" && cd "$@"
+    mkdir -p "$@" && cd "$@"
 }
 export -f mkcd
+
+# $1: The variable that should contain the current column.
+#
+# Sets $1 to the column that the cursor is on.
+current_column() {
+    local unused
+
+    echo -ne "\033[6n"
+    read -sd\[ unused
+    read -sd\; unused
+    read -sdR $1
+}
+export -f current_column
