@@ -158,34 +158,30 @@ abbreviated_working_directory() {
     local status=$?
 
     local dir=$(pwd)
+    local abbreviated_dir=$1
+
     local abbreviater
     for abbreviater in "${directory_abbreviaters[@]}"; do
         if type -t "$abbreviater" > /dev/null; then
             local path
             path=$($abbreviater "$dir")
             if [[ $? == 0 ]]; then
-                echo "$path"
+                abbreviated_dir=$path
                 break
             fi
         fi
     done
 
+    echo "$abbreviated_dir"
     return $status
 }
-
-default_directory_abbreviater() {
-    local home=${PROMPT_DIRTRIM:-$HOME}
-    echo "${1/"$home"/\~}"
-}
-
-directory_abbreviaters+=( "default_directory_abbreviater" )
 
 PS1_PRE=""
 PS1_PRE+="${color[red]}\u"
 PS1_PRE+="${color[gray]}@"
 PS1_PRE+="${color[${hostname_color}]}\H"
 PS1_PRE+="${color[gray]}:"
-PS1_PRE+="${color[blue]}\$(abbreviated_working_directory)"
+PS1_PRE+="${color[blue]}\$(abbreviated_working_directory \"\w\")"
 PS1_PRE+="${color[gray]}["
 PS1_PRE+="\$(exit_status)"
 PS1_PRE+="${color[gray]}]"
