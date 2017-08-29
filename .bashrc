@@ -91,6 +91,9 @@ if [[ -f ~/.bash_aliases ]]; then
     . ~/.bash_aliases
 fi
 
+# Settings that might be overridden by .bash_local.
+hostname_color=white
+
 # Bash settings local to a machine
 if [[ -f ~/.bash_local ]]; then
     . ~/.bash_local
@@ -135,17 +138,22 @@ done
 exit_status() {
     local status=$?
 
+    local face
     if [[ $status -eq 0 ]]; then
-        echo "${color[green]}☺ "
+        echo -n "${color[green]}"
+        face="☺"
     else
-        echo "${color[red]}☹ "
+        echo -n "${color[red]}"
+        face="☹"
     fi
+
+    printf "%s\n" "$face"
 }
 
 PS1_PRE=""
 PS1_PRE+="${color[red]}\u"
 PS1_PRE+="${color[gray]}@"
-PS1_PRE+="${color[${hostname_color:-white}]}\H"
+PS1_PRE+="${color[${hostname_color}]}\H"
 PS1_PRE+="${color[gray]}:"
 PS1_PRE+="${color[blue]}\w"
 PS1_PRE+="${color[gray]}["
@@ -188,7 +196,8 @@ for c in "${!tput_color[@]}"; do
     color[$c]="\001${tput_color[$c]}\002"
 done
 
-unset num_colors tput_color ${!PS1_*}
+unset c num_colors tput_color ${!PS1_*}
+unset hostname_color
 
 ##################
 #  tmux Hacking  #
