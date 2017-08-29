@@ -97,6 +97,7 @@ hostname_color=white
 # function can abbreviate the given path, it should print the abbreviated path
 # and return 0, otherwise it should return a non-zero value.
 directory_abbreviaters=()
+unicode_face_width=1
 
 # Bash settings local to a machine
 if [[ -f ~/.bash_local ]]; then
@@ -151,7 +152,8 @@ exit_status() {
         face="☹"
     fi
 
-    printf "%s\n" "$face"
+    local face_padding=$((unicode_face_width - 1))
+    printf "%s%${face_padding}s\n" "$face"
 }
 
 abbreviated_working_directory() {
