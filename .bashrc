@@ -158,10 +158,12 @@ abbreviated_working_directory() {
     local dir=$(pwd)
     local abbreviater
     for abbreviater in "${directory_abbreviaters[@]}"; do
-        local path=$($abbreviater "$dir")
-        if [[ $? == 0 ]]; then
-            echo "$path"
-            return
+        if type -t "$abbreviater" > /dev/null; then
+            local path=$($abbreviater "$dir")
+            if [[ $? == 0 ]]; then
+                echo "$path"
+                return
+            fi
         fi
     done
 
@@ -231,7 +233,7 @@ unset hostname_color
 if [[ -n $TMUX ]]; then
     . ~/src/bash-preexec/bash-preexec.sh
 
-    function preexec() {
+    preexec() {
         eval $(tmux show-environment -s)
     }
 fi
