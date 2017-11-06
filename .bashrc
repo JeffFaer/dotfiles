@@ -234,7 +234,9 @@ unset hostname_color
 if [[ -n $TMUX ]]; then
     . ~/src/bash-preexec/bash-preexec.sh
 
-    preexec() {
+    tmux_preexec() {
         eval $(tmux show-environment -s)
     }
+
+    preexec_functions+=( "tmux_preexec" )
 fi
