@@ -209,7 +209,10 @@ if command -v git &> /dev/null\
     prompt+=" \"$PS1_PRE\""
     prompt+=" \"$PS1_POST\""
     prompt+=" \"(%s${color[gray]})${color[end]}\""
-    export PROMPT_COMMAND=$prompt
+    eval '__prompt_command() {
+        '"$prompt"'
+    }'
+    precmd_functions+=( "__prompt_command" )
 
     export GIT_PS1_SHOWDIRTYSTATE=true
     export GIT_PS1_SHOWUPSTREAM="verbose"
@@ -243,6 +246,6 @@ fi
 #  bash-preexec  #
 ##################
 
-if [[ ${#preexec_functions[@]} -gt 0 ]]; then
+if [[ ${#preexec_functions[@]} -gt 0 || ${#precmd_functions[@]} -gt 0 ]]; then
   . ~/src/bash-preexec/bash-preexec.sh
 fi
