@@ -21,3 +21,4 @@ add_to_path() {
 }
 add_to_path "$HOME/.local/bin"
 add_to_path "$HOME/bin"
+add_to_path "$HOME/scripts"
