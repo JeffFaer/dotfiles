@@ -194,8 +194,6 @@ if [[ -n $DISPLAY ]] && command -v gconftool &> /dev/null; then
         --type=string "env TERM=xterm-256color bash"
     gconftool --set /apps/gnome-terminal/profiles/Default/use_custom_command \
         --type=bool true
-    gconftool --set /apps/gnome-terminal/profiles/Default/login_shell \
-        --type=bool true
 fi
 
 echo "Setting up git"

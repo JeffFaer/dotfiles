@@ -11,14 +11,3 @@
 if [[ -n $BASH_VERSION && -f $HOME/.bashrc ]]; then
     . "$HOME/.bashrc"
 fi
-
-export EDITOR=vim
-
-add_to_path() {
-    if [[ -d $1 && :$PATH != *:$1* ]]; then
-        PATH="$1:$PATH"
-    fi
-}
-add_to_path "$HOME/.local/bin"
-add_to_path "$HOME/bin"
-add_to_path "$HOME/scripts"

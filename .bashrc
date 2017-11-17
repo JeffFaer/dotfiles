@@ -66,6 +66,17 @@ fi
 ## Everything above this point was Ubuntu boilerplate ##
 ########################################################
 
+export EDITOR=vim
+
+add_to_path() {
+    if [[ -d $1 && :$PATH != *:$1* ]]; then
+        PATH="$1:$PATH"
+    fi
+}
+add_to_path "$HOME/.local/bin"
+add_to_path "$HOME/bin"
+add_to_path "$HOME/scripts"
+
 # Ignore these commands in history
 HISTIGNORE=clear:history:ls
 # replace !!, !<text>, !?<text>, !# commands inline before executing
