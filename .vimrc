@@ -53,6 +53,7 @@ if s:at_google
 
     augroup autoformat_settings
         autocmd FileType bzl AutoFormatBuffer buildifier
+        autocmd FileType go AutoFormatBuffer gofmt
     augroup end
 endif
 
