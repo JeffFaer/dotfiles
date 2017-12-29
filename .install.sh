@@ -62,7 +62,7 @@ fi
 
 # Figure out which plugins we want to install from the positional arguments.
 declare -A setup
-if [[ $# -eq 0 ]] || contains_in "all" "$@"; then
+if contains_in "all" "$@"; then
     setup[all]=1
 fi
 for stage in "${!setup_stages[@]}"; do
