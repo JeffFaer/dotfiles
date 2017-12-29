@@ -33,6 +33,7 @@ Plugin 'scrooloose/nerdcommenter'
 " <leader>cl to comment
 Plugin 'jacoborus/tender.vim'
 Plugin 'powerman/vim-plugin-AnsiEsc'
+Plugin 'w0rp/ale'
 
 if !s:at_google
     Plugin 'noahfrederick/vim-skeleton'
@@ -190,6 +191,9 @@ let g:UltiSnipsListSnippets='<c-l>'
 
 " scrooloose/nerdcommenter
 let NERDDefaultAlign='left'
+
+" w0rp/ale
+let g:airline#extensions#ale#enabled = 1
 
 """""""""""""""
 " GENERAL
