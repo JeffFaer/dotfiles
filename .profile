@@ -10,4 +10,6 @@
 
 if [[ -n $BASH_VERSION && -f $HOME/.bashrc ]]; then
     . "$HOME/.bashrc"
+elif [[ -f $HOME/.environment ]]; then
+    . "$HOME/.environment"
 fi

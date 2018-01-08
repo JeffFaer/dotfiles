@@ -2,16 +2,9 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
-export EDITOR=vim
-
-add_to_path() {
-    if [[ -d $1 && :$PATH != *:$1* ]]; then
-        PATH="$1:$PATH"
-    fi
-}
-add_to_path "$HOME/.local/bin"
-add_to_path "$HOME/bin"
-add_to_path "$HOME/scripts"
+if [[ -f $HOME/.environment ]]; then
+    . "$HOME/.environment"
+fi
 
 # If not running interactively, don't do anything
 case $- in
