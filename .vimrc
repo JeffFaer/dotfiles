@@ -253,9 +253,9 @@ set smartcase
 set incsearch
 
 " Highlight whole words that match the one under the cursor
-nnoremap <leader>h :let @/='\<<C-r><C-w>\>'<CR>:set hls<CR>
+nnoremap <leader>h :let @/='\V\<<C-r><C-a>\>'<CR>:set hls<CR>
 " Highlight text that matches the visual selection
-vnoremap <leader>h y:let @/='<C-r>"'<CR>:set hls<CR>
+vnoremap <leader>h y:let @/='\V<C-r>"'<CR>:set hls<CR>
 nnoremap <leader><space> :nohls<CR>
 
 augroup highlight
