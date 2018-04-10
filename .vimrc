@@ -55,6 +55,7 @@ if s:at_google
     augroup autoformat_settings
         autocmd FileType bzl AutoFormatBuffer buildifier
         autocmd FileType go AutoFormatBuffer gofmt
+        autocmd FileType textpb AutoFormatBuffer text-proto-format
     augroup end
 endif
 
