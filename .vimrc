@@ -202,6 +202,7 @@ let g:airline#extensions#ale#enabled = 1
 
 filetype plugin indent on
 syntax on
+let g:is_bash = 1
 
 if s:termguicolors && has("termguicolors")
     set termguicolors
