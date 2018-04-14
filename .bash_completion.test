@@ -3,48 +3,48 @@
 load ~/.bash_completion
 
 function_with_options() {
-  local opts
-  opts=$(getopt_completer --name "$0" -o a,b,c --long d,e,f -- "$@")
-  local exit_code=$?
-  if [[ $exit_code == 5 ]]; then
-    echo "$opts"
-    return
-  elif [[ $exit_code != 0 ]]; then
-    echo "Error parsing options: $opts"
-    return 1
-  fi
+    local opts
+    opts=$(getopt_completer --name "$0" -o a,b,c --long d,e,f -- "$@")
+    local exit_code=$?
+    if [[ $exit_code == 5 ]]; then
+        echo "$opts"
+        return
+    elif [[ $exit_code != 0 ]]; then
+        echo "Error parsing options: $opts"
+        return 1
+    fi
 
-  eval set -- "$opts"
+    eval set -- "$opts"
 
-  while true; do
-    case "$1" in
-      -[a-c])
-        echo "Short"
-        shift
-        ;;
-      --[d-f])
-        echo "Long"
-        shift
-        ;;
-      --)
-        shift
-        break
-        ;;
-    esac
-  done
+    while true; do
+        case "$1" in
+            -[a-c])
+                echo "Short"
+                shift
+                ;;
+            --[d-f])
+                echo "Long"
+                shift
+                ;;
+            --)
+                shift
+                break
+                ;;
+        esac
+    done
 }
 
 @test "getopt_completer_normal" {
-  run function_with_options -a --d -b
-  echo $status
-  echo $output
-  [[ $status == 0 ]]
-  [[ $output == $'Short\nLong\nShort' ]]
+run function_with_options -a --d -b
+echo $status
+echo $output
+[[ $status == 0 ]]
+[[ $output == $'Short\nLong\nShort' ]]
 }
 
 @test "getopt_completer_complete" {
-  export __GETOPT_COMPLETER=1
-  run function_with_options
-  [[ $status == 0 ]]
-  [[ $output == "-a -b -c --d --e --f" ]]
+export __GETOPT_COMPLETER=1
+run function_with_options
+[[ $status == 0 ]]
+[[ $output == "-a -b -c --d --e --f" ]]
 }

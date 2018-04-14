@@ -19,7 +19,7 @@ getopt_completer() {
                 unset IFS
 
                 for opt in "${shortopts[@]}"; do
-                  options+=( "-$opt" )
+                    options+=( "-${opt%:}" )
                 done
 
                 shift 2
@@ -30,7 +30,7 @@ getopt_completer() {
                 unset IFS
 
                 for opt in "${longopts[@]}"; do
-                  options+=( "--$opt" )
+                    options+=( "--${opt%:}" )
                 done
 
                 shift 2
