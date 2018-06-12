@@ -112,60 +112,36 @@ fi
 # Command Prompt #
 ##################
 declare -A color
-declare -A tput_color
 
-tput_color[red]=$(tput setaf 1)
-tput_color[white]=$(tput setaf 7)
-tput_color[blue]=$(tput setaf 4)
-tput_color[black]=$(tput setaf 0)
-tput_color[green]=$(tput setaf 2)
-tput_color[yellow]=$(tput setaf 3)
-tput_color[magenta]=$(tput setaf 5)
-tput_color[end]=$(tput sgr0)
+color[red]=$(tput setaf 1)
+color[white]=$(tput setaf 7)
+color[blue]=$(tput setaf 4)
+color[black]=$(tput setaf 0)
+color[green]=$(tput setaf 2)
+color[yellow]=$(tput setaf 3)
+color[magenta]=$(tput setaf 5)
+color[end]=$(tput sgr0)
 
 num_colors=$(tput colors)
 load_color() {
     if [[ $num_colors -gt $1 ]]; then
         tput setaf $1
     else
-        echo "${tput_color[$2]}"
+        echo "${color[$2]}"
     fi
 }
 
-tput_color[gray]=$(load_color 8 black)
-tput_color[bright_green]=$(load_color 10 green)
-tput_color[deep_blue]=$(load_color 20 blue)
-tput_color[purple]=$(load_color 135 magenta)
-tput_color[brown]=$(load_color 94 yellow)
-tput_color[deep_green]=$(load_color 28 green)
-tput_color[orange]=$(load_color 208 yellow)
-
-# Set up colors for PS1 string literals.
-for c in "${!tput_color[@]}"; do
-    color[$c]="\[${tput_color[$c]}\]"
-done
-
-exit_status() {
-    local status=$?
-
-    local face
-    if [[ $status -eq 0 ]]; then
-        echo -n "${color[green]}"
-        face="☺"
-    else
-        echo -n "${color[red]}"
-        face="☹"
-    fi
-
-    local face_padding=$((unicode_face_width - 1))
-    printf "%s%${face_padding}s\n" "$face"
-}
+color[gray]=$(load_color 8 black)
+color[bright_green]=$(load_color 10 green)
+color[deep_blue]=$(load_color 20 blue)
+color[purple]=$(load_color 135 magenta)
+color[brown]=$(load_color 94 yellow)
+color[deep_green]=$(load_color 28 green)
+color[orange]=$(load_color 208 yellow)
 
 abbreviated_working_directory() {
-    local status=$?
-
     local dir=$(pwd)
-    local abbreviated_dir=$1
+    local abbreviated_dir=${1:?}
 
     local abbreviater
     for abbreviater in "${directory_abbreviaters[@]}"; do
@@ -180,60 +156,80 @@ abbreviated_working_directory() {
     done
 
     echo "$abbreviated_dir"
-    return $status
 }
 
-PS1_PRE=""
-PS1_PRE+="${color[red]}\u"
-PS1_PRE+="${color[gray]}@"
-PS1_PRE+="${color[${hostname_color}]}\H"
-PS1_PRE+="${color[gray]}:"
-PS1_PRE+="${color[blue]}\$(abbreviated_working_directory \"\w\")"
-PS1_PRE+="${color[gray]}["
-PS1_PRE+="\$(exit_status)"
-PS1_PRE+="${color[gray]}]"
-PS1_POST=""
-PS1_POST+="${color[gray]}\n\$"
-PS1_POST+="${color[end]} "
+exit_status() {
+    local status=${1:-$?}
 
-__smart_git_ps1() {
-    if git rev-parse &> /dev/null\
-        && [[ $(git config status.showUntrackedFiles) == no\
-        && -z $(git ls-files) ]]; then
-        # if we don't care about untracked files and there are no
-        # tracked files in this directory, don't show git_ps1
-        export PS1="$1$2"
+    local face
+    if [[ $status -eq 0 ]]; then
+        echo -n "${color[green]}"
+        face="☺"
     else
-        __git_ps1 "$@"
+        echo -n "${color[red]}"
+        face="☹"
     fi
+
+    local face_padding=$((unicode_face_width - 1))
+    printf "%s%${face_padding}s\n" "$face"
 }
 
-if command -v git &> /dev/null\
-    && [[ $(type -t __git_ps1) == function ]]; then
-    prompt="__smart_git_ps1"
-    prompt+=" \"$PS1_PRE\""
-    prompt+=" \"$PS1_POST\""
-    prompt+=" \"(%s${color[gray]})${color[end]}\""
-    eval '__prompt_command() {
-        '"$prompt"'
-    }'
-    precmd_functions+=( "__prompt_command" )
+# @returns 0 if git and __git_ps1 both exist.
+# @prints nothing
+__git_exists() {
+    command -v git &> /dev/null && [[ $(type -t __git_ps1) == function ]]
+}
 
-    export GIT_PS1_SHOWDIRTYSTATE=true
-    export GIT_PS1_SHOWUPSTREAM="verbose"
-    export GIT_PS1_SHOWCOLORHINTS=true
-    export GIT_PS1_SHOWSTASHSTATE=true
-else
-    export PS1="${PS1_PRE}${PS1_POST}"
+# @returns 0 if the git status should be hidden
+# @prints nothing
+__hide_git_ps1() {
+    # 1) If we're not in a git directory, hide __git_ps1
+    # 2) If we don't care about untracked files and the current directory has no
+    #    tracked files, hide __git_ps1
+    ! git rev-parse &> /dev/null \
+        || [[ $(git config status.showUntrackedFiles) == no \
+        && -z $(git ls-files) ]]
+}
+
+status_line() {
+    local previous_status=$?
+    local cwd=$(abbreviated_working_directory "$(dirs)")
+
+    local status=''
+    status+="${color[red]}$USER"
+    status+="${color[gray]}@"
+    status+="${color[${hostname_color}]}$HOSTNAME"
+    status+="${color[gray]}:"
+    status+="${color[blue]}$cwd"
+    status+="${color[gray]}["
+    status+="$(exit_status $previous_status)"
+    status+="${color[gray]}]"
+    status+="${color[end]}"
+
+    if __git_exists && ! __hide_git_ps1; then
+        status+=$(__git_ps1 \
+            "${color[gray]}(${color[end]}%s${color[gray]})${color[end]}")
+    fi
+
+    echo "$status"
+}
+
+# Use our version of __git_ps1 until I get around to contributing it back
+# upstream.
+if __git_exists; then
+    . .git-prompt.sh
 fi
 
-# Set up colors for PS1 functions calls.
-for c in "${!tput_color[@]}"; do
-    color[$c]="\001${tput_color[$c]}\002"
-done
+precmd_functions+=( "status_line" )
 
-unset c num_colors tput_color ${!PS1_*}
-unset hostname_color
+export GIT_PS1_SHOWDIRTYSTATE=true
+export GIT_PS1_SHOWUPSTREAM="verbose"
+export GIT_PS1_SHOWCOLORHINTS=true
+export GIT_PS1_SHOWSTASHSTATE=true
+
+export PS1="\[${color[gray]}\]$\[${color[end]}\] "
+
+unset num_colors
 
 ##################
 #  tmux Hacking  #

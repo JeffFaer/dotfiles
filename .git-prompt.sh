@@ -237,6 +237,7 @@ __git_ps1_show_upstream ()
 # to build a gitstring.
 __git_ps1_colorize_gitstring ()
 {
+    local pcmode=$1
 	if [[ -n ${ZSH_VERSION-} ]]; then
 		local c_red='%F{red}'
 		local c_green='%F{green}'
@@ -245,10 +246,17 @@ __git_ps1_colorize_gitstring ()
 	else
 		# Using \[ and \] around colors is necessary to prevent
 		# issues with command line editing/browsing/completion!
-		local c_red='\[\e[31m\]'
-		local c_green='\[\e[32m\]'
-		local c_lblue='\[\e[1;34m\]'
-		local c_clear='\[\e[0m\]'
+        if [[ $pcmode == 'yes' ]]; then
+            local c_red='\[\e[31m\]'
+            local c_green='\[\e[32m\]'
+            local c_lblue='\[\e[1;34m\]'
+            local c_clear='\[\e[0m\]'
+        else
+            local c_red='\e[31m'
+            local c_green='\e[32m'
+            local c_lblue='\e[1;34m'
+            local c_clear='\e[0m'
+        fi
 	fi
 	local bad_color=$c_red
 	local ok_color=$c_green
@@ -507,8 +515,8 @@ __git_ps1 ()
 	local z="${GIT_PS1_STATESEPARATOR-" "}"
 
 	# NO color option unless in PROMPT_COMMAND mode
-	if [ $pcmode = yes ] && [ -n "${GIT_PS1_SHOWCOLORHINTS-}" ]; then
-		__git_ps1_colorize_gitstring
+	if [ -n "${GIT_PS1_SHOWCOLORHINTS-}" ]; then
+		__git_ps1_colorize_gitstring "$pcmode"
 	fi
 
 	b=${b##refs/heads/}
@@ -528,7 +536,7 @@ __git_ps1 ()
 		fi
 		PS1="$ps1pc_start$gitstring$ps1pc_end"
 	else
-		printf -- "$printf_format" "$gitstring"
+        echo -ne "$(printf -- "$printf_format" "$gitstring")"
 	fi
 
 	return $exit
