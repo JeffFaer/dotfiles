@@ -217,7 +217,7 @@ status_line() {
 # Use our version of __git_ps1 until I get around to contributing it back
 # upstream.
 if __git_exists; then
-    . .git-prompt.sh
+    . ~/.git-prompt.sh
 fi
 
 precmd_functions+=( "status_line" )
