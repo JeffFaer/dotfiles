@@ -1,5 +1,7 @@
+#!/usr/bin/env bash
 export EDITOR=vim
 
+export GOPATH="$HOME/go"
 add_to_path() {
     if [[ -d $1 && :$PATH != *:$1* ]]; then
         PATH="$1:$PATH"
