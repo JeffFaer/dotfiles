@@ -120,7 +120,7 @@ color[black]=$(tput setaf 0)
 color[green]=$(tput setaf 2)
 color[yellow]=$(tput setaf 3)
 color[magenta]=$(tput setaf 5)
-color[end]=$(tput sgr0)
+color[end]='[m'
 
 num_colors=$(tput colors)
 load_color() {
