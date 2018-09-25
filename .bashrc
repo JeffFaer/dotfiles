@@ -139,23 +139,41 @@ color[brown]=$(load_color 94 yellow)
 color[deep_green]=$(load_color 28 green)
 color[orange]=$(load_color 208 yellow)
 
-abbreviated_working_directory() {
-    local dir=$(pwd)
-    local abbreviated_dir=${1:?}
+abbreviated_dirs() {
+    local IFS=$'\n'
+    local dirs=( $(dirs -p) )
+    unset IFS
 
-    local abbreviater
-    for abbreviater in "${directory_abbreviaters[@]}"; do
-        if type -t "$abbreviater" > /dev/null; then
-            local path
-            path=$($abbreviater "$dir")
-            if [[ $? == 0 ]]; then
-                abbreviated_dir=$path
-                break
-            fi
-        fi
+    local i
+    for i in "${!dirs[@]}"; do
+      local dir=${dirs[$i]}
+
+      local abbreviated
+      abbreviated=$(abbreviate_dir "$dir")
+      if [[ $? == 0 ]]; then
+        dirs[$i]=$abbreviated
+      fi
     done
 
-    echo "$abbreviated_dir"
+    echo "${dirs[*]}"
+}
+
+abbreviate_dir() {
+  local dir="$1"
+
+  for abbreviater in "${directory_abbreviaters[@]}"; do
+    if type -t "$abbreviater" > /dev/null; then
+      local path
+      path=$($abbreviater "$dir")
+      if [[ $? == 0 ]]; then
+        echo "$path"
+        return
+      fi
+    fi
+  done
+
+  echo "$dir"
+  return 1
 }
 
 exit_status() {
@@ -193,7 +211,7 @@ __hide_git_ps1() {
 
 status_line() {
     local previous_status=$?
-    local cwd=$(abbreviated_working_directory "$(dirs)")
+    local cwd=$(abbreviated_dirs)
 
     local status=''
     status+="${color[red]}$USER"
