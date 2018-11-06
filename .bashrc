@@ -162,13 +162,10 @@ abbreviate_dir() {
   local dir="$1"
 
   for abbreviater in "${directory_abbreviaters[@]}"; do
-    if type -t "$abbreviater" > /dev/null; then
-      local path
-      path=$($abbreviater "$dir")
-      if [[ $? == 0 ]]; then
-        echo "$path"
-        return
-      fi
+    local path
+    if path=$($abbreviater "$dir"); then
+      echo "$path"
+      return
     fi
   done
 
