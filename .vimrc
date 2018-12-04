@@ -19,18 +19,22 @@ Plugin 'vim-airline/vim-airline-themes'
 Plugin 'bling/vim-bufferline'
 Plugin 'airblade/vim-gitgutter'
 " ,g (Configured below)
+
 Plugin 'tpope/vim-fugitive'
 Plugin 'camelcasemotion'
 " ,w
 " ,e
 " ,b
+
 Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
 " Ctrl-j to insert
 " Ctrl-l to list
+
 Plugin 'scrooloose/nerdcommenter'
 " <leader>c<space> toggle comment
 " <leader>cl to comment
+
 Plugin 'jacoborus/tender.vim'
 Plugin 'powerman/vim-plugin-AnsiEsc'
 Plugin 'w0rp/ale'
