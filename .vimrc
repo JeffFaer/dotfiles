@@ -39,6 +39,12 @@ Plugin 'jacoborus/tender.vim'
 Plugin 'powerman/vim-plugin-AnsiEsc'
 Plugin 'w0rp/ale'
 
+if s:at_google
+  let g:ale_linters = {
+\    'python': [],
+\}
+endif
+
 if !s:at_google
     Plugin 'noahfrederick/vim-skeleton'
     Plugin 'Valloric/YouCompleteMe'
