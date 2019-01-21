@@ -1,9 +1,9 @@
 [submodule ".vim/bundle/Vundle.vim"]
 	path = .vim/bundle/Vundle.vim
 	url = https://github.com/gmarik/Vundle.vim.git
-[submodule "src/bats"]
-	path = src/bats
-	url = https://github.com/sstephenson/bats.git
 [submodule "src/bash-preexec"]
 	path = src/bash-preexec
 	url = https://github.com/rcaloras/bash-preexec
+[submodule "src/bats-core"]
+	path = src/bats-core
+	url = https://github.com/bats-core/bats-core.git

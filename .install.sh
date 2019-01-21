@@ -237,5 +237,5 @@ fi
 # Bats setup
 if [[ -n ${setup[bats]} ]]; then
     echo "Installing Bats to /usr/local/"
-    sudo ~/src/bats/install.sh /usr/local
+    sudo ~/src/bats-core/install.sh /usr/local
 fi
