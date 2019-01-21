@@ -38,13 +38,7 @@ Plugin 'scrooloose/nerdcommenter'
 Plugin 'jacoborus/tender.vim'
 Plugin 'powerman/vim-plugin-AnsiEsc'
 Plugin 'w0rp/ale'
-
-if s:at_google
-  let g:ale_linters = {
-\    'python': [],
-\    'java': [],
-\}
-endif
+Plugin 'vim-scripts/bats.vim'
 
 if !s:at_google
     Plugin 'noahfrederick/vim-skeleton'
@@ -206,6 +200,13 @@ let NERDDefaultAlign='left'
 
 " w0rp/ale
 let g:airline#extensions#ale#enabled = 1
+
+if s:at_google
+  let g:ale_linters = {
+\    'python': [],
+\    'java': [],
+\}
+endif
 
 """""""""""""""
 " GENERAL
