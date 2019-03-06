@@ -44,6 +44,7 @@ if !s:at_google
     Plugin 'noahfrederick/vim-skeleton'
     Plugin 'Valloric/YouCompleteMe'
     " <leader>jd Jump to definition
+    Plugin 'fatih/vim-go'
 endif
 
 call vundle#end()
