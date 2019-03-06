@@ -102,6 +102,9 @@ let g:skeleton_find_template={}
 function! g:skeleton_find_template.java(path)
     return match(a:path, 'Test\.java$') != -1 ? 'test.java' : ''
 endfunction
+function! g:skeleton_find_template.go(path)
+		return match(a:path, 'Test\.go$') != -1 ? 'test.go' : ''
+endfunction
 
 let g:skeleton_replacements={}
 let g:skeleton_replacements_java={}
