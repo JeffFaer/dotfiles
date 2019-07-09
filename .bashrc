@@ -74,6 +74,12 @@ fi
 HISTIGNORE=clear:history:ls
 # replace !!, !<text>, !?<text>, !# commands inline before executing
 shopt -s histverify
+flush_history() {
+  history -a
+}
+preexec_functions+=( "flush_history" )
+
+# ** globs directories
 shopt -s globstar
 
 # vi mode for Bash/Readline
