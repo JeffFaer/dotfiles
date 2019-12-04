@@ -119,13 +119,14 @@ fi
 ##################
 declare -A color
 
-color[red]=$(tput setaf 1)
-color[white]=$(tput setaf 7)
-color[blue]=$(tput setaf 4)
 color[black]=$(tput setaf 0)
+color[red]=$(tput setaf 1)
 color[green]=$(tput setaf 2)
 color[yellow]=$(tput setaf 3)
+color[blue]=$(tput setaf 4)
 color[magenta]=$(tput setaf 5)
+color[cyan]=$(tput setaf 6)
+color[white]=$(tput setaf 7)
 color[end]='[m'
 
 num_colors=$(tput colors)
