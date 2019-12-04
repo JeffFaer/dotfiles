@@ -214,14 +214,13 @@ __hide_git_ps1() {
 
 status_line() {
     local previous_status=$?
-    local cwd=$(abbreviated_dirs)
 
     local status=''
     status+="${color[red]}$USER"
     status+="${color[gray]}@"
     status+="${color[${hostname_color}]}$HOSTNAME"
     status+="${color[gray]}:"
-    status+="${color[blue]}$cwd"
+    status+="${color[blue]}$(color[end]=${color[blue]}; abbreviated_dirs)"
     status+="${color[gray]}["
     status+="$(exit_status $previous_status)"
     status+="${color[gray]}]"
