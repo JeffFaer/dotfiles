@@ -57,7 +57,15 @@ _tmux_sessions() {
     local IFS=$'\n'
     local sessions=( $(tmux ls -F '#{session_name}' 2>/dev/null) )
     unset IFS
-    _format_suggestions "$1" "" "" "${sessions[@]}"
+
+    local escaped_sessions=()
+    local session
+    for session in "${sessions[@]}"; do
+        # Escape @ symbols, otherwise tmux thinks we want a window.
+        escaped_sessions+=( "${session//@/\\@}" )
+    done
+
+    _format_suggestions "$1" "" "" "${escaped_sessions[@]}"
 }
 
 _num_tmux_clients() {
