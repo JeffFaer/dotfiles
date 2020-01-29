@@ -2,7 +2,6 @@ set nocompatible
 let mapleader=','
 
 let s:at_google=filereadable(expand('~/.at_google'))
-let s:termguicolors=!filereadable(expand('~/.no_termguicolors'))
 
 """""""""""""""
 " PLUGINS
@@ -220,7 +219,7 @@ filetype plugin indent on
 syntax on
 let g:is_bash = 1
 
-if s:termguicolors && has("termguicolors")
+if has("termguicolors")
     set termguicolors
 end
 colorscheme tender
