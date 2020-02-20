@@ -61,6 +61,7 @@ if s:at_google
         autocmd FileType bzl AutoFormatBuffer buildifier
         autocmd FileType go AutoFormatBuffer gofmt
         autocmd FileType textpb AutoFormatBuffer text-proto-format
+        autocmd FileType gcl AutoFormatBuffer gclfmt
     augroup end
 endif
 
