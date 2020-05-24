@@ -317,3 +317,12 @@ set expandtab
 set formatoptions+=jro
 " t = Auto-wrap text using textwidth
 set formatoptions-=t
+
+""""""""""
+"  UNDO  "
+""""""""""
+if !isdirectory($HOME."/.vim/undo")
+    call mkdir($HOME."/.vim/undo", 0700)
+endif
+set undodir=~/.vim/undo
+set undofile
