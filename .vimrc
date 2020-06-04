@@ -200,7 +200,8 @@ let g:UltiSnipsExpandTrigger='<c-j>'
 let g:UltiSnipsListSnippets='<c-l>'
 
 " scrooloose/nerdcommenter
-let NERDDefaultAlign='left'
+let g:NERDDefaultAlign='left'
+let g:NERDCustomDelimiters={'textpb': {'left': '#'}}
 
 " w0rp/ale
 let g:airline#extensions#ale#enabled = 1
