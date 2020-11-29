@@ -9,7 +9,7 @@ fi
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;
-      *) return;;
+    *) return;;
 esac
 
 # don't put duplicate lines or lines starting with space in the history.
@@ -38,11 +38,11 @@ shopt -s checkwinsize
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
 if ! shopt -oq posix; then
-  if [[ -f /usr/share/bash-completion/bash_completion ]]; then
-    . /usr/share/bash-completion/bash_completion
-  elif [[ -f /etc/bash_completion ]]; then
-    . /etc/bash_completion
-  fi
+    if [[ -f /usr/share/bash-completion/bash_completion ]]; then
+        . /usr/share/bash-completion/bash_completion
+    elif [[ -f /etc/bash_completion ]]; then
+        . /etc/bash_completion
+    fi
 fi
 
 ########################################################
@@ -54,7 +54,7 @@ HISTIGNORE=clear:history:ls
 # replace !!, !<text>, !?<text>, !# commands inline before executing
 shopt -s histverify
 flush_history() {
-  history -a
+    history -a
 }
 preexec_functions+=( "flush_history" )
 
@@ -132,31 +132,31 @@ abbreviated_dirs() {
 
     local i
     for i in "${!dirs[@]}"; do
-      local dir=${dirs[$i]}
+        local dir=${dirs[$i]}
 
-      local abbreviated
-      abbreviated=$(abbreviate_dir "$dir")
-      if [[ $? == 0 ]]; then
-        dirs[$i]=$abbreviated
-      fi
+        local abbreviated
+        abbreviated=$(abbreviate_dir "$dir")
+        if [[ $? == 0 ]]; then
+            dirs[$i]=$abbreviated
+        fi
     done
 
     echo "${dirs[*]}"
 }
 
 abbreviate_dir() {
-  local dir="$1"
+    local dir="$1"
 
-  for abbreviater in "${directory_abbreviaters[@]}"; do
-    local path
-    if path=$($abbreviater "$dir"); then
-      echo "$path"
-      return
-    fi
-  done
+    for abbreviater in "${directory_abbreviaters[@]}"; do
+        local path
+        if path=$($abbreviater "$dir"); then
+            echo "$path"
+            return
+        fi
+    done
 
-  echo "$dir"
-  return 1
+    echo "$dir"
+    return 1
 }
 
 exit_status() {
@@ -248,5 +248,5 @@ fi
 ##################
 
 if [[ ${#preexec_functions[@]} -gt 0 || ${#precmd_functions[@]} -gt 0 ]]; then
-  . ~/src/bash-preexec/bash-preexec.sh
+    . ~/src/bash-preexec/bash-preexec.sh
 fi
