@@ -5,4 +5,15 @@ alias to-clipboard="xclip -sel clip"
 alias ulimit="ulimit -S"
 alias vim="vim --servername vim"
 
+if [[ -x /usr/bin/dircolors ]]; then
+    if [[ -r ~/.dircolors ]]; then
+        eval "$(dircolors -b ~/.dircolors)"
+    else
+        eval "$(dircolors -b)"
+    fi
+
+    alias grep='grep --color=auto'
+    alias ls="ls --color=auto"
+fi
+
 alias_append ls "-h"
