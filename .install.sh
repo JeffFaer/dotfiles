@@ -226,9 +226,9 @@ fi
 # YCM setup
 if [[ -n ${setup[ycm]} ]]; then
     echo "Setting up YCM"
-    if install_packages build-essential cmake python-dev python3-dev; then
+    if install_packages build-essential cmake python3-dev; then
         cd "$target/.vim/bundle/YouCompleteMe"
-        python3 install.py --clang-completer --java-completer --go-completer
+        python3 install.py --all
     else
         echo "Those packages must be installed before you can install YCM."
     fi
