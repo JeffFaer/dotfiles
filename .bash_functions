@@ -257,8 +257,8 @@ alias_completion() {
         alias=${words[0]}
     fi
 
-    local completion=$(complete -p "$alias")
-    if [[ $? -ne 0 ]]; then
+    local completion=$(complete -p "$alias" 2>/dev/null)
+    if [[ $? -ne 0 || -z "$completion" ]]; then
         return 1
     fi
 
