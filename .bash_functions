@@ -141,43 +141,6 @@ find_path() {
 }
 export -f find_path
 
-# This function has two forms:
-# progress clear
-#   - Clears the progress bar from the output line
-# progress show MIN MAX
-#   - Shows the progress bar MIN/MAX percent complete.
-#
-# You do not need to clear before showing twice in a row.
-progress() {
-    local action=$1
-
-    local length=50
-    if [[ $action == show ]]; then
-        local current=$2
-        local max=$3
-        local progress=$(bc -l <<< "$length * $current / $max")
-        progress=$(printf "%.0f" $progress)
-        local to_complete
-        let to_complete=$length-$progress
-
-        local fill=$(printf "%${progress}s")
-        local empty=$(printf "%${to_complete}s")
-
-        printf "\r${fill// /\#}${empty// /-}"
-    elif [[ $action == clear ]]; then
-        for i in $(seq 1 $length); do
-            printf "\b"
-        done
-        for i in $(seq 1 $length); do
-            printf " "
-        done
-        for i in $(seq 1 $length); do
-            printf "\b"
-        done
-    fi
-}
-export -f progress
-
 # cd to a temporary directory.
 cdt() {
     cd $(mktemp -d)
