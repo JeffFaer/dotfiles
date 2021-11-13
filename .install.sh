@@ -6,15 +6,14 @@ set -e
 declare -A setup_stages
 setup_stages[airline]="Set up the vim-airline plugin."
 setup_stages[bats]="Set up Bash unit tester."
-setup_stages[pandoc]="Set up pandoc."
 setup_stages[ycm]="Set up the YouCompleteMe plugin."
 allowed_args=(all none shortlist "${!setup_stages[@]}")
 
 usage() {
     echo "$0 [-h|--help] [$(join ',' "${allowed_args[@]}")]"
     echo "-h|--help      Displays this message."
-    echo "all            Install and do all setup stages (default)."
-    echo "none           Install but do no extra setup."
+    echo "all            Install and do all setup stages."
+    echo "none           Install but do no extra setup (default)."
     for stage in "${!setup_stages[@]}"; do
         printf "%-15s%s\n" "$stage" "${setup_stages[$stage]}"
     done
