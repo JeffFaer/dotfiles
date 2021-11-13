@@ -4,6 +4,14 @@ _shortlist_completer() {
     COMPREPLY+=( $(compgen -W "$commands" -- $cur) )
 }
 
+# getopt with automatic support for bash completion.
+#
+# Invoke this function similarly to the way you'd invoke getopt with one small
+# change: If the exit code of this function is 5, print the output of this
+# function and exit 0 (see .bash_completion.test for an example).
+#
+# To add completion for your script, add
+#   complete -F _getopt_completer <your script>
 getopt_completer() {
     if [[ -z "$__GETOPT_COMPLETER" ]]; then
         getopt "$@"
