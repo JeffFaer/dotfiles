@@ -226,6 +226,7 @@ export GIT_PS1_SHOWDIRTYSTATE=true
 export GIT_PS1_SHOWUPSTREAM="verbose"
 export GIT_PS1_SHOWCOLORHINTS=true
 export GIT_PS1_SHOWSTASHSTATE=true
+export GIT_PS1_SHOWUNTRACKEDFILES=true
 
 export PS1="\[${color[gray]}\]$\[${color[end]}\] "
 

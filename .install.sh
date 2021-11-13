@@ -198,6 +198,7 @@ fi
 
 echo "Setting up git"
 git config status.showUntrackedFiles no
+git config bash.showUntrackedFiles false
 git submodule update --init --recursive
 
 vim +PluginInstall +qall
