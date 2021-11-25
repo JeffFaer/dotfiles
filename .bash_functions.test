@@ -7,3 +7,31 @@ load ~/.bash_functions
     alias_append foo --flag
     [[ ${BASH_ALIASES[foo]} == "bar --flag" ]]
 }
+
+@test "alias -x" {
+    alias foo=bar
+    [[ "$(alias -x foo)" = "bar" ]]
+}
+
+@test "alias -x multiple aliases" {
+    alias foo=bar
+    alias bar="baz --flag"
+    [[ "$(alias -x foo)" = "baz --flag" ]]
+}
+
+@test "alias -x recursive" {
+    alias foo="foo --flag"
+    [[ "$(alias -x foo)" = "foo --flag" ]]
+}
+
+@test "alias -x with args" {
+    alias foo=bar
+    alias bar="baz --flag"
+    [[ "$(alias -x foo --other-flag)" = "baz --flag --other-flag" ]]
+}
+
+@test "alias -x with space containing args" {
+    alias foo="bar \"default arg\""
+    alias bar="baz --flag \"another default arg\""
+    [[ "$(alias -x foo)" = "baz --flag another\ default\ arg default\ arg" ]]
+}

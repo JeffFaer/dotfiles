@@ -55,6 +55,63 @@ cdt() {
 }
 export -f cdt
 
+# Adds -x to the alias builtin, which attempts to expand the alias into a
+# command that bash would execute.
+#
+#   - It handles multiple layers of aliases
+#     alias foo=bar
+#     alias bar=baz
+#     alias -x foo -> baz
+#   - It handles recursive aliases
+#     alias du=du -h
+#     alias -x du -> du -h
+#   - It handles aliases with special characters
+#     alias foo="bar 'arg with spaces'"
+#     alias -x foo -> bar arg\ with\ spaces
+#   - You can pass extra arguments to alias -x:
+#     alias foo="bar 'arg 1'"
+#     alias -x foo 'arg 2' -> bar arg\ 1 arg\ 2
+#
+# You will probably want to use this with eval:
+#   $ alias foo="bar 'arg 1'"
+#   $ print_args $(alias -x foo)
+#   1: bar
+#   2: arg\
+#   3: 1
+#   $ eval print_args $(alias -x foo)
+#   1: bar
+#   2: arg 1
+alias() {
+    if [[ "$1" = "-x" ]]; then
+        local cmd=( "${@:2}" )
+        local -A expanded
+        while :; do
+            if [[ -n "${expanded["${cmd[0]}"]}" ]]; then
+                break
+            fi
+
+            expanded["${cmd[0]}"]=1
+            local alias="${BASH_ALIASES["${cmd[0]}"]}"
+            if [[ -z "${alias}" ]]; then
+                break
+            fi
+            local arr
+            eval arr=( "${alias}" )
+            cmd=( "${arr[@]}" "${cmd[@]:1}" )
+        done
+
+        local i
+        for ((i=0; i < ${#cmd[@]}; i++)); do
+            cmd[$i]="$(printf "%q" "${cmd[$i]}")"
+        done
+        echo "${cmd[*]}"
+
+        return
+    fi
+    builtin alias "$@"
+}
+export -f alias
+
 # Adds an alias for $1 which appends the remaining arguments to an existing
 # alias. If there is no existing alias, then the arguments are appended to the
 # command itself.
