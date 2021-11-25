@@ -1,11 +1,17 @@
-# $1: $cur
-_escape_cur() {
-    printf "%q" "$1"
+# $1: needle
+# $2+: haystack
+_contains_in() {
+    local i
+    for i in "${@:2}"; do
+        if [[ "$1" = "$i" ]]; then
+            return 0
+        fi
+    done
+    return 1
 }
-
 # $1: suggestion to escape.
 _escape_suggestion() {
-    local escaped=$(_escape_cur "$1")
+    local escaped=$(printf "%q" "$1")
     # Double up each backslash for completion.
     escaped="${escaped//\\/\\\\}"
     # Add an extra backslash for dollar signs.
@@ -31,7 +37,7 @@ _format_suggestions() {
     done
 
     # Escape cur for compgen.
-    local cur=$(_escape_cur "$1")
+    local cur=$(printf "%q" "$1")
 
     local IFS=$'\n'
     suggestions=( $(compgen -W "${suggestions[*]}" -- "$cur") )
@@ -276,7 +282,7 @@ _better_tmux() {
         $(_prefix new -session))
             case "$prev" in
                 -s)
-                    if contains_in "-A" "${enabled_options[@]}"; then
+                    if _contains_in "-A" "${enabled_options[@]}"; then
                         _tmux_sessions "$cur"
                     fi
                     ;;
@@ -287,16 +293,16 @@ _better_tmux() {
                     options[-d]="create detached"
                     options[-P]="print session info"
                     options[-s]="session name"
-                    if contains_in "-A" "${enabled_options[@]}"; then
+                    if _contains_in "-A" "${enabled_options[@]}"; then
                         options[-D]="detach other clients"
                     fi
-                    if ! contains_in "-t" "${enabled_options[@]}"; then
+                    if ! _contains_in "-t" "${enabled_options[@]}"; then
                         options[-n]="window name"
                     fi
-                    if contains_in "-P" "${enabled_options[@]}"; then
+                    if _contains_in "-P" "${enabled_options[@]}"; then
                         options[-F]="format string"
                     fi
-                    if contains_in "-d" "${enabled_options[@]}"; then
+                    if _contains_in "-d" "${enabled_options[@]}"; then
                         options[-x]="window width"
                         options[-y]="window height"
                     fi
@@ -344,10 +350,10 @@ _better_tmux() {
                 -t) _tmux_sessions "$cur" ;;
                 *)
                     options[-r]="readonly"
-                    if contains_in "-l" "${enabled_options[@]}" ||\
-                        contains_in "-n" "${enabled_options[@]}" ||\
-                        contains_in "-p" "${enabled_options[@]}" ||\
-                        contains_in "-t" "${enabled_options[@]}"; then
+                    if _contains_in "-l" "${enabled_options[@]}" ||\
+                        _contains_in "-n" "${enabled_options[@]}" ||\
+                        _contains_in "-p" "${enabled_options[@]}" ||\
+                        _contains_in "-t" "${enabled_options[@]}"; then
                         :
                     else
                         options[-l]="go to last session"
@@ -364,25 +370,30 @@ _better_tmux() {
     eval $old_extglob
 
     if [[ ${#options[@]} -gt 0 ]]; then
-        # Use compgen to narrow down the choices.
-        local valid_options=( $(compgen -W "${!options[*]}" -- "$cur") )
-        # Remove options that have already been enabled.
-        local option
-        for option in "${enabled_options[@]}"; do
-            remove_first "$option" valid_options
+        local -A proposed_options
+        local opt
+        for opt in "${!options[@]}"; do
+            proposed_options["${opt}"]=1
+        done
+        # Don't propose anything that's already enabled.
+        for opt in "${enabled_options[@]}"; do
+            unset proposed_options["${opt}"]
         done
 
-        if [[ ${#valid_options[@]} -gt 0 ]]; then
+        # Use compgen to narrow down the choices.
+        local compgen_options=( $(compgen -W "${!proposed_options[*]}" -- "$cur") )
+
+        if [[ ${#compgen_options[@]} -gt 0 ]]; then
             if [[ $COMP_TYPE -eq 63 ]]; then # ? = 63
                 # Provide option help text.
                 local i
-                for ((i = 0; i < ${#valid_options[@]}; i++)); do
-                    option=${valid_options[i]}
-                    valid_options[i]="${option}: ${options[$option]}"
+                for ((i = 0; i < ${#compgen_options[@]}; i++)); do
+                    local opt=${compgen_options[i]}
+                    compgen_options[i]="${opt}: ${options[$opt]}"
                 done
             fi
 
-            COMPREPLY+=( "${valid_options[@]}" )
+            COMPREPLY+=( "${compgen_options[@]}" )
         fi
     fi
 }
