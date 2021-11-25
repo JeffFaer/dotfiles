@@ -1,23 +1,137 @@
 #!/usr/bin/env bash
 
 set -e
+set -u
 
-# Declare plugin installers in an associative array.
-declare -A setup_stages
-setup_stages[airline]="Set up the vim-airline plugin."
-setup_stages[bats]="Set up Bash unit tester."
-setup_stages[ycm]="Set up the YouCompleteMe plugin."
-allowed_args=(all none shortlist "${!setup_stages[@]}")
+# Keep plugins separate from command_help to keep order.
+plugins=(airline bats ycm)
+all_commands=(all none "${plugins[@]}")
 
-usage() {
-    echo "$0 [-h|--help] [$(join ',' "${allowed_args[@]}")]"
+declare -A command_help
+command_help[all]="Install, and setup all plugins."
+command_help[none]="Install, and don't setup any plugins."
+command_help[airline]="Set up the vim-airline plugin."
+command_help[bats]="Set up the Batch unit tester."
+command_help[ycm]="Set up the YouCompleteMe plugin."
+
+install::help() {
+    local IFS=','
+    local cmds="$(echo "${all_commands[*]}")"
+    unset IFS
+
+    echo "$0 [-h|--help] [${cmds}]"
     echo "-h|--help      Displays this message."
-    echo "all            Install and do all setup stages."
-    echo "none           Install but do no extra setup (default)."
-    for stage in "${!setup_stages[@]}"; do
-        printf "%-15s%s\n" "$stage" "${setup_stages[$stage]}"
+    local cmd
+    for cmd in "${all_commands[@]}"; do
+        printf "%-15s%s\n" "${cmd}" "${command_help["${cmd}"]}"
     done
     exit 1
+}
+
+install::shortlist() {
+    local IFS=$'\n'
+    local fns=( $(compgen -A function "install::") )
+    unset IFS
+
+    local cmds=()
+    local fn
+    for fn in "${fns[@]}"; do
+        fn="${fn#install::}"
+        if [[ "${fn}" = "shortlist" || "${fn}" = _* ]]; then
+            continue
+        fi
+        cmds+=( "${fn}" )
+    done
+    echo "${cmds[*]}"
+    exit 0
+}
+
+install::all() {
+    local p
+    for p in "${plugins[@]}"; do
+        install::_maybe_execute "$p"
+    done
+}
+
+install::none() {
+    :
+}
+
+install::airline() {
+    echo "Setting up Airline"
+    echo "Setting up fonts"
+    local base_url="https://github.com/Lokaltog/powerline/raw/develop/font"
+
+    local font_url="${base_url}/PowerlineSymbols.otf"
+    local font_dir="${target}/.local/share/fonts/"
+
+    local font_conf_url="${base_url}/10-powerline-symbols.conf"
+    local font_conf_dir
+    if [[ -n "${XDG_CONFIG_HOME+1}" ]]; then
+        font_conf_dir="${XDG_CONFIG_HOME}/fontconfing/conf.d/"
+    else
+        font_conf_dir="${target}/.fonts.conf.d/"
+    fi
+
+    wget -P "${font_dir}" "${font_url}" -q
+    wget -P "${font_conf_dir}" "${font_conf_url}" -q
+    fc-cache -f
+}
+
+install::bats() {
+    echo "Installing Bats to /usr/local/"
+    sudo ~/src/bats-core/install.sh /usr/local
+}
+
+install::ycm() {
+    echo "Setting up YCM"
+    if install::_install_packages build-essential cmake python3-dev; then
+        cd "$target/.vim/bundle/YouCompleteMe"
+        python3 install.py --all
+    else
+        echo "Those packages must be installed before you can install YCM."
+    fi
+}
+
+install::_maybe_execute() {
+    local -Ag executed_commands
+    if [[ -z "${executed_commands["$1"]+1}" ]]; then
+        executed_commands["$1"]=1
+        install::"$1"
+    fi
+}
+
+# Determine if all of the given packages are installed.
+install::_packages_installed() {
+    local package
+    for package in "$@"; do
+        if ! dpkg -s "$package" |& grep -qP '^Status.+(?<!-)installed'; then
+            return 1
+        fi
+    done
+}
+
+# Try to install any packages that are not already installed.
+install::_install_packages() {
+    local install=()
+    local package
+    for package in "$@"; do
+        if ! install::_packages_installed "$package"; then
+            install+=( "$package" )
+        fi
+    done
+
+    if [[ ${#install[@]} -gt 0 ]]; then
+        local prompt="Would you like to install: "
+        prompt+="${install[*]}?"
+        if user_permission "$prompt"; then
+            echo "Installing ${install[*]}"
+            sudo apt-get update -qq
+            sudo apt-get install "${install[@]}" -yqq
+        else
+            return 1
+        fi
+    fi
 }
 
 ARGS=$(getopt -o 'h' --long 'help' -n "$(basename $0)" -- "$@")
@@ -32,7 +146,8 @@ while true; do
             ;;
         *)
             shift 1;
-            usage
+            install::_help
+            exit 1
             ;;
     esac
 done
@@ -42,40 +157,36 @@ git_dir=$(dirname $0)
 git_dir=$(readlink -f $git_dir)
 
 # Our .bashrc might not be in place yet, source functions.
-if [[ $(type -t contains_in) != function ]]; then
+if [[ "$(type -t user_permission)" != function ]]; then
     . "${git_dir}/.bash_functions"
 fi
 
 # Validate positional arguments.
 for arg in "$@"; do
-    if ! contains_in "$arg" "${allowed_args[@]}"; then
+    if [[ "${arg}" = _* || "$(type -t "install::${arg}")" != "function" ]]; then
         echo "Unknown arg: $arg"
+        echo
+        install::help
         exit 1
     fi
+
+    case "${arg}" in
+        help)
+            install::help
+            exit 1
+            ;;
+        shortlist)
+            install::shortlist
+            exit 0
+            ;;
+    esac
 done
 
-if contains_in "shortlist" "$@"; then
-    echo "${allowed_args[*]}"
-    exit 0
-fi
-
-# Figure out which plugins we want to install from the positional arguments.
-declare -A setup
-if contains_in "all" "$@"; then
-    setup[all]=1
-fi
-for stage in "${!setup_stages[@]}"; do
-    if [[ -n ${setup[all]} ]] || contains_in "$stage" "$@"; then
-        setup[$stage]=1
-    fi
-done
-
+to_install=(xclip)
 if [[ -n $DISPLAY ]]; then
-    install_packages gconf-editor || true
-    install_packages meld || true
+    to_install+=( gconf-editor meld )
 fi
-
-install_packages xclip || true
+install::_install_packages "${to_install[@]}" || true
 
 # We're running .install.sh from a directory other than $target.
 # We need to move the dotfiles into $target.
@@ -202,40 +313,6 @@ git submodule update --init --recursive
 
 vim +PluginInstall +qall
 
-# Airline setup
-if [[ -n ${setup[airline]} ]]; then
-    echo "Setting up Airline"
-    echo "Setting up fonts"
-    base_url="https://github.com/Lokaltog/powerline/raw/develop/font"
-
-    font_url="${base_url}/PowerlineSymbols.otf"
-    font_dir="$target/.local/share/fonts/"
-
-    font_conf_url="${base_url}/10-powerline-symbols.conf"
-    if [[ -n $XDG_CONFIG_HOME ]]; then
-        font_conf_dir="$XDG_CONFIG_HOME/fontconfing/conf.d/"
-    else
-        font_conf_dir="$target/.fonts.conf.d/"
-    fi
-
-    wget -P "$font_dir" "$font_url" -q
-    wget -P "$font_conf_dir" "$font_conf_url" -q
-    fc-cache -f
-fi
-
-# YCM setup
-if [[ -n ${setup[ycm]} ]]; then
-    echo "Setting up YCM"
-    if install_packages build-essential cmake python3-dev; then
-        cd "$target/.vim/bundle/YouCompleteMe"
-        python3 install.py --all
-    else
-        echo "Those packages must be installed before you can install YCM."
-    fi
-fi
-
-# Bats setup
-if [[ -n ${setup[bats]} ]]; then
-    echo "Installing Bats to /usr/local/"
-    sudo ~/src/bats-core/install.sh /usr/local
-fi
+for cmd in "$@"; do
+    install::_maybe_execute "${cmd}"
+done
