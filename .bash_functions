@@ -95,17 +95,14 @@ alias() {
             if [[ -z "${alias}" ]]; then
                 break
             fi
+
             local arr
             eval arr=( "${alias}" )
             cmd=( "${arr[@]}" "${cmd[@]:1}" )
         done
 
-        local i
-        for ((i=0; i < ${#cmd[@]}; i++)); do
-            cmd[$i]="$(printf "%q" "${cmd[$i]}")"
-        done
-        echo "${cmd[*]}"
-
+        printf "%q " "${cmd[@]}"
+        echo
         return
     fi
     builtin alias "$@"
