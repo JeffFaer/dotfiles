@@ -8,30 +8,72 @@ load ~/.bash_functions
     [[ ${BASH_ALIASES[foo]} == "bar --flag" ]]
 }
 
+@test "shlex" {
+    local arr
+    eval "$(shlex arr "'foo bar'")"
+    [[ "${#arr[@]}" == 1 ]]
+    [[ "${arr[0]}" == "foo bar" ]]
+}
+
+@test "shlex multiple arguments" {
+    local arr
+    eval "$(shlex arr "'foo bar'" "baz" "'baz 2'")"
+    [[ "${#arr[@]}" == 3 ]]
+    [[ "${arr[0]}" == "foo bar" ]]
+    [[ "${arr[1]}" == "baz" ]]
+    [[ "${arr[2]}" == "baz 2" ]]
+}
+
+@test "shlex resists injection attempts in arguments" {
+    local arr
+    eval "$(shlex arr "); echo foo; local arr=(")"
+    [[ "${#arr[@]}" == 5 ]]
+    [[ "${arr[0]}" == ");" ]]
+    [[ "${arr[1]}" == "echo" ]]
+    [[ "${arr[2]}" == "foo;" ]]
+    [[ "${arr[3]}" == "local" ]]
+    [[ "${arr[4]}" == "arr=(" ]]
+}
+
+@test "shlex resists injection attempts in array name" {
+    local decl
+    run --separate-stderr shlex "arr;echo foo;arr=" "'foo bar'"
+    [[ $status != 0 ]]
+    [[ "$output" == "" ]]
+    [[ "${stderr_lines[0]}" == "shlex: -c: line 1: syntax error near unexpected token \`('" ]]
+}
+
 @test "alias -x" {
     alias foo=bar
-    [[ "$(alias -x foo)" = "bar" ]]
+    alias -x foo
+    [[ "$(alias -x foo)" == "bar" ]]
 }
 
 @test "alias -x multiple aliases" {
     alias foo=bar
     alias bar="baz --flag"
-    [[ "$(alias -x foo)" = "baz --flag" ]]
+    [[ "$(alias -x foo)" == "baz --flag" ]]
 }
 
 @test "alias -x recursive" {
     alias foo="foo --flag"
-    [[ "$(alias -x foo)" = "foo --flag" ]]
+    [[ "$(alias -x foo)" == "foo --flag" ]]
 }
 
 @test "alias -x with args" {
     alias foo=bar
     alias bar="baz --flag"
-    [[ "$(alias -x foo --other-flag)" = "baz --flag --other-flag" ]]
+    [[ "$(alias -x foo --other-flag)" == "baz --flag --other-flag" ]]
 }
 
 @test "alias -x with space containing args" {
     alias foo="bar \"default arg\""
     alias bar="baz --flag \"another default arg\""
-    [[ "$(alias -x foo)" = "baz --flag another\ default\ arg default\ arg" ]]
+    [[ "$(alias -x foo)" == "baz --flag another\ default\ arg default\ arg" ]]
+}
+
+@test "alias -x resists injection attempts" {
+    alias foo="); echo injection; local arr=(bar"
+    alias -x foo
+    [[ "$(alias -x foo)" == "\)\; echo injection\; local arr=\(bar" ]]
 }

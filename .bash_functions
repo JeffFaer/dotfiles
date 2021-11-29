@@ -55,6 +55,19 @@ cdt() {
 }
 export -f cdt
 
+# Splits $2+ into an array roughly following bash word splitting logic,
+# supporting quotes and escape sequences.
+#
+# $1 is the name of the array that should hold the resulting array.
+#
+# prints a declare statement that's safe to eval that creates the array.
+shlex() {
+    local arr="$(printf "%q" "$1")"
+    echo "${@:2}" \
+      | xargs bash -c "declare -a ${arr}=(\"\$@\"); declare -p ${arr}" shlex
+}
+export -f shlex
+
 # Adds -x to the alias builtin, which attempts to expand the alias into a
 # command that bash would execute.
 #
@@ -72,13 +85,22 @@ export -f cdt
 #     alias foo="bar 'arg 1'"
 #     alias -x foo 'arg 2' -> bar arg\ 1 arg\ 2
 #
-# You will probably want to use this with eval:
+# You will probably want to use this with eval/shlex:
 #   $ alias foo="bar 'arg 1'"
 #   $ print_args $(alias -x foo)
 #   1: bar
 #   2: arg\
 #   3: 1
 #   $ eval print_args $(alias -x foo)
+#   1: bar
+#   2: arg 1
+#   $ arr=( $(alias -x foo) )
+#   $ print_args "${arr[@]}"
+#   1: bar
+#   2: arg\
+#   3: 1
+#   $ eval "$(shlex arr "$(alias -x foo)")"
+#   $ print_args "${arr[@]}"
 #   1: bar
 #   2: arg 1
 alias() {
@@ -97,14 +119,12 @@ alias() {
             fi
 
             local arr
-            local decl="$(echo "${alias}" \
-              | xargs bash -c 'declare -a arr=("$@"); declare -p arr' arg0)"
-            eval "${decl}"
+            eval "$(shlex arr "${alias}")"
             cmd=( "${arr[@]}" "${cmd[@]:1}" )
         done
 
-        printf "%q " "${cmd[@]}"
-        echo
+        local res="$(printf "%q " "${cmd[@]}")"
+        echo "${res% }"
         return
     fi
     builtin alias "$@"
