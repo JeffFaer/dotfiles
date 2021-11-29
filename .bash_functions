@@ -97,7 +97,9 @@ alias() {
             fi
 
             local arr
-            eval arr=( "${alias}" )
+            local decl="$(echo "${alias}" \
+              | xargs bash -c 'declare -a arr=("$@"); declare -p arr' arg0)"
+            eval "${decl}"
             cmd=( "${arr[@]}" "${cmd[@]:1}" )
         done
 
