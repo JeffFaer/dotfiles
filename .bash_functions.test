@@ -38,9 +38,12 @@ load ~/.bash_functions
 @test "shlex resists injection attempts in array name" {
     local decl
     run --separate-stderr shlex "arr;echo foo;arr=" "'foo bar'"
+    echo "output: $output"
+    echo "stderr: $stderr"
     [[ $status != 0 ]]
     [[ "$output" == "" ]]
-    [[ "${stderr_lines[0]}" == "shlex: -c: line 1: syntax error near unexpected token \`('" ]]
+    # Depending bash version, the line number is 0 or 1.
+    [[ "${stderr_lines[0]}" == "shlex: -c: line "[01]": syntax error near unexpected token \`('" ]]
 }
 
 @test "alias -x" {
