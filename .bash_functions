@@ -1,23 +1,11 @@
-# Prompts the user for a single letter (y or n).
-#
-# $1: user prompt
-#
-# returns true if the user enters Y or y
-# returns false otherwise
-user_permission() {
-    local reply
-    read -p "$1[yN]" -n 1 -r reply
-    echo
-
-    [[ "$reply" =~ ^[yY]$ ]]
-}
-export -f user_permission
+###################
+#  CLI Functions  #
+###################
 
 # Runs maven in the parent directory which contains pom.xml
 smart_mvn() {
     (mvnd && mvn "$@")
 }
-export -f smart_mvn
 
 # A twist on cd specifically for maven projects.
 #
@@ -47,26 +35,11 @@ mvnd() {
 
     cd "$@"
 }
-export -f mvnd
 
 # cd to a temporary directory.
 cdt() {
     cd $(mktemp -d)
 }
-export -f cdt
-
-# Splits $2+ into an array roughly following bash word splitting logic,
-# supporting quotes and escape sequences.
-#
-# $1 is the name of the array that should hold the resulting array.
-#
-# prints a declare statement that's safe to eval that creates the array.
-shlex() {
-    local arr="$(printf "%q" "$1")"
-    echo "${@:2}" \
-      | xargs bash -c "declare -a ${arr}=(\"\$@\"); declare -p ${arr}" shlex
-}
-export -f shlex
 
 # Adds -x to the alias builtin, which attempts to expand the alias into a
 # command that bash would execute.
@@ -85,22 +58,22 @@ export -f shlex
 #     alias foo="bar 'arg 1'"
 #     alias -x foo 'arg 2' -> bar arg\ 1 arg\ 2
 #
-# You will probably want to use this with eval/shlex:
+# You will probably want to use this with eval/dotfiles::shlex:
 #   $ alias foo="bar 'arg 1'"
-#   $ print_args $(alias -x foo)
+#   $ dotfiles::print_args $(alias -x foo)
 #   1: bar
 #   2: arg\
 #   3: 1
-#   $ eval print_args $(alias -x foo)
+#   $ eval dotfiles::print_args $(alias -x foo)
 #   1: bar
 #   2: arg 1
 #   $ arr=( $(alias -x foo) )
-#   $ print_args "${arr[@]}"
+#   $ dotfiles::print_args "${arr[@]}"
 #   1: bar
 #   2: arg\
 #   3: 1
-#   $ eval "$(shlex arr "$(alias -x foo)")"
-#   $ print_args "${arr[@]}"
+#   $ eval "$(dotfiles::shlex arr "$(alias -x foo)")"
+#   $ dotfiles::print_args "${arr[@]}"
 #   1: bar
 #   2: arg 1
 alias() {
@@ -119,7 +92,7 @@ alias() {
             fi
 
             local arr
-            eval "$(shlex arr "${alias}")"
+            eval "$(dotfiles::shlex arr "${alias}")"
             cmd=( "${arr[@]}" "${cmd[@]:1}" )
         done
 
@@ -129,7 +102,6 @@ alias() {
     fi
     builtin alias "$@"
 }
-export -f alias
 
 # Adds an alias for $1 which appends the remaining arguments to an existing
 # alias. If there is no existing alias, then the arguments are appended to the
@@ -140,7 +112,6 @@ export -f alias
 alias_append() {
     alias $1="${BASH_ALIASES[$1]:-$1} ${*:2}"
 }
-export -f alias_append
 
 # Determines which completion is used for the aliased command and applies it to
 #
@@ -174,10 +145,40 @@ alias_completion() {
 
     eval $(sed -re "s/$alias$/$command/" <<< "$completion")
 }
-export -f alias_completion
+
+########################
+#  Exported Functions  #
+########################
+
+# Prompts the user for a single letter (y or n).
+#
+# $1: user prompt
+#
+# returns true if the user enters Y or y
+# returns false otherwise
+dotfiles::user_permission() {
+    local reply
+    read -p "$1[yN]" -n 1 -r reply
+    echo
+
+    [[ "$reply" =~ ^[yY]$ ]]
+}
+export -f dotfiles::user_permission
+# Splits $2+ into an array roughly following bash word splitting logic,
+# supporting quotes and escape sequences.
+#
+# $1 is the name of the array that should hold the resulting array.
+#
+# prints a declare statement that's safe to eval that creates the array.
+dotfiles::shlex() {
+    local arr="$(printf "%q" "$1")"
+    echo "${@:2}" \
+      | xargs bash -c "declare -a ${arr}=(\"\$@\"); declare -p ${arr}" dotfiles::shlex
+}
+export -f dotfiles::shlex
 
 # Prints each argument in order with a numbered label.
-print_args() {
+dotfiles::print_args() {
     echo "0: $0"
     local i=1
     for arg in "$@"; do
@@ -185,23 +186,4 @@ print_args() {
         ((i++))
     done
 }
-export -f print_args
-
-# Runs mkdir -p and cd on the argument.
-mkcd() {
-    mkdir -p "$@" && cd "$@"
-}
-export -f mkcd
-
-# $1: The variable that should contain the current column.
-#
-# Sets $1 to the column that the cursor is on.
-current_column() {
-    local unused
-
-    echo -ne "\033[6n"
-    read -sd\[ unused
-    read -sd\; unused
-    read -sdR $1
-}
-export -f current_column
+export -f dotfiles::print_args

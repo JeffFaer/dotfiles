@@ -124,7 +124,7 @@ install::_install_packages() {
     if [[ ${#install[@]} -gt 0 ]]; then
         local prompt="Would you like to install: "
         prompt+="${install[*]}?"
-        if user_permission "$prompt"; then
+        if dotfiles::user_permission "$prompt"; then
             echo "Installing ${install[*]}"
             sudo apt-get update -qq
             sudo apt-get install "${install[@]}" -yqq
@@ -157,7 +157,7 @@ git_dir=$(dirname $0)
 git_dir=$(readlink -f $git_dir)
 
 # Our .bashrc might not be in place yet, source functions.
-if [[ "$(type -t user_permission)" != function ]]; then
+if [[ "$(type -t dotfiles::user_permission)" != function ]]; then
     . "${git_dir}/.bash_functions"
 fi
 
@@ -193,7 +193,7 @@ install::_install_packages "${to_install[@]}" || true
 if [[ ! $git_dir -ef $target ]]; then
     remove_dir_or_die() {
         echo "$1 already exists as a directory"
-        if user_permission "Would you like to remove it now?"; then
+        if dotfiles::user_permission "Would you like to remove it now?"; then
             echo "Removing $1"
             rm -rf "$1"
         else
@@ -229,7 +229,7 @@ if [[ ! $git_dir -ef $target ]]; then
     if [[ ${#conflicts[@]} -gt 0 ]]; then
         prompt="There are conflicts (${conflicts[*]}). Would you like to "
         prompt+="resolve them now (move changes you want to keep to the left)?"
-        if user_permission "$prompt"; then
+        if dotfiles::user_permission "$prompt"; then
             _meld_builder() {
                 local build
                 if [[ -z $1 ]]; then

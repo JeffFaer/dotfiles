@@ -10,14 +10,14 @@ load ~/.bash_functions
 
 @test "shlex" {
     local arr
-    eval "$(shlex arr "'foo bar'")"
+    eval "$(dotfiles::shlex arr "'foo bar'")"
     [[ "${#arr[@]}" == 1 ]]
     [[ "${arr[0]}" == "foo bar" ]]
 }
 
 @test "shlex multiple arguments" {
     local arr
-    eval "$(shlex arr "'foo bar'" "baz" "'baz 2'")"
+    eval "$(dotfiles::shlex arr "'foo bar'" "baz" "'baz 2'")"
     [[ "${#arr[@]}" == 3 ]]
     [[ "${arr[0]}" == "foo bar" ]]
     [[ "${arr[1]}" == "baz" ]]
@@ -26,7 +26,7 @@ load ~/.bash_functions
 
 @test "shlex resists injection attempts in arguments" {
     local arr
-    eval "$(shlex arr "); echo foo; local arr=(")"
+    eval "$(dotfiles::shlex arr "); echo foo; local arr=(")"
     [[ "${#arr[@]}" == 5 ]]
     [[ "${arr[0]}" == ");" ]]
     [[ "${arr[1]}" == "echo" ]]
@@ -37,13 +37,13 @@ load ~/.bash_functions
 
 @test "shlex resists injection attempts in array name" {
     local decl
-    run --separate-stderr shlex "arr;echo foo;arr=" "'foo bar'"
+    run --separate-stderr dotfiles::shlex "arr;echo foo;arr=" "'foo bar'"
     echo "output: $output"
     echo "stderr: $stderr"
     [[ $status != 0 ]]
     [[ "$output" == "" ]]
     # Depending bash version, the line number is 0 or 1.
-    [[ "${stderr_lines[0]}" == "shlex: -c: line "[01]": syntax error near unexpected token \`('" ]]
+    [[ "${stderr_lines[0]}" == "dotfiles::shlex: -c: line "[01]": syntax error near unexpected token \`('" ]]
 }
 
 @test "alias -x" {
