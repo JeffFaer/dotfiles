@@ -80,3 +80,33 @@ load ~/.bash_functions
     alias -x foo
     [[ "$(alias -x foo)" == "\)\; echo injection\; local arr=\(bar" ]]
 }
+
+@test "is_function_exported" {
+    func::foo() {
+        :
+    }
+    export -f func::foo
+    func::bar() {
+        :
+    }
+    x() {
+        :
+    }
+
+    run dotfiles::is_function_exported "func::foo"
+    [[ $status -eq 0 ]]
+    run dotfiles::is_function_exported "func::bar"
+    [[ $status -ne 0 ]]
+    run dotfiles::is_function_exported "x"
+    [[ $status -ne 0 ]]
+    run dotfiles::is_function_exported "func::unknown_function"
+    [[ $status -ne 0 ]]
+
+    export -f func::bar
+    run dotfiles::is_function_exported "func::bar"
+    [[ $status -eq 0 ]]
+
+    export -f x
+    run dotfiles::is_function_exported "x"
+    [[ $status -eq 0 ]]
+}

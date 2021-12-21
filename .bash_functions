@@ -187,3 +187,11 @@ dotfiles::print_args() {
     done
 }
 export -f dotfiles::print_args
+
+# Determines if a function is exported.
+#
+# $1: The function name
+dotfiles::is_function_exported() {
+    [[ "$(declare -Fp "$1")" = "declare -"*x*" $1" ]]
+}
+export -f dotfiles::is_function_exported
