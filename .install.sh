@@ -96,7 +96,7 @@ install::ycm() {
 
 install::_maybe_execute() {
     local -Ag executed_commands
-    if [[ -z "${executed_commands["$1"]+1}" ]]; then
+    if [[ -z "${executed_commands["$1"]:+1}" ]]; then
         executed_commands["$1"]=1
         install::"$1"
     fi
@@ -184,7 +184,7 @@ for arg in "$@"; do
 done
 
 to_install=(xclip)
-if [[ -n $DISPLAY ]]; then
+if [[ -n "${DISPLAY:+1}" ]]; then
     to_install+=( gconf-editor meld )
 fi
 install::_install_packages "${to_install[@]}" || true
@@ -299,7 +299,7 @@ if [[ ! $git_dir -ef $target ]]; then
     rm -rf "$git_dir"
 fi
 
-if [[ -n $DISPLAY ]] && command -v gconftool &> /dev/null; then
+if [[ -n "${DISPLAY:+1}" ]] && command -v gconftool &> /dev/null; then
     echo "Setting up gnome-terminal"
     gconftool --set /apps/gnome-terminal/profiles/Default/custom_command \
         --type=string "env TERM=xterm-256color bash"
