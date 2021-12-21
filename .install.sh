@@ -29,13 +29,14 @@ install::help() {
 }
 
 install::shortlist() {
-    local IFS=$'\n'
     local fns=( $(compgen -A function "install::") )
-    unset IFS
 
     local cmds=()
     local fn
     for fn in "${fns[@]}"; do
+        if dotfiles::is_function_exported "$fn"; then
+            continue
+        fi
         fn="${fn#install::}"
         if [[ "${fn}" = "shortlist" || "${fn}" = _* ]]; then
             continue
