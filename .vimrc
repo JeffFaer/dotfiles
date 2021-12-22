@@ -38,6 +38,8 @@ Plugin 'jacoborus/tender.vim'
 Plugin 'powerman/vim-plugin-AnsiEsc'
 Plugin 'w0rp/ale'
 Plugin 'vim-scripts/bats.vim'
+Plugin 'JamshedVesuna/vim-markdown-preview'
+" <ctrl>p to preview.
 
 if !s:at_google
     Plugin 'noahfrederick/vim-skeleton'
@@ -212,6 +214,10 @@ if s:at_google
 \    'java': [],
 \}
 endif
+
+" JamshedVesuna/vim-markdown-preview
+" pip install grip
+let vim_markdown_preview_github=1
 
 """""""""""""""
 " GENERAL
