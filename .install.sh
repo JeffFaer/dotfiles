@@ -185,7 +185,7 @@ done
 
 to_install=(xclip)
 if [[ -n "${DISPLAY:+1}" ]]; then
-    to_install+=( gconf-editor meld )
+    to_install+=( libglib2.0-bin meld )
 fi
 install::_install_packages "${to_install[@]}" || true
 
@@ -301,10 +301,16 @@ fi
 
 if [[ -n "${DISPLAY:+1}" ]] && command -v gconftool &> /dev/null; then
     echo "Setting up gnome-terminal"
-    gconftool --set /apps/gnome-terminal/profiles/Default/custom_command \
-        --type=string "env TERM=xterm-256color bash"
-    gconftool --set /apps/gnome-terminal/profiles/Default/use_custom_command \
-        --type=bool true
+
+    default="$(gsettings get org.gnome.Terminal.ProfilesList default)"
+    if [[ "${default}" =~ \'?([-0-9a-f]+)\'? ]]; then
+        default="${BASH_REMATCH[1]}"
+    fi
+
+    schema="org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:${default}/"
+
+    gsettings set "${schema}" use-custom-command true
+    gsettings set "${schema}" custom-command "env TERM=xterm-256color bash"
 fi
 
 echo "Setting up git"
