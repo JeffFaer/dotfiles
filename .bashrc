@@ -20,8 +20,8 @@ HISTCONTROL=ignoreboth
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=10000
-HISTFILESIZE=20000
+HISTSIZE=64000
+HISTFILESIZE=64000
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -53,6 +53,7 @@ fi
 HISTIGNORE=clear:history:ls
 # replace !!, !<text>, !?<text>, !# commands inline before executing
 shopt -s histverify
+# flush bash history before every command.
 flush_history() {
     history -a
 }
