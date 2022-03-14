@@ -61,21 +61,8 @@ install::none() {
 install::airline() {
     echo "Setting up Airline"
     echo "Setting up fonts"
-    local base_url="https://github.com/Lokaltog/powerline/raw/develop/font"
 
-    local font_url="${base_url}/PowerlineSymbols.otf"
-    local font_dir="${target}/.local/share/fonts/"
-
-    local font_conf_url="${base_url}/10-powerline-symbols.conf"
-    local font_conf_dir
-    if [[ -n "${XDG_CONFIG_HOME+1}" ]]; then
-        font_conf_dir="${XDG_CONFIG_HOME}/fontconfing/conf.d/"
-    else
-        font_conf_dir="${target}/.fonts.conf.d/"
-    fi
-
-    wget -P "${font_dir}" "${font_url}" -q
-    wget -P "${font_conf_dir}" "${font_conf_url}" -q
+    install::_install_packages fonts-powerline
     fc-cache -f
 }
 
