@@ -57,7 +57,7 @@ shopt -s histverify
 flush_history() {
     history -a
 }
-preexec_functions+=( "flush_history" )
+preexec_functions+=("flush_history")
 
 # ** globs directories
 shopt -s globstar
@@ -125,8 +125,9 @@ color[purple]=$(load_color 135 magenta)
 color[brown]=$(load_color 94 yellow)
 color[deep_green]=$(load_color 28 green)
 color[orange]=$(load_color 208 yellow)
+color[dark_gray]=$(load_color 237 gray)
 
-abbreviated_dirs() {
+__abbreviated_dirs() {
     local IFS=$'\n'
     local dirs=( $(dirs -p) )
     unset IFS
@@ -136,31 +137,31 @@ abbreviated_dirs() {
         local dir=${dirs[$i]}
 
         local abbreviated
-        abbreviated=$(abbreviate_dir "$dir")
+        abbreviated=$(__abbreviate_dir "${dir}")
         if [[ $? == 0 ]]; then
-            dirs[$i]=$abbreviated
+            dirs[$i]="${abbreviated}"
         fi
     done
 
     echo "${dirs[*]}"
 }
 
-abbreviate_dir() {
+__abbreviate_dir() {
     local dir="$1"
 
     for abbreviater in "${directory_abbreviaters[@]}"; do
         local path
-        if path=$($abbreviater "$dir"); then
-            echo "$path"
+        if path=$("${abbreviater}" "$dir"); then
+            echo "${path}"
             return
         fi
     done
 
-    echo "$dir"
+    echo "${dir}"
     return 1
 }
 
-exit_status() {
+__exit_status() {
     local status=${1:-$?}
 
     local face
@@ -173,7 +174,7 @@ exit_status() {
     fi
 
     local face_padding=$((unicode_face_width - 1))
-    printf "%s%${face_padding}s\n" "$face"
+    printf "%s%${face_padding}s\n" "${face}"
 }
 
 # @returns 0 if git and __git_ps1 both exist.
@@ -193,35 +194,76 @@ __hide_git_ps1() {
         && -z $(git ls-files) ]]
 }
 
-status_line() {
+__elapsed_preexec() {
+  __elapsed_start=$(date +%s%N)
+}
+preexec_functions+=("__elapsed_preexec")
+
+__status_line() {
     local previous_status=$?
 
-    local status=''
-    status+="${color[red]}$USER"
+    local now_nanos="$(date +%s%N)"
+    local now="$(date --date "@$((now_nanos / 1000000000))" +%Y-%m-%dT%H:%M:%S)"
+    local elapsed
+    if [[ -n "${__elapsed_start}" ]]; then
+      local elapsed_nanos=$(( now_nanos - __elapsed_start ))
+      __elapsed_start=""
+
+      local elapsed_millis=$(( elapsed_nanos / 1000000 ))
+      local elapsed_seconds=$(( elapsed_millis / 1000 ))
+      local elapsed_minutes=$(( elapsed_seconds / 60 ))
+      local elapsed_hours=$(( elapsed_minutes / 60 ))
+
+      elapsed_millis=$((elapsed_millis % 1000))
+      elapsed_seconds=$((elapsed_seconds % 60))
+      elapsed_minutes=$((elapsed_minutes % 60))
+
+      if [[ ${elapsed_hours} -ne 0 ]]; then
+        elapsed+="${elapsed_hours}h"
+      fi
+      if [[ ${elapsed_minutes} -ne 0 ]]; then
+        elapsed+="${elapsed_minutes}m"
+      fi
+      elapsed+="$(printf "%d.%03ds" ${elapsed_seconds} ${elapsed_millis})"
+    fi
+
+    local status=""
+    status+="${color[red]}${USER}"
     status+="${color[gray]}@"
-    status+="${color[${hostname_color}]}$HOSTNAME"
+    status+="${color[${hostname_color}]}${HOSTNAME}"
     status+="${color[gray]}:"
-    status+="${color[blue]}$(color[end]=${color[blue]}; abbreviated_dirs)"
+    status+="${color[blue]}$(color[end]=${color[blue]}; __abbreviated_dirs)"
     status+="${color[gray]}["
-    status+="$(exit_status $previous_status)"
+    status+="$(__exit_status ${previous_status})"
     status+="${color[gray]}]"
     status+="${color[end]}"
 
     if __git_exists && ! __hide_git_ps1; then
-        status+=$(__git_ps1 \
-            "${color[gray]}(${color[end]}%s${color[gray]})${color[end]}")
+        status+="$(__git_ps1 \
+            "${color[gray]}(${color[end]}%s${color[gray]})${color[end]}")"
     fi
 
-    echo "$status"
+    local right_adjusted_status=""
+    local right_adjusted_size=0
+    if [[ -n "${elapsed}" ]]; then
+      right_adjusted_status+="${color[dark_gray]}${elapsed} "
+      ((right_adjusted_size += ${#elapsed} + 1))
+    fi
+    right_adjusted_status+="${color[dark_gray]}${now}"
+    ((right_adjusted_size += ${#now}))
+    right_adjusted_status+="${color[end]}"
+
+    echo "${status}"
+    printf "%$((COLUMNS - right_adjusted_size))s" " "
+    echo -en "${right_adjusted_status}\r"
 }
+precmd_functions+=("__status_line")
 
 # Use our version of __git_ps1 until I get around to contributing it back
 # upstream.
 if __git_exists; then
     . ~/.git-prompt.sh
 fi
-
-precmd_functions+=( "status_line" )
 
 export GIT_PS1_SHOWDIRTYSTATE=true
 export GIT_PS1_SHOWUPSTREAM="verbose"
@@ -242,7 +284,7 @@ if [[ -n $TMUX ]]; then
         eval $(tmux show-environment -s)
     }
 
-    preexec_functions+=( "tmux_preexec" )
+    preexec_functions+=("tmux_preexec")
 fi
 
 ##################
