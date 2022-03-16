@@ -244,18 +244,47 @@ __status_line() {
     fi
 
     local right_adjusted_status=""
-    local right_adjusted_size=0
     if [[ -n "${elapsed}" ]]; then
       right_adjusted_status+="${color[dark_gray]}${elapsed} "
-      ((right_adjusted_size += ${#elapsed} + 1))
     fi
     right_adjusted_status+="${color[dark_gray]}${now}"
-    ((right_adjusted_size += ${#now}))
     right_adjusted_status+="${color[end]}"
 
-    echo "${status}"
-    printf "%$((COLUMNS - right_adjusted_size))s" " "
-    echo -en "${right_adjusted_status}\r"
+    local left_len
+    __terminal_string_length left_len "${status}"
+    local right_len
+    __terminal_string_length right_len "${right_adjusted_status}"
+    if [[ ${COLUMNS} -gt $((left_len + right_len)) ]]; then
+      printf "%s%$((COLUMNS - left_len - right_len))s%s\n" "${status}" "" "${right_adjusted_status}"
+    else
+      printf "%s\n%$((COLUMNS - right_len))s%s\r" "${status}" "" "${right_adjusted_status}"
+    fi
+}
+# Determines the length of ${@:2} when printed to the terminal.
+# This accounts for non-printing characteres like CSI control sequences.
+#
+# The result is stored in the variable $1
+__terminal_string_length() {
+  local var="$1"
+  local arr=( "${@:2}" )
+  echo -n "${arr[*]}"
+  local col
+  local ret
+  col="$(__fetch_cursor_column)"
+  if [[ $? != 0 ]]; then
+    return 1
+  fi
+  printf -v "${var}" "%d" "$((col - 1))"
+  printf "\r%${col}s\r"
+}
+__fetch_cursor_column() {
+  local pos
+
+  IFS='[;' read -p $'\e[6n' -d R -a pos -rs
+  if [[ $? != 0 ]]; then
+    return 1
+  fi
+  echo "${pos[2]}"
 }
 precmd_functions+=("__status_line")
 
