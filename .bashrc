@@ -240,8 +240,7 @@ __echo_right_adjusted() {
 }
 # Determines the length of $* without any color control sequences included.
 __length_without_colors() {
-    local escape=$'\E'
-    echo -n "$*" | sed -re "s/${escape}\[[^m]+?m//g" | wc -m
+    echo -n "$*" | sed -re "s/\[[^m]+?m//g" | wc -m
 }
 precmd_functions+=("__elapsed_precmd")
 
