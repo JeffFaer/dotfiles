@@ -195,37 +195,59 @@ __hide_git_ps1() {
 }
 
 __elapsed_preexec() {
-  __elapsed_start=$(date +%s%N)
+    __elapsed_start=$(date +%s%N)
 }
 preexec_functions+=("__elapsed_preexec")
 
-__status_line() {
-    local previous_status=$?
+__elapsed_precmd() {
+    if [[ -z "${__elapsed_start}" ]]; then
+        return
+    fi
 
     local now_nanos="$(date +%s%N)"
-    local now="$(date --date "@$((now_nanos / 1000000000))" +%Y-%m-%dT%H:%M:%S)"
+    local elapsed_nanos=$(( now_nanos - __elapsed_start ))
+    __elapsed_start=""
+
+    local elapsed_millis=$(( elapsed_nanos / 1000000 ))
+    local elapsed_seconds=$(( elapsed_millis / 1000 ))
+    local elapsed_minutes=$(( elapsed_seconds / 60 ))
+    local elapsed_hours=$(( elapsed_minutes / 60 ))
+
+    elapsed_millis=$((elapsed_millis % 1000))
+    elapsed_seconds=$((elapsed_seconds % 60))
+    elapsed_minutes=$((elapsed_minutes % 60))
+
     local elapsed
-    if [[ -n "${__elapsed_start}" ]]; then
-      local elapsed_nanos=$(( now_nanos - __elapsed_start ))
-      __elapsed_start=""
-
-      local elapsed_millis=$(( elapsed_nanos / 1000000 ))
-      local elapsed_seconds=$(( elapsed_millis / 1000 ))
-      local elapsed_minutes=$(( elapsed_seconds / 60 ))
-      local elapsed_hours=$(( elapsed_minutes / 60 ))
-
-      elapsed_millis=$((elapsed_millis % 1000))
-      elapsed_seconds=$((elapsed_seconds % 60))
-      elapsed_minutes=$((elapsed_minutes % 60))
-
-      if [[ ${elapsed_hours} -ne 0 ]]; then
+    if [[ ${elapsed_hours} -ne 0 ]]; then
         elapsed+="${elapsed_hours}h"
-      fi
-      if [[ ${elapsed_minutes} -ne 0 ]]; then
-        elapsed+="${elapsed_minutes}m"
-      fi
-      elapsed+="$(printf "%d.%03ds" ${elapsed_seconds} ${elapsed_millis})"
     fi
+    if [[ ${elapsed_minutes} -ne 0 ]]; then
+        elapsed+="${elapsed_minutes}m"
+    fi
+    elapsed+="$(printf "%d.%03ds" ${elapsed_seconds} ${elapsed_millis})"
+
+    local status=""
+    status+="${color[dark_gray]}${elapsed}"
+    status+="${color[end]}"
+
+    __echo_right_adjusted "${status}"
+}
+__echo_right_adjusted() {
+    local len="$(__length_without_colors "$*")"
+    echo -n "[${COLUMNS}C" # Go to the end of the line.
+    echo -n "[$((len - 1))D" # Go back a little bit
+    echo "$*"
+}
+# Determines the length of $* without any color control sequences included.
+__length_without_colors() {
+    local escape=$'\E'
+    echo -n "$*" | sed -re "s/${escape}\[[^m]+?m//g" | wc -m
+}
+precmd_functions+=("__elapsed_precmd")
+
+__status_line() {
+    local previous_status=$?
+    local now="$(date +%Y-%m-%dT%H:%M:%S)"
 
     local status=""
     status+="${color[red]}${USER}"
@@ -244,18 +266,17 @@ __status_line() {
     fi
 
     local right_adjusted_status=""
-    local right_adjusted_size=0
-    if [[ -n "${elapsed}" ]]; then
-      right_adjusted_status+="${color[dark_gray]}${elapsed} "
-      ((right_adjusted_size += ${#elapsed} + 1))
-    fi
     right_adjusted_status+="${color[dark_gray]}${now}"
-    ((right_adjusted_size += ${#now}))
     right_adjusted_status+="${color[end]}"
 
-    echo "${status}"
-    printf "%$((COLUMNS - right_adjusted_size))s" " "
-    echo -en "${right_adjusted_status}\r"
+    local left_len="$(__length_without_colors "${status}")"
+    local right_len="$(__length_without_colors "${right_adjusted_status}")"
+    if [[ $((left_len + right_len)) -ge ${COLUMNS} ]]; then
+        echo "${status} ${right_adjusted_status}"
+    else
+        echo -n "${status}"
+        __echo_right_adjusted "${right_adjusted_status}"
+    fi
 }
 precmd_functions+=("__status_line")
 
