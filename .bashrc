@@ -230,6 +230,7 @@ __elapsed_precmd() {
     status+="${color[dark_gray]}${elapsed}"
     status+="${color[end]}"
 
+    echo
     __echo_right_adjusted "${status}"
 }
 __echo_right_adjusted() {
