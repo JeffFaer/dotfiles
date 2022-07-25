@@ -51,6 +51,8 @@ fi
 
 # Ignore these commands in history
 HISTIGNORE=clear:history:ls
+HISTTIMEFORMAT="[%F %T %z] "
+
 # replace !!, !<text>, !?<text>, !# commands inline before executing
 shopt -s histverify
 # flush bash history before every command.
