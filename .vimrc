@@ -307,7 +307,7 @@ augroup END
 
 set gdefault
 
-map <leader>s <leader>h:%s/<C-r>///<left>
+map <leader>s <leader>h:%s#<C-r>/##<left>
 
 """""""""""""""
 " FORMATTING
