@@ -3,6 +3,8 @@ if exists("did_load_filetypes")
 endif
 
 augroup filetypedetect
-    au! BufNewFile,BufRead *bash* setf sh
+    au! BufNewFile,BufRead *bash*
+                \ let b:is_bash=1
+                \|setf sh
     au! BufNewFile,BufRead *.jsont setf javascript
 augroup END
