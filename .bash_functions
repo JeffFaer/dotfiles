@@ -16,21 +16,21 @@ mvnd() {
     if [[ $# -eq 0 ]]; then
         # Find the maven directory
         local cwd="$PWD"
-        while [[ ! -f $cwd/pom.xml ]]; do
-            local next_cwd=$(dirname "$cwd")
-            if [[ $next_cwd -ef $cwd ]]; then
+        while [[ ! -f "${cwd}/pom.xml" ]]; do
+            local next_cwd=$(dirname "${cwd}")
+            if [[ "${next_cwd}" -ef "${cwd}" ]]; then
                 # We've hit the root
                 break
             fi
-            cwd="$next_cwd"
+            cwd="${next_cwd}"
         done
 
-        if [[ ! -f $cwd/pom.xml ]]; then
+        if [[ ! -f "${cwd}/pom.xml" ]]; then
             echo "There is no Maven project in the hierarchy."
             return 1
         fi
 
-        set -- "$cwd"
+        set -- "${cwd}"
     fi
 
     cd "$@"
@@ -38,7 +38,7 @@ mvnd() {
 
 # cd to a temporary directory.
 cdt() {
-    cd $(mktemp -d)
+    cd "$(mktemp -d)"
 }
 
 # Adds -x to the alias builtin, which attempts to expand the alias into a
@@ -120,30 +120,30 @@ alias_append() {
 # $2?: The command whose completion should be copied. If not provided, it will
 # be determined from the first word of the alias.
 alias_completion() {
-    local command=$1
-    local alias=$2
+    local command="$1"
+    local alias="$2"
     if [[ $# -eq 1 ]]; then
-        local alias_spec=$(alias "$command")
-        if [[ $? -ne 0 || -z $alias_spec ]]; then
+        local alias_spec="$(alias "${command}")"
+        if [[ $? -ne 0 || -z "${alias_spec}" ]]; then
             return 1
         fi
 
-        local alias_command=$(sed -re "s/alias $command='(.+)'/\1/"\
-            <<< "$alias_spec")
+        local alias_command="$(
+            sed -re "s/alias ${command}='(.+)'/\1/" <<< "${alias_spec}")"
         if [[ $? -ne 0 ]]; then
             return 1
         fi
 
-        local words=( $alias_command )
+        local words=( ${alias_command} )
         alias=${words[0]}
     fi
 
-    local completion=$(complete -p "$alias" 2>/dev/null)
-    if [[ $? -ne 0 || -z "$completion" ]]; then
+    local completion=$(complete -p "${alias}" 2>/dev/null)
+    if [[ $? -ne 0 || -z "${completion}" ]]; then
         return 1
     fi
 
-    eval $(sed -re "s/$alias$/$command/" <<< "$completion")
+    eval $(sed -re "s/${alias}\$/${command}/" <<< "${completion}")
 }
 
 ########################
@@ -161,9 +161,10 @@ dotfiles::user_permission() {
     read -p "$1[yN]" -n 1 -r reply
     echo
 
-    [[ "$reply" =~ ^[yY]$ ]]
+    [[ "${reply}" =~ ^[yY]$ ]]
 }
 export -f dotfiles::user_permission
+
 # Splits $2+ into an array roughly following bash word splitting logic,
 # supporting quotes and escape sequences.
 #
