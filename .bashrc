@@ -49,15 +49,16 @@ fi
 ## Everything above this point was Ubuntu boilerplate ##
 ########################################################
 
-# Ignore these commands in history
+# Ignore these commands in history.
 HISTIGNORE=clear:history:ls
 HISTTIMEFORMAT="[%F %T %z] "
 
-# replace !!, !<text>, !?<text>, !# commands inline before executing
+# Replace !!, !<text>, !?<text>, !# commands inline before executing.
 shopt -s histverify
-# flush bash history before every command.
+# Flush and reload bash history before every command.
 flush_history() {
     history -a
+    history -n
 }
 preexec_functions+=("flush_history")
 
