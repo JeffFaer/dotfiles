@@ -58,7 +58,6 @@ shopt -s histverify
 # Flush and reload bash history before every command.
 flush_history() {
     history -a
-    history -n
 }
 preexec_functions+=("flush_history")
 
