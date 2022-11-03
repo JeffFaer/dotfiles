@@ -37,7 +37,7 @@ Plugin 'scrooloose/nerdcommenter'
 Plugin 'jacoborus/tender.vim'
 Plugin 'powerman/vim-plugin-AnsiEsc'
 Plugin 'w0rp/ale'
-Plugin 'vim-scripts/bats.vim'
+Plugin 'aliou/bats.vim'
 Plugin 'JamshedVesuna/vim-markdown-preview'
 " <ctrl>p to preview.
 
