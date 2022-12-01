@@ -2,8 +2,8 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
-if [[ -f $HOME/.environment ]]; then
-    . "$HOME/.environment"
+if [[ -f "${HOME}/.environment" ]]; then
+    . "${HOME}/.environment"
 fi
 
 # If not running interactively, don't do anything
@@ -20,8 +20,8 @@ HISTCONTROL=ignoreboth
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=640000
-HISTFILESIZE=640000
+export HISTSIZE=-1  # Number of lines in the bash session's in-memory history.
+export HISTFILESIZE=100000  # Number of lines in the history file.
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -51,7 +51,9 @@ fi
 
 # Ignore these commands in history.
 HISTIGNORE=clear:history:ls
-HISTTIMEFORMAT="[%F %T %z] "
+export HISTTIMEFORMAT="[%F %T %z] "
+# http://superuser.com/questions/575479/bash-history-truncated-to-500-lines-on-each-login
+export HISTFILE=~/.personal_bash_history
 
 # Replace !!, !<text>, !?<text>, !# commands inline before executing.
 shopt -s histverify
