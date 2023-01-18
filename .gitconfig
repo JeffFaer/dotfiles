@@ -1,17 +1,20 @@
 [user]
-	name = Jeffrey Falgout
-	email = jeffrey.falgout@gmail.com
+    name = Jeffrey Falgout
+    email = jeffrey.falgout@gmail.com
 [color]
-	ui = auto
+    ui = auto
 [merge]
-	tool = meld
+    tool = meld
 [mergetool "meld"]
-	trustExitCode = true
+    trustExitCode = true
 [push]
-	default = simple
+    default = simple
 [grep]
-	fullName = true
-	lineNumber = true
-	patternType = extended
+    fullName = true
+    lineNumber = true
+    patternType = extended
 [difftool]
-	prompt = false
+    prompt = false
+
+[include]
+    path = ~/.gitconfig-work
