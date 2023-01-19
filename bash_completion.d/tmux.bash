@@ -117,6 +117,16 @@ _tmux::completion::suggest_window_format() {
     _tmux::completion::format_suggestions "$1" "#{window_" "}" "${format_names[@]}"
 }
 
+_tmux::completion::suggest_socket_name() {
+    local sockets=()
+    local dir=/tmp/tmux-${UID}
+    local socket
+    for socket in "${dir}"/*; do
+        sockets+=( "${socket#${dir}/}" )
+    done
+    _tmux::completion::format_suggestions "$1" "" "" "${sockets[@]}"
+}
+
 # Creates an extglob which must match $1, but additionally any letters found in
 # sequence from $2.
 _tmux::completion::match_command() {
@@ -142,6 +152,39 @@ _tmux::completion() {
 
     # What options can we suggest?
     local -A options
+
+    _tmux::completion::suggest_options() {
+        if [[ ${#options[@]} -eq 0 ]]; then
+            return
+        fi
+        local -A new_options
+        local opt
+        for opt in "${!options[@]}"; do
+            # Don't propose anything that's already enabled.
+            if ((${enabled_options["${opt}"]})); then
+                continue
+            fi
+
+            new_options["${opt}"]=1
+        done
+
+        local proposed_options=( $(compgen -W "${!new_options[*]}" -- "${cur}") )
+
+        if [[ ${#proposed_options[@]} -eq 0 ]]; then
+            return
+        fi
+
+        if [[ ${COMP_TYPE} -eq 63 ]]; then # ? = 63
+            # Provide option help text.
+            local i
+            for ((i = 0; i < ${#proposed_options[@]}; i++)); do
+                local opt="${proposed_options[i]}"
+                proposed_options[i]="${opt}: ${options[$opt]}"
+            done
+        fi
+
+        COMPREPLY+=( "${proposed_options[@]}" )
+    }
 
     # Figure out what our command is.
     local i
@@ -176,15 +219,25 @@ _tmux::completion() {
 
     # There is no command yet.
     if [[ -z "${cmd}" ]]; then
-        if tmux has-session &> /dev/null; then
-            _tmux::completion::suggest_commands "${cur}"
-        else
-            # There are no existing sessions.
+        case "${prev}" in
+            -L) _tmux::completion::suggest_socket_name "${cur}" ;;
+            *)
+                options[-L]="socket name"
 
-            # Commands that can be run with no existing session.
-            local initial_commands=( "start-server" "new-session" )
-            COMPREPLY=( $(compgen -W "${initial_commands[*]}" -- "${cur}") )
-        fi
+                if tmux has-session &> /dev/null; then
+                    _tmux::completion::suggest_commands "${cur}"
+                else
+                    # There are no existing sessions.
+
+                    # Commands that can be run with no existing session.
+                    local initial_commands=( "start-server" "new-session" )
+                    COMPREPLY=( $(compgen -W "${initial_commands[*]}" -- "${cur}") )
+                fi
+                ;;
+        esac
+
+
+        _tmux::completion::suggest_options
 
         return 0
     fi
@@ -393,34 +446,7 @@ _tmux::completion() {
     esac
     eval ${old_extglob}
 
-    if [[ ${#options[@]} -gt 0 ]]; then
-        local -A proposed_options
-        local opt
-        for opt in "${!options[@]}"; do
-            # Don't propose anything that's already enabled.
-            if ((${enabled_options["${opt}"]})); then
-                continue
-            fi
-
-            proposed_options["${opt}"]=1
-        done
-
-        # Use compgen to narrow down the choices.
-        local compgen_options=( $(compgen -W "${!proposed_options[*]}" -- "${cur}") )
-
-        if [[ ${#compgen_options[@]} -gt 0 ]]; then
-            if [[ ${COMP_TYPE} -eq 63 ]]; then # ? = 63
-                # Provide option help text.
-                local i
-                for ((i = 0; i < ${#compgen_options[@]}; i++)); do
-                    local opt="${compgen_options[i]}"
-                    compgen_options[i]="${opt}: ${options[$opt]}"
-                done
-            fi
-
-            COMPREPLY+=( "${compgen_options[@]}" )
-        fi
-    fi
+    _tmux::completion::suggest_options
 }
 
 complete -F _tmux::completion tmux
