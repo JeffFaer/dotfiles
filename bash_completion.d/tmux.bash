@@ -45,58 +45,6 @@ _tmux::completion::format_suggestions() {
     COMPREPLY+=( "${suggestions[@]}" )
 }
 
-_tmux::completion::suggest_commands() {
-    local IFS=$'\n'
-    local commands=( $(tmux list-commands -F "#{command_list_name}") )
-    unset IFS
-
-    _tmux::completion::format_suggestions "$1" "" "" "${commands[@]}"
-}
-
-_tmux::completion::num_sessions() {
-    tmux ls 2>/dev/null | wc -l
-    return 0
-}
-
-_tmux::completion::suggest_sessions() {
-    local IFS=$'\n'
-    local sessions=( $(tmux ls -F '#{session_name}' 2>/dev/null) )
-    unset IFS
-
-    local escaped_sessions=()
-    local session
-    for session in "${sessions[@]}"; do
-        # Escape @ symbols, otherwise tmux thinks we want a window.
-        escaped_sessions+=( "${session//@/\\@}" )
-    done
-
-    _tmux::completion::format_suggestions "$1" "" "" "${escaped_sessions[@]}"
-}
-
-_tmux::completion::num_clients() {
-    tmux lsc 2>/dev/null | wc -l
-    return 0
-}
-
-_tmux::completion::suggest_clients() {
-    local IFS=$'\n'
-    local clients=( $(tmux lsc -F '#{client_tty}' 2>/dev/null) )
-    unset IFS
-
-    _tmux::completion::format_suggestions "$1" "" "" "${clients[@]}"
-}
-
-_tmux::completion::num_windows() {
-    tmux lsw 2>/dev/null | wc -l
-    return 0
-}
-
-_tmux::completion::suggest_windows() {
-    local IFS=$'\n'
-    local windows=( $(tmux lsw -a -F '#{window_name}' 2>/dev/null) )
-    unset IFS
-    _tmux::completion::format_suggestions "$1" "" "" "${windows[@]}"
-}
 
 _tmux::completion::suggest_client_format() {
     local format_names=( "activity" "activity_string" "created"\
@@ -147,8 +95,51 @@ _tmux::completion() {
     local prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     # What has the user already typed?
+    local _tmux=( "${COMP_WORDS[0]}" )
     local cmd
     local -A enabled_options
+
+    local i
+    # Start at i=1 so we can skip tmux.
+    for ((i=1; i<$COMP_CWORD; i++)); do
+        local word="${COMP_WORDS[i]}"
+
+        case "${word}" in
+            -*)
+                enabled_options["${word}"]=1
+
+                case "${word}" in
+                    -c|-f)
+                        # These options take a parameter. Skip the parameter.
+                        ((i++))
+                        ;;
+                    -L|-S)
+                        # These options take a parameter, and might affect how
+                        # we complete the command. Record them in _tmux.
+                        ((i++))
+                        if ((i<$COMP_CWORD)); then
+                            _tmux+=( "${word}" "${COMP_WORDS[i]}" )
+                        fi
+                        ;;
+                esac ;;
+            *)
+                cmd="${word}"
+                # tmux makes a distinction between pre-command options and
+                # post-command options, so clear the pre-command options.
+                enabled_options=()
+                break
+                ;;
+        esac
+    done
+
+    # Figure out what options have already been enabled.
+    for ((; i<$COMP_CWORD; i++)); do
+        local word=${COMP_WORDS[i]}
+
+        if [[ $word == -* ]]; then
+            enabled_options["${word}"]=1
+        fi
+    done
 
     # What options can we suggest?
     local -A options
@@ -186,36 +177,58 @@ _tmux::completion() {
         COMPREPLY+=( "${proposed_options[@]}" )
     }
 
-    # Figure out what our command is.
-    local i
-    # Start at i=1 so we can skip tmux.
-    for ((i=1; i<$COMP_CWORD; i++)); do
-        local word="${COMP_WORDS[i]}"
+    _tmux::completion::suggest_commands() {
+        local IFS=$'\n'
+        local commands=( $("${_tmux[@]}" list-commands -F "#{command_list_name}") )
+        unset IFS
 
-        case "${word}" in
-            -c|-f|-L|-S)
-                # These tmux options take a parameter. Skip the parameter.
-                ((i++))
-                ;;
-            -*)
-                # Skip this option, we don't care.
-                :
-                ;;
-            *)
-                cmd="${word}"
-                break
-                ;;
-        esac
-    done
+        _tmux::completion::format_suggestions "$1" "" "" "${commands[@]}"
+    }
 
-    # Figure out what options have already been enabled.
-    for ((; i<$COMP_CWORD; i++)); do
-        local word=${COMP_WORDS[i]}
+    _tmux::completion::num_sessions() {
+        "${_tmux[@]}" ls 2>/dev/null | wc -l
+        return 0
+    }
 
-        if [[ $word == -* ]]; then
-            enabled_options["${word}"]=1
-        fi
-    done
+    _tmux::completion::suggest_sessions() {
+        local IFS=$'\n'
+        local sessions=( $("${_tmux[@]}" ls -F '#{session_name}' 2>/dev/null) )
+        unset IFS
+
+        local escaped_sessions=()
+        local session
+        for session in "${sessions[@]}"; do
+            # Escape @ symbols, otherwise tmux thinks we want a window.
+            escaped_sessions+=( "${session//@/\\@}" )
+        done
+
+        _tmux::completion::format_suggestions "$1" "" "" "${escaped_sessions[@]}"
+    }
+
+    _tmux::completion::num_clients() {
+        "${_tmux[@]}" lsc 2>/dev/null | wc -l
+        return 0
+    }
+
+    _tmux::completion::suggest_clients() {
+        local IFS=$'\n'
+        local clients=( $("${_tmux[@]}" lsc -F '#{client_tty}' 2>/dev/null) )
+        unset IFS
+
+        _tmux::completion::format_suggestions "$1" "" "" "${clients[@]}"
+    }
+
+    _tmux::completion::num_windows() {
+        "${_tmux[@]}" lsw 2>/dev/null | wc -l
+        return 0
+    }
+
+    _tmux::completion::suggest_windows() {
+        local IFS=$'\n'
+        local windows=( $("${_tmux[@]}" lsw -a -F '#{window_name}' 2>/dev/null) )
+        unset IFS
+        _tmux::completion::format_suggestions "$1" "" "" "${windows[@]}"
+    }
 
     # There is no command yet.
     if [[ -z "${cmd}" ]]; then
