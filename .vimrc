@@ -41,8 +41,9 @@ Plugin 'aliou/bats.vim'
 Plugin 'JamshedVesuna/vim-markdown-preview'
 " <ctrl>p to preview.
 
+Plugin 'noahfrederick/vim-skeleton'
+
 if !s:at_google
-    Plugin 'noahfrederick/vim-skeleton'
     Plugin 'Valloric/YouCompleteMe'
     " <leader>jd Jump to definition
     Plugin 'fatih/vim-go'
