@@ -17,6 +17,8 @@
     prompt = false
 [init]
     defaultBranch = main
+[alias]
+    sync = branchless sync --pull 'stack()'
 
 [include]
     path = ~/.gitconfig-work
