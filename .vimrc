@@ -105,7 +105,7 @@ function! g:skeleton_find_template.java(path)
     return match(a:path, 'Test\.java$') != -1 ? 'test.java' : ''
 endfunction
 function! g:skeleton_find_template.go(path)
-		return match(a:path, 'Test\.go$') != -1 ? 'test.go' : ''
+    return match(a:path, 'Test\.go$') != -1 ? 'test.go' : ''
 endfunction
 
 let g:skeleton_replacements={}
@@ -184,7 +184,9 @@ function! g:skeleton_replacements_java.PACKAGE()
     if len(l:subpath) == 0 || l:subpath == '.'
         return ''
     else
-        return 'package ' . substitute(l:subpath, '/', '.', 'g') . ';'
+        return 'package ' . substitute(l:subpath, '/', '.', 'g') . ';
+
+'
     endif
 endfunction
 
@@ -209,10 +211,10 @@ let g:NERDCustomDelimiters={'textpb': {'left': '#'}}
 let g:airline#extensions#ale#enabled = 1
 
 if s:at_google
-  let g:ale_linters = {
-\    'python': [],
-\    'java': [],
-\}
+    let g:ale_linters = {
+                \    'python': [],
+                \    'java': [],
+                \}
 endif
 
 " JamshedVesuna/vim-markdown-preview
@@ -288,14 +290,14 @@ augroup highlight
 
     " highlight long lines (81st character by default)
     au BufEnter,WinEnter *
-          \ if &textwidth
-          \|    let w:m1=matchadd('ErrorMsg', '\%' . (&textwidth + 1) . 'v.')
-          \|endif
+                \ if &textwidth
+                \|    let w:m1=matchadd('ErrorMsg', '\%' . (&textwidth + 1) . 'v.')
+                \|endif
     au BufLeave *
-          \ if exists('w:m1')
-          \|    call matchdelete(w:m1)
-          \|    unlet w:m1
-          \|endif
+                \ if exists('w:m1')
+                \|    call matchdelete(w:m1)
+                \|    unlet w:m1
+                \|endif
 
     " trailing whitespace
     au BufEnter,WinEnter * let w:m2=matchadd('ErrorMsg', '\s\+$')
