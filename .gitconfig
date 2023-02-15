@@ -19,6 +19,7 @@
     defaultBranch = main
 [alias]
     sync = branchless sync --pull 'stack()'
+    complete = !git branchless hide "\"ancestors($1) - public()\"" && git branch -d "$1"
 
 [include]
     path = ~/.gitconfig-work
