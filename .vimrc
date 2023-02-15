@@ -48,6 +48,14 @@ if !s:at_google
     Plugin 'Valloric/YouCompleteMe'
     " <leader>jd Jump to definition
     Plugin 'fatih/vim-go'
+
+    " Add maktaba and codefmt to the runtimepath.
+    " (The latter must be installed before it can be used.)
+    Plugin 'google/vim-maktaba'
+    Plugin 'google/vim-codefmt'
+    " Also add Glaive, which is used to configure codefmt's maktaba flags. See
+    " `:help :Glaive` for usage.
+    Plugin 'google/vim-glaive'
 endif
 
 call vundle#end()
@@ -60,14 +68,19 @@ if s:at_google
     Glug codefmt-google
     Glug blaze plugin[mappings]='<leader>b'
     let g:blazevim_notify_after_blaze=1
+else
+    " the glaive#Install() should go after the "call vundle#end()"
+    call glaive#Install()
+endif
 
-    augroup autoformat_settings
-        autocmd FileType bzl AutoFormatBuffer buildifier
+augroup autoformat_settings
+    autocmd FileType bzl AutoFormatBuffer buildifier
+    if s:at_google
         autocmd FileType go AutoFormatBuffer gofmt
         autocmd FileType textpb AutoFormatBuffer text-proto-format
         autocmd FileType gcl AutoFormatBuffer gclfmt
-    augroup end
-endif
+    endif
+augroup end
 
 " Valloric/YouCompleteMe
 nnoremap <leader>jd :YcmCompleter GoTo<CR>
@@ -188,7 +201,7 @@ function! g:skeleton_replacements_java.PACKAGE()
     else
         return 'package ' . substitute(l:subpath, '/', '.', 'g') . ';
 
-'
+        '
     endif
 endfunction
 
