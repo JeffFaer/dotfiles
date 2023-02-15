@@ -42,6 +42,7 @@ Plugin 'JamshedVesuna/vim-markdown-preview'
 " <ctrl>p to preview.
 
 Plugin 'noahfrederick/vim-skeleton'
+Plugin 'udalov/kotlin-vim'
 
 if !s:at_google
     Plugin 'Valloric/YouCompleteMe'
