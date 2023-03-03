@@ -20,6 +20,7 @@
 [alias]
     sync = branchless sync --pull 'stack()'
     complete = !git branchless hide "\"ancestors($1) - public()\"" && git branch -d "$1"
+    pre-commit = !pre-commit run -s main -o HEAD --show-diff-on-failure
 
 [include]
     path = ~/.gitconfig-work
