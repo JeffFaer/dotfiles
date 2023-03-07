@@ -18,8 +18,9 @@
 [init]
     defaultBranch = main
 [alias]
+    # Git aliases have an implicit $@ at the end of them.
     sync = branchless sync --pull 'stack()'
-    complete = !git branchless hide "\"ancestors($1) - public()\"" && git branch -d "$1"
+    complete = !git branchless hide "\"ancestors($1) - public()\"" && git branch -d
     pre-commit = !pre-commit run -s main -o HEAD --show-diff-on-failure
 
 [include]
