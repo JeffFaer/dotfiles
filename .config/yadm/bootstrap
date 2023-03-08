@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+[[ -n "${DEBUG:-}" ]] && set -x
+
+# Directory to look for bootstrap executables in
+BOOTSTRAP_D="${BASH_SOURCE[0]}.d"
+
+if [[ ! -d "${BOOTSTRAP_D}" ]]; then
+    echo "Error: bootstrap directory '${BOOTSTRAP_D}' not found" >&2
+    exit 1
+fi
+
+IFS=$'\n'
+files=( $(find -L "${BOOTSTRAP_D}" -type f | sort) )
+unset IFS
+
+for bootstrap in "${files[@]}"; do
+    if [[ -x "${bootstrap}"
+        && ! "${bootstrap}" =~ "##"
+        && ! "${bootstrap}" =~ "~$" ]]; then
+        if ! "${bootstrap}"; then
+            echo "Error: bootstrap '${bootstrap}' failed" >&2
+            exit 1
+        fi
+    fi
+done

@@ -1,7 +1,5 @@
 ````
-git clone git@github.com:JeffreyFalgout/dotfiles.git
-./dotfiles/.install.sh
+BOOTSTRAP=all yadm clone git@github.com:JeffreyFalgout/dotfiles.git
 
-git clone https://github.com/JeffreyFalgout/dotfiles.git
-./dotfiles/.install.sh
+BOOTSTRAP=all yadm clone https://github.com/JeffreyFalgout/dotfiles.git
 ````

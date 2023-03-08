@@ -7,3 +7,6 @@
 [submodule "src/bats-core"]
 	path = src/bats-core
 	url = https://github.com/bats-core/bats-core.git
+[submodule "src/yadm"]
+	path = src/yadm
+	url = https://github.com/TheLocehiliosan/yadm.git
