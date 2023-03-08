@@ -7,6 +7,7 @@ alias mv="mv -i"
 alias to-clipboard="xclip -sel clip"
 alias ulimit="ulimit -S"
 alias vim="vim --servername vim"
+alias yadm="yadm --yadm-repo ~/.git"
 # keep-sorted end
 
 if [[ -x /usr/bin/dircolors ]]; then

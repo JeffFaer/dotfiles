@@ -203,26 +203,6 @@ __show_git_ps1() {
     __git_exists && is_git_dir && (shows_untracked_files || has_tracked_files)
 }
 
-# @returns 0 if yadm status should be shown
-# @prints nothing
-__show_yadm_ps1() {
-    yadm_exists() {
-        command -v yadm &> /dev/null
-    }
-    is_yadm_dir() {
-        local worktree="$(yadm gitconfig core.worktree)"
-        [[ "${PWD}" == "${worktree}"* ]]
-    }
-    shows_untracked_files() {
-        [[ "$(yadm gitconfig status.showUntrackedFiles)" != no ]]
-    }
-    has_tracked_files() {
-        [[ -n "$(yadm list)" ]]
-    }
-
-    yadm_exists && is_yadm_dir && (shows_untracked_files || has_tracked_files)
-}
-
 __elapsed_preexec() {
     __elapsed_start=$(date +%s%N)
 }
@@ -293,13 +273,6 @@ __status_line() {
         status+="$(__git_ps1 \
             "${color[gray]}(${color[end]}%s${color[gray]})${color[end]}")"
     fi
-    if __show_yadm_ps1; then
-        local git_dir="$(yadm enter echo '"${GIT_DIR}"')"
-        local git_work_tree="$(yadm enter echo '"${GIT_WORK_TREE}"')"
-        status+="$(GIT_DIR="${git_dir}" GIT_WORK_TREE="${git_work_tree}" __git_ps1 \
-            "${color[gray]}(${color[dark_gray]}YADM ${color[end]}%s${color[gray]})${color[end]}")"
-    fi
-
 
     local right_adjusted_status=""
     right_adjusted_status+="${color[dark_gray]}${now}"

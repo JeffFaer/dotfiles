@@ -3,4 +3,4 @@
 set -euo pipefail
 [[ -n "${DEBUG:-}" ]] && set -x
 
-yadm gitconfig bash.showUntrackedFiles "$(yadm gitconfig status.showUntrackedFiles)"
+git config bash.showUntrackedFiles "$(git config status.showUntrackedFiles)"
