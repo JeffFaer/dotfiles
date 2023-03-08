@@ -1,7 +1,7 @@
 ```
-$ git clone -n git@github.com:JeffreyFalgout/dotfiles.git ~
-$ git clone -n https://github.com/JeffreyFalgout/dotfiles.git ~
+$ git clone git@github.com:JeffreyFalgout/dotfiles.git
+$ BOOTSTRAP=all ./dotfiles/install.sh
 
-$ git checkout HEAD -- install.sh
-$ BOOTSTRAP=all ./install.sh
+$ git clone https://github.com/JeffreyFalgout/dotfiles.git
+$ BOOTSTRAP=all ./dotfiles/install.sh
 ```
