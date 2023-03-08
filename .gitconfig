@@ -25,3 +25,5 @@
 
 [include]
     path = ~/.gitconfig-work
+[remote "origin"]
+	prune = true
