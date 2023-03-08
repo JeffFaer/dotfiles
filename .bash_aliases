@@ -1,3 +1,4 @@
+# keep-sorted start
 alias cp="cp -i"
 alias du="du -h"
 alias from-clipboard="xclip -o"
@@ -6,6 +7,7 @@ alias mv="mv -i"
 alias to-clipboard="xclip -sel clip"
 alias ulimit="ulimit -S"
 alias vim="vim --servername vim"
+# keep-sorted end
 
 if [[ -x /usr/bin/dircolors ]]; then
     if [[ -r ~/.dircolors ]]; then
