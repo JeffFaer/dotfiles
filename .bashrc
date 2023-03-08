@@ -184,18 +184,43 @@ __exit_status() {
 # @returns 0 if git and __git_ps1 both exist.
 # @prints nothing
 __git_exists() {
-    command -v git &> /dev/null && [[ $(type -t __git_ps1) == function ]]
+    command -v git &> /dev/null && [[ "$(type -t __git_ps1)" == function ]]
 }
 
-# @returns 0 if the git status should be hidden
+# @returns 0 if git status should be shown
 # @prints nothing
-__hide_git_ps1() {
-    # 1) If we're not in a git directory, hide __git_ps1
-    # 2) If we don't care about untracked files and the current directory has no
-    #    tracked files, hide __git_ps1
-    ! git rev-parse &> /dev/null \
-        || [[ $(git config status.showUntrackedFiles) == no \
-        && -z $(git ls-files) ]]
+__show_git_ps1() {
+    is_git_dir() {
+        git rev-parse &> /dev/null
+    }
+    shows_untracked_files() {
+        [[ "$(git config status.showUntrackedFiles)" != no ]]
+    }
+    has_tracked_files() {
+        [[ -n "$(git ls-files)" ]]
+    }
+
+    __git_exists && is_git_dir && (shows_untracked_files || has_tracked_files)
+}
+
+# @returns 0 if yadm status should be shown
+# @prints nothing
+__show_yadm_ps1() {
+    yadm_exists() {
+        command -v yadm &> /dev/null
+    }
+    is_yadm_dir() {
+        local worktree="$(yadm gitconfig core.worktree)"
+        [[ "${PWD}" == "${worktree}"* ]]
+    }
+    shows_untracked_files() {
+        [[ "$(yadm gitconfig status.showUntrackedFiles)" != no ]]
+    }
+    has_tracked_files() {
+        [[ -n "$(yadm list)" ]]
+    }
+
+    yadm_exists && is_yadm_dir && (shows_untracked_files || has_tracked_files)
 }
 
 __elapsed_preexec() {
@@ -264,10 +289,17 @@ __status_line() {
     status+="${color[gray]}]"
     status+="${color[end]}"
 
-    if __git_exists && ! __hide_git_ps1; then
+    if __show_git_ps1; then
         status+="$(__git_ps1 \
             "${color[gray]}(${color[end]}%s${color[gray]})${color[end]}")"
     fi
+    if __show_yadm_ps1; then
+        local git_dir="$(yadm enter echo '"${GIT_DIR}"')"
+        local git_work_tree="$(yadm enter echo '"${GIT_WORK_TREE}"')"
+        status+="$(GIT_DIR="${git_dir}" GIT_WORK_TREE="${git_work_tree}" __git_ps1 \
+            "${color[gray]}(${color[dark_gray]}YADM ${color[end]}%s${color[gray]})${color[end]}")"
+    fi
+
 
     local right_adjusted_status=""
     right_adjusted_status+="${color[dark_gray]}${now}"
