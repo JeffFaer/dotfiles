@@ -2,6 +2,9 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
+# A list of variables and functions that should be unset at the end of bashrc.
+__bashrc_cleanup=()
+
 if [[ -f "${HOME}/.environment" ]]; then
     . "${HOME}/.environment"
 fi
@@ -49,6 +52,14 @@ fi
 ## Everything above this point was Ubuntu boilerplate ##
 ########################################################
 
+# Settings that might be overridden by .bash_local.
+hostname_color=white
+# Each entry in this array should be a function that accepts a path. If the
+# function can abbreviate the given path, it should print the abbreviated path
+# and return 0, otherwise it should return a non-zero value.
+directory_abbreviaters=()
+unicode_face_width=1
+
 # Ignore these commands in history.
 HISTIGNORE=clear:history:ls
 export HISTTIMEFORMAT="[%F %T %z] "
@@ -58,10 +69,10 @@ export HISTFILE=~/.personal_bash_history
 # Replace !!, !<text>, !?<text>, !# commands inline before executing.
 shopt -s histverify
 # Flush and reload bash history before every command.
-flush_history() {
+bashrc::flush_history() {
     history -a
 }
-preexec_functions+=("flush_history")
+preexec_functions+=("bashrc::flush_history")
 
 # ** globs directories
 shopt -s globstar
@@ -72,28 +83,14 @@ set -o vi
 # Allow Ctrl-S to look forward in history
 stty -ixon
 
-# Functions
 if [[ -f ~/.bash_functions ]]; then
     . ~/.bash_functions
 fi
 
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
 if [[ -f ~/.bash_aliases ]]; then
     . ~/.bash_aliases
 fi
 
-# Settings that might be overridden by .bash_local.
-hostname_color=white
-# Each entry in this array should be a function that accepts a path. If the
-# function can abbreviate the given path, it should print the abbreviated path
-# and return 0, otherwise it should return a non-zero value.
-directory_abbreviaters=()
-unicode_face_width=1
-
-# Bash settings local to a machine
 if [[ -f ~/.bash_local ]]; then
     . ~/.bash_local
 fi
@@ -121,6 +118,7 @@ load_color() {
         echo "${color[$2]}"
     fi
 }
+__bashrc_cleanup+=("num_colors" "load_color")
 
 color[gray]=$(load_color 8 black)
 color[bright_green]=$(load_color 10 green)
@@ -131,17 +129,17 @@ color[deep_green]=$(load_color 28 green)
 color[orange]=$(load_color 208 yellow)
 color[dark_gray]=$(load_color 237 gray)
 
-__abbreviated_dirs() {
+bashrc::abbreviated_dirs() {
     local IFS=$'\n'
     local dirs=( $(dirs -p) )
     unset IFS
 
     local i
     for i in "${!dirs[@]}"; do
-        local dir=${dirs[$i]}
+        local dir="${dirs[$i]}"
 
         local abbreviated
-        abbreviated=$(__abbreviate_dir "${dir}")
+        abbreviated="$(bashrc::abbreviate_dir "${dir}")"
         if [[ $? == 0 ]]; then
             dirs[$i]="${abbreviated}"
         fi
@@ -150,7 +148,7 @@ __abbreviated_dirs() {
     echo "${dirs[*]}"
 }
 
-__abbreviate_dir() {
+bashrc::abbreviate_dir() {
     local dir="$1"
 
     for abbreviater in "${directory_abbreviaters[@]}"; do
@@ -165,31 +163,32 @@ __abbreviate_dir() {
     return 1
 }
 
-__exit_status() {
+bashrc::exit_status() {
     local status=${1:-$?}
 
+    local c
     local face
     if [[ $status -eq 0 ]]; then
-        echo -n "${color[green]}"
+        c=green
         face="☺"
     else
-        echo -n "${color[red]}"
+        c=red
         face="☹"
     fi
 
     local face_padding=$((unicode_face_width - 1))
-    printf "%s%${face_padding}s\n" "${face}"
+    printf "%s%s%${face_padding}s\n" "${color[$c]}" "${face}" ""
 }
 
 # @returns 0 if git and __git_ps1 both exist.
 # @prints nothing
-__git_exists() {
+bashrc::git_exists() {
     command -v git &> /dev/null && [[ "$(type -t __git_ps1)" == function ]]
 }
 
 # @returns 0 if git status should be shown
 # @prints nothing
-__show_git_ps1() {
+bashrc::show_git_ps1() (
     is_git_dir() {
         git rev-parse &> /dev/null
     }
@@ -200,22 +199,23 @@ __show_git_ps1() {
         [[ -n "$(git ls-files)" ]]
     }
 
-    __git_exists && is_git_dir && (shows_untracked_files || has_tracked_files)
-}
+    bashrc::git_exists && is_git_dir \
+      && (shows_untracked_files || has_tracked_files)
+)
 
-__elapsed_preexec() {
-    __elapsed_start=$(date +%s%N)
+bashrc::elapsed_preexec() {
+    __bashrc_elapsed_start=$(date +%s%N)
 }
-preexec_functions+=("__elapsed_preexec")
+preexec_functions+=("bashrc::elapsed_preexec")
 
-__elapsed_precmd() {
-    if [[ -z "${__elapsed_start}" ]]; then
+bashrc::elapsed_precmd() {
+    if [[ -z "${__bashrc_elapsed_start}" ]]; then
         return
     fi
 
     local now_nanos="$(date +%s%N)"
-    local elapsed_nanos=$(( now_nanos - __elapsed_start ))
-    __elapsed_start=""
+    local elapsed_nanos=$(( now_nanos - __bashrc_elapsed_start ))
+    __bashrc_elapsed_start=""
 
     local elapsed_millis=$(( elapsed_nanos / 1000000 ))
     local elapsed_seconds=$(( elapsed_millis / 1000 ))
@@ -240,21 +240,21 @@ __elapsed_precmd() {
     status+="${color[end]}"
 
     echo
-    __echo_right_adjusted "${status}"
+    bashrc::echo_right_adjusted "${status}"
 }
-__echo_right_adjusted() {
-    local len="$(__length_without_colors "$*")"
+bashrc::echo_right_adjusted() {
+    local len="$(bashrc::length_without_colors "$*")"
     echo -n "[${COLUMNS}C" # Go to the end of the line.
     echo -n "[$((len - 1))D" # Go back a little bit
     echo "$*"
 }
 # Determines the length of $* without any color control sequences included.
-__length_without_colors() {
+bashrc::length_without_colors() {
     echo -n "$*" | sed -re "s/\[[^m]+?m//g" | wc -m
 }
-precmd_functions+=("__elapsed_precmd")
+precmd_functions+=("bashrc::elapsed_precmd")
 
-__status_line() {
+bashrc::status_line() {
     local previous_status=$?
     local now="$(date +%Y-%m-%dT%H:%M:%S)"
 
@@ -263,13 +263,13 @@ __status_line() {
     status+="${color[gray]}@"
     status+="${color[${hostname_color}]}${HOSTNAME}"
     status+="${color[gray]}:"
-    status+="${color[blue]}$(color[end]=${color[blue]}; __abbreviated_dirs)"
+    status+="${color[blue]}$(color[end]=${color[blue]}; bashrc::abbreviated_dirs)"
     status+="${color[gray]}["
-    status+="$(__exit_status ${previous_status})"
+    status+="$(bashrc::exit_status ${previous_status})"
     status+="${color[gray]}]"
     status+="${color[end]}"
 
-    if __show_git_ps1; then
+    if bashrc::show_git_ps1; then
         status+="$(__git_ps1 \
             "${color[gray]}(${color[end]}%s${color[gray]})${color[end]}")"
     fi
@@ -278,20 +278,20 @@ __status_line() {
     right_adjusted_status+="${color[dark_gray]}${now}"
     right_adjusted_status+="${color[end]}"
 
-    local left_len="$(__length_without_colors "${status}")"
-    local right_len="$(__length_without_colors "${right_adjusted_status}")"
+    local left_len="$(bashrc::length_without_colors "${status}")"
+    local right_len="$(bashrc::length_without_colors "${right_adjusted_status}")"
     if [[ $((left_len + right_len)) -ge ${COLUMNS} ]]; then
         echo "${status} ${right_adjusted_status}"
     else
         echo -n "${status}"
-        __echo_right_adjusted "${right_adjusted_status}"
+        bashrc::echo_right_adjusted "${right_adjusted_status}"
     fi
 }
-precmd_functions+=("__status_line")
+precmd_functions+=("bashrc::status_line")
 
 # Use our version of __git_ps1 until I get around to contributing it back
 # upstream.
-if __git_exists; then
+if bashrc::git_exists; then
     . ~/.git-prompt.sh
 fi
 
@@ -303,18 +303,16 @@ export GIT_PS1_SHOWUNTRACKEDFILES=true
 
 export PS1="\[${color[gray]}\]$\[${color[end]}\] "
 
-unset num_colors
-
 ##################
 #  tmux Hacking  #
 ##################
 
 if [[ -n $TMUX ]]; then
-    tmux_preexec() {
+    bashrc::tmux_preexec() {
         eval $(tmux show-environment -s)
     }
 
-    preexec_functions+=("tmux_preexec")
+    preexec_functions+=("bashrc::tmux_preexec")
 fi
 
 ##################
@@ -324,3 +322,14 @@ fi
 if [[ ${#preexec_functions[@]} -gt 0 || ${#precmd_functions[@]} -gt 0 ]]; then
     . ~/src/bash-preexec/bash-preexec.sh
 fi
+
+#############
+#  Cleanup  #
+#############
+
+for var in "${__bashrc_cleanup[@]}"; do
+  unset "$var"
+done
+
+unset var
+unset __bashrc_cleanup

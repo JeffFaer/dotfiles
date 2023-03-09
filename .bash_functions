@@ -103,48 +103,6 @@ alias() {
     builtin alias "$@"
 }
 
-# Adds an alias for $1 which appends the remaining arguments to an existing
-# alias. If there is no existing alias, then the arguments are appended to the
-# command itself.
-#
-# $1: Command name to alias
-# $2+: Things to append to the alias.
-alias_append() {
-    alias $1="${BASH_ALIASES[$1]:-$1} ${*:2}"
-}
-
-# Determines which completion is used for the aliased command and applies it to
-#
-# the alias itself.
-# $1: The command that is aliased.
-# $2?: The command whose completion should be copied. If not provided, it will
-# be determined from the first word of the alias.
-alias_completion() {
-    local command="$1"
-    local alias="$2"
-    if [[ $# -eq 1 ]]; then
-        local alias_spec="$(alias "${command}")"
-        if [[ $? -ne 0 || -z "${alias_spec}" ]]; then
-            return 1
-        fi
-
-        local alias_command="$(
-            sed -re "s/alias ${command}='(.+)'/\1/" <<< "${alias_spec}")"
-        if [[ $? -ne 0 ]]; then
-            return 1
-        fi
-
-        local words=( ${alias_command} )
-        alias=${words[0]}
-    fi
-
-    local completion=$(complete -p "${alias}" 2>/dev/null)
-    if [[ $? -ne 0 || -z "${completion}" ]]; then
-        return 1
-    fi
-
-    eval $(sed -re "s/${alias}\$/${command}/" <<< "${completion}")
-}
 
 ########################
 #  Exported Functions  #

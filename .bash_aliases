@@ -1,3 +1,14 @@
+# Adds an alias for $1 which appends the remaining arguments to an existing
+# alias. If there is no existing alias, then the arguments are appended to the
+# command itself.
+#
+# $1: Command name to alias
+# $2+: Things to append to the alias.
+alias_append() {
+    alias $1="${BASH_ALIASES[$1]:-$1} ${*:2}"
+}
+__bashrc_cleanup+=("alias_append")
+
 # keep-sorted start
 alias cp="cp -i"
 alias du="du -h"
