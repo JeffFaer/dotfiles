@@ -294,6 +294,9 @@ set ignorecase
 set smartcase
 set incsearch
 
+noremap / /\v
+cnoremap s/ s/\v
+
 " Highlight whole words that match the one under the cursor
 nnoremap <leader>h :let @/='\V\<<C-r><C-a>\>'<CR>:set hls<CR>
 " Highlight text that matches the visual selection
