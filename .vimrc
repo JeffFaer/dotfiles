@@ -295,6 +295,7 @@ set smartcase
 set incsearch
 
 noremap / /\v
+noremap ? ?\v
 cnoremap s/ s/\v
 
 " Highlight whole words that match the one under the cursor
