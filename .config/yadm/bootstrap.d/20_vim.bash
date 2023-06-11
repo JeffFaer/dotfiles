@@ -13,6 +13,9 @@ fi
 echo "Installing Vundle plugins"
 vim +PluginInstall +qall
 
+echo "Installing supporting software"
+bootstrap::install_packages shellcheck || true
+
 if bootstrap::should_run "airline"; then
     echo "Setting up Airline"
     if bootstrap::install_packages fonts-powerline; then

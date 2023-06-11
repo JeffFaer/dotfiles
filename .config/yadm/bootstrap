@@ -11,10 +11,7 @@ if [[ ! -d "${BOOTSTRAP_D}" ]]; then
     exit 1
 fi
 
-IFS=$'\n'
-files=( $(find -L "${BOOTSTRAP_D}" -type f | sort) )
-unset IFS
-
+mapfile -t files < <(find -L "${BOOTSTRAP_D}" -type f | sort)
 for bootstrap in "${files[@]}"; do
     if [[ -x "${bootstrap}"
         && ! "${bootstrap}" =~ "##"
