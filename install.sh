@@ -12,9 +12,7 @@ rm -r "${source}"
 # Restore deleted files.
 # deleted files exist in git, but not on the local FS, so they should be safe to
 # restore.
-IFS=$'\n'
-deleted_files=( $(git ls-files --deleted) )
-unset IFS
+mapfile -t deleted_files < <(git ls-files --deleted)
 
 if [[ "${#deleted_files[@]}" -gt 0 ]]; then
     git restore "${deleted_files[@]}"
