@@ -228,6 +228,7 @@ let g:airline#extensions#ale#enabled = 1
 if s:at_google
     " Google has its own linters, and ale gets _really_ slow on these languages.
     let g:ale_linters = {
+                \    'cpp': [],
                 \    'python': [],
                 \    'java': [],
                 \    'typescript': [],
