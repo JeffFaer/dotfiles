@@ -128,6 +128,7 @@ color[brown]=$(load_color 94 yellow)
 color[deep_green]=$(load_color 28 green)
 color[orange]=$(load_color 208 yellow)
 color[dark_gray]=$(load_color 237 gray)
+color[plum]=$(load_color 219 magenta)
 
 bashrc::abbreviated_dirs() {
     local IFS=$'\n'
