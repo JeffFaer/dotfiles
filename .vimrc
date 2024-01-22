@@ -231,6 +231,7 @@ if s:at_google
                 \    'cpp': [],
                 \    'python': [],
                 \    'java': [],
+                \    'javascript': [],
                 \    'typescript': [],
                 \}
 endif
