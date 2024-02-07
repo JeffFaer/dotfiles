@@ -1,5 +1,5 @@
 if [[ "$(type -t dotfiles::user_permission)" != function ]]; then
-    source "${HOME}/.bash_functions"
+    source "${HOME}/bashrc.d/functions.bash"
 fi
 
 # Determines if particularly expensive bootstrapping code should be run.

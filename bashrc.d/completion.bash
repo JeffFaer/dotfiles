@@ -1,5 +1,3 @@
-# This file gets sourced via /etc/bash_completiono
-
 # Determines which completion is used for the aliased command and applies it to
 # the alias itself.
 #
@@ -35,6 +33,7 @@ alias_completion() {
 __bashrc_cleanup+=("alias_completion")
 
 
-for f in ~/bash_completion.d/*sh; do
-    . "${f}"
+dir="$(dirname "${BASH_SOURCE[0]}")"
+for f in "${dir}/bash_completion.d/"*sh; do
+    source "${f}"
 done

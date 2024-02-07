@@ -1,0 +1,1 @@
+../../src/yadm/completion/bash/yadm

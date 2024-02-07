@@ -8,8 +8,8 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
-if [[ -n $BASH_VERSION && -f $HOME/.bashrc ]]; then
-    . "$HOME/.bashrc"
-elif [[ -f $HOME/.environment ]]; then
-    . "$HOME/.environment"
+if [[ -n "$BASH_VERSION" && -f "$HOME/.bashrc" ]]; then
+    source "$HOME/.bashrc"
+elif [[ -f "$HOME/bashrc.d/envrc" ]]; then
+    source "$HOME/bashrc.d/envrc"
 fi

@@ -5,10 +5,6 @@
 # A list of variables and functions that should be unset at the end of bashrc.
 __bashrc_cleanup=()
 
-if [[ -f "${HOME}/.environment" ]]; then
-    . "${HOME}/.environment"
-fi
-
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;
@@ -83,16 +79,13 @@ set -o vi
 # Allow Ctrl-S to look forward in history
 stty -ixon
 
-if [[ -f ~/.bash_functions ]]; then
-    . ~/.bash_functions
-fi
-
-if [[ -f ~/.bash_aliases ]]; then
-    . ~/.bash_aliases
-fi
-
-if [[ -f ~/.bash_local ]]; then
-    . ~/.bash_local
+if [[ -d "${HOME}/bashrc.d/" ]]; then
+  for f in "${HOME}/bashrc.d/"*; do
+    if [[ -f "${f}" ]]; then
+      # shellcheck disable=SC1090
+      source "${f}"
+    fi
+  done
 fi
 
 ##################
@@ -293,7 +286,7 @@ precmd_functions+=("bashrc::status_line")
 # Use our version of __git_ps1 until I get around to contributing it back
 # upstream.
 if bashrc::git_exists; then
-    . ~/.git-prompt.sh
+    source ~/.git-prompt.sh
 fi
 
 export GIT_PS1_SHOWDIRTYSTATE=true
@@ -321,7 +314,7 @@ fi
 ##################
 
 if [[ ${#preexec_functions[@]} -gt 0 || ${#precmd_functions[@]} -gt 0 ]]; then
-    . ~/src/bash-preexec/bash-preexec.sh
+    source ~/src/bash-preexec/bash-preexec.sh
 fi
 
 #############
