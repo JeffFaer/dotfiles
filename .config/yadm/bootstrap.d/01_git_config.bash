@@ -3,6 +3,7 @@
 set -euo pipefail
 [[ -n "${DEBUG:-}" ]] && set -x
 
+cd "$(git rev-parse --show-toplevel)"
 if [[ -z "$(git config --get status.showUntrackedFiles)" ]]; then
     git config status.showUntrackedFiles no
 fi
