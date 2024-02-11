@@ -1,6 +1,6 @@
 [submodule ".vim/bundle/Vundle.vim"]
 	path = .vim/bundle/Vundle.vim
-	url = https://github.com/gmarik/Vundle.vim.git
+	url = https://github.com/VundleVim/Vundle.vim.git
 [submodule "src/bash-preexec"]
 	path = src/bash-preexec
 	url = https://github.com/rcaloras/bash-preexec
