@@ -200,7 +200,8 @@ bashrc::show_git_ps1() (
 bashrc::elapsed_preexec() {
     __bashrc_elapsed_start=$(date +%s%N)
 }
-preexec_functions+=("bashrc::elapsed_preexec")
+# Insert this first so the elapsed time also includes preexecs.
+preexec_functions=("bashrc::elapsed_preexec" "${preexec_functions[@]}")
 
 bashrc::elapsed_precmd() {
     if [[ -z "${__bashrc_elapsed_start}" ]]; then
@@ -326,6 +327,21 @@ fi
 ##################
 
 if [[ ${#preexec_functions[@]} -gt 0 || ${#precmd_functions[@]} -gt 0 ]]; then
+    if [[ -n "${__bashrc_instrument_preexec}" ]]; then 
+        old_preexec_functions=( "${preexec_functions[@]}" )
+        old_precmd_functions=( "${precmd_functions[@]}" )
+        preexec_functions=()
+        precmd_functions=()
+        __bashrc_cleanup+=( "fn" )
+        for fn in "${old_preexec_functions[@]}"; do
+            eval "instrumented_${fn}() { TIMEFORMAT=\"${fn} \$@: %3R\" && time \"${fn}\" \"\$@\"; }"
+            preexec_functions+=( "instrumented_${fn}" )
+        done
+        for fn in "${old_precmd_functions[@]}"; do
+            eval "instrumented_${fn}() { TIMEFORMAT=\"${fn} \$@: %3R\" && time \"${fn}\" \"\$@\"; }"
+            precmd_functions+=( "instrumented_${fn}" )
+        done
+    fi
     source ~/src/bash-preexec/bash-preexec.sh
 fi
 
