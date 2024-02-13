@@ -305,16 +305,20 @@ if [[ -n "${TMUX}" ]]; then
     bashrc::tmux_preexec() {
         eval $(tmux show-environment -s)
     }
-    bashrc::tvs_preexec() {
-        if ! git ls-files --error-unmatch &>/dev/null; then
-            return
-        fi
-        if tmux-vcs-sync update --fail-noop; then
-            history -s tmux-vcs-sync update
-        fi
-    }
+    preexec_functions+=("bashrc::tmux_preexec")
 
-    preexec_functions+=("bashrc::tmux_preexec" "bashrc::tvs_preexec")
+    if [[ -n "$(command -v tmux-vcs-sync)" ]]; then
+        bashrc::tvs_preexec() {
+            if ! git ls-files --error-unmatch &>/dev/null; then
+                return
+            fi
+            if tmux-vcs-sync update --fail-noop; then
+                history -s tmux-vcs-sync update
+            fi
+        }
+        preexec_functions+=("bashrc::tvs_preexec")
+    fi
+
 fi
 
 ##################
