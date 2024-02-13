@@ -17,6 +17,8 @@
     prompt = false
 [init]
     defaultBranch = main
+[url "ssh://git@github.com/"]
+	insteadOf = https://github.com/
 [alias]
     # Git aliases have an implicit $@ at the end of them.
     sync = branchless sync --pull 'stack()'
