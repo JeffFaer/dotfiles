@@ -16,10 +16,13 @@ alias from-clipboard="xclip -o"
 alias gcc="gcc -ansi -Wall -g -O0 -Wwrite-strings -Wshadow -pedantic-errors -fstack-protector-all"
 alias mv="mv -i"
 alias to-clipboard="xclip -sel clip"
+alias tvs="tmux-vcs-sync"
 alias ulimit="ulimit -S"
 alias vim="vim --servername vim"
 alias yadm="yadm --yadm-repo ~/.git"
 # keep-sorted end
+
+alias_completion tvs
 
 if [[ -x /usr/bin/dircolors ]]; then
     if [[ -r ~/.dircolors ]]; then

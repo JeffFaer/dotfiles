@@ -8,26 +8,31 @@ alias_completion() {
     local command="$1"
     local alias="$2"
     if [[ $# -eq 1 ]]; then
-        local alias_spec="$(alias "${command}")"
-        if [[ $? -ne 0 || -z "${alias_spec}" ]]; then
+        local alias_spec
+        alias_spec="$(alias "${command}")"
+        if ! alias_spec="$(alias "${command}")" \
+            || [[ -z "${alias_spec}" ]]; then
             return 1
         fi
 
-        local alias_command="$(
-            sed -re "s/alias ${command}='(.+)'/\1/" <<< "${alias_spec}")"
-        if [[ $? -ne 0 ]]; then
+        local alias_command
+        if ! alias_command="$(
+            sed -re "s/alias ${command}='(.+)'/\1/" <<< "${alias_spec}")"; then
             return 1
         fi
 
-        local words=( ${alias_command} )
+        local words
+        read -r -a words <<< "${alias_command}"
         alias=${words[0]}
     fi
 
-    local completion=$(complete -p "${alias}" 2>/dev/null)
-    if [[ $? -ne 0 || -z "${completion}" ]]; then
+    local completion
+    if ! completion=$(complete -p "${alias}" 2>/dev/null) \
+        || [[ -z "${completion}" ]]; then
         return 1
     fi
 
+    # shellcheck disable=SC2046
     eval $(sed -re "s/${alias}\$/${command}/" <<< "${completion}")
 }
 __bashrc_cleanup+=("alias_completion")
@@ -35,5 +40,6 @@ __bashrc_cleanup+=("alias_completion")
 
 dir="$(dirname "${BASH_SOURCE[0]}")"
 for f in "${dir}/bash_completion.d/"*sh; do
+    # shellcheck disable=SC1090
     source "${f}"
 done
