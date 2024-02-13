@@ -9,7 +9,6 @@ alias_completion() {
     local alias="$2"
     if [[ $# -eq 1 ]]; then
         local alias_spec
-        alias_spec="$(alias "${command}")"
         if ! alias_spec="$(alias "${command}")" \
             || [[ -z "${alias_spec}" ]]; then
             return 1
