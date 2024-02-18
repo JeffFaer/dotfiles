@@ -10,6 +10,6 @@
 
 if [[ -n "$BASH_VERSION" && -f "$HOME/.bashrc" ]]; then
     source "$HOME/.bashrc"
-elif [[ -f "$HOME/bashrc.d/envrc" ]]; then
-    source "$HOME/bashrc.d/envrc"
+elif [[ -f "$HOME/bashrc.d/00_envrc" ]]; then
+    source "$HOME/bashrc.d/00_envrc"
 fi
