@@ -5,7 +5,7 @@ set -euo pipefail
 [[ -n "${DEBUG:-}" ]] && set -x
 
 mapfile -t branches < <(
-    git branch --list --format '%(refname:short)')
+    git branch --list --format '%(objectname:short)')
 
 common_ancestor="$(git merge-base --octopus "${branches[@]}")"
 num_omitted="$(git log --format="format:%h" "${common_ancestor}~5" | wc -l)"
