@@ -4,12 +4,53 @@ set -euo pipefail
 [[ $# -eq 0 ]] || (echo 1>&2 "This script does not take arguments." && exit 1)
 set -x
 
-git fetch --prune
-git remote prune origin
+#git fetch --prune
+#git remote prune origin
 
 mapfile -t gone < <(
     git branch --format "%(refname:short) %(upstream:track,nobracket)" \
         | grep -E 'gone$' \
-        | awk '{print $1}')
+        | awk '{print $1}' \
+        | sort)
 [[ "${#gone[@]}" -eq 0 ]] && exit
-git branch -D "${gone[@]}"
+
+# We have some branches whose remote branches have gone missing.
+# That generally means their PR was submitted.
+#
+# I have a habit of not always creating a PR per branch for personal projects.
+# Let's try to find any branches between the gone branch and main that should
+# also be cleaned up.
+
+# (1) Figure out what the primary branch's name is.
+primary_branches=(main master)
+if b="$(git config init.defaultBranch)"; then
+    primary_branches=( "${b}" "${primary_branches[@]}" )
+fi
+for b in "${primary_branches[@]}"; do
+    if git show-ref --verify --quiet "refs/heads/${b}"; then
+        primary_branch="${b}"
+        break
+    fi
+done
+if [[ -z "${primary_branch:-}" ]]; then
+    echo 1>&2 "Couldn't determine primary branch"
+    exit 1
+fi
+
+# (2) Find all commits between the gone branches and the primary branch.
+mapfile -t commits < <(
+    git log --format="format:%h" "${gone[@]}" "^${primary_branch}")
+
+# (3) Find out what branches use those commits.
+cmd=( git branch --format "%(refname:short)" --all --list )
+for c in "${commits[@]}"; do
+    cmd+=(--contains "${c}")
+done
+# (3.5) Remove the gone branches from these extra branches we're discovering.
+mapfile -t extra_branches < <(
+    comm -13 \
+        <(IFS=$'\n'; echo "${gone[*]}") \
+        <("${cmd[@]}" | sort -u))
+
+# (4) Remove the branches.
+git branch -D "${gone[@]}" "${extra_branches[@]}"
