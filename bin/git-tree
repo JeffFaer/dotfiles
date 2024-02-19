@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+[[ $# -eq 0 ]] || (echo 1>&2 "This script does not take arguments." && exit 1)
+[[ -n "${DEBUG:-}" ]] && set -x
+
+mapfile -t branches < <(
+    git branch --list --format '%(refname:short)')
+
+common_ancestor="$(git merge-base --octopus "${branches[@]}")"
+num_omitted="$(git log --format="format:%h" "${common_ancestor}~5" | wc -l)"
+(
+git --no-pager log \
+    --color=always \
+    --format="format:%C(auto)%h - %ah%d %C(dim white)- %aE%C(reset)%n%s%n" \
+    --graph \
+    --branches \
+    "^${common_ancestor}~5"
+if [[ "${num_omitted}" -gt 0 ]]; then
+    echo "|"
+    echo "."
+    echo "."
+fi
+) | "${PAGER:-less}" -RF
