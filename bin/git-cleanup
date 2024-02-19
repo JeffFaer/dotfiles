@@ -4,14 +4,14 @@ set -euo pipefail
 [[ $# -eq 0 ]] || (echo 1>&2 "This script does not take arguments." && exit 1)
 set -x
 
-#git fetch --prune
-#git remote prune origin
+git fetch --prune
+git remote prune origin
 
 mapfile -t gone < <(
     git branch --format "%(refname:short) %(upstream:track,nobracket)" \
         | grep -E 'gone$' \
         | awk '{print $1}' \
-        | sort)
+        | sort -u)
 [[ "${#gone[@]}" -eq 0 ]] && exit
 
 # We have some branches whose remote branches have gone missing.
@@ -41,10 +41,10 @@ fi
 mapfile -t commits < <(
     git log --format="format:%h" "${gone[@]}" "^${primary_branch}")
 
-# (3) Find out what branches use those commits.
-cmd=( git branch --format "%(refname:short)" --all --list )
+# (3) Find out if any of those commits are current branch heads.
+cmd=( git branch --list --format="%(refname:short)" )
 for c in "${commits[@]}"; do
-    cmd+=(--contains "${c}")
+    cmd+=(--points-at "${c}")
 done
 # (3.5) Remove the gone branches from these extra branches we're discovering.
 mapfile -t extra_branches < <(
@@ -52,5 +52,12 @@ mapfile -t extra_branches < <(
         <(IFS=$'\n'; echo "${gone[*]}") \
         <("${cmd[@]}" | sort -u))
 
-# (4) Remove the branches.
+# (4) Switch to a different branch if we're on one that's about to be deleted.
+if grep -q \
+    -F "$(git branch --show-current)" \
+    <(IFS=$'\n'; echo "${gone[*]}"; echo "${extra_branches[*]}"); then
+    git checkout "${primary_branch}"
+fi
+
+# (5) Remove the branches.
 git branch -D "${gone[@]}" "${extra_branches[@]}"
