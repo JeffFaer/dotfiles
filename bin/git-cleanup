@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+[[ $# -eq 0 ]] || (echo 1>&2 "This script does not take arguments." && exit 1)
+set -x
+
+git fetch --prune
+git remote prune origin
+
+mapfile -t gone < <(
+    git branch --format "%(refname:short) %(upstream:track,nobracket)" \
+        | grep -E 'gone$' \
+        | awk '{print $1}')
+[[ "${#gone[@]}" -eq 0 ]] && exit
+git branch -D "${gone[@]}"
