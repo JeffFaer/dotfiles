@@ -4,23 +4,29 @@ set -euo pipefail
 [[ $# -eq 0 ]] || (echo 1>&2 "This script does not take arguments." && exit 1)
 [[ -n "${DEBUG:-}" ]] && set -x
 
-branch_format='%(objectname:short)%(if)%(upstream)%(then)
-%(upstream:short)%(end)'
+branch_format='%(objectname:short)%(if)%(upstream)%(then)%(if:notequals=gone)%(upstream:track,nobracket)%(then)
+%(upstream:short)%(end)%(end)'
 mapfile -t branches < <(git branch --list --format "${branch_format}")
 
 common_ancestor="$(git merge-base --octopus "${branches[@]}")"
-num_omitted="$(git log --format="format:%h" "${common_ancestor}~5" | wc -l)"
+num_parents="$(git log --format="format:%h" "${common_ancestor}" | wc -l)"
+if ((num_parents < 5)); then
+  context_prune=""
+else
+  context_prune="^${common_ancestor}~5"
+fi
 (
 log_format='format:%C(auto)%h%d - %ch %C(dim white)- %aE %ah%C(reset)
 %s
 '
+# shellcheck disable=SC2086
 git --no-pager log \
     --color=always \
     --format="${log_format}" \
     --graph \
     "${branches[@]}" \
-    "^${common_ancestor}~5"
-if [[ "${num_omitted}" -gt 0 ]]; then
+    ${context_prune}
+if [[ -n "${context_prune}" ]]; then
     echo "|"
     echo "."
     echo "."

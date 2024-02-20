@@ -7,10 +7,10 @@ set -x
 git fetch --prune
 git remote prune origin
 
+branch_format='%(if)%(upstream)%(then)%(if:equals=gone)%(upstream:track,nobracket)%(then)%(refname:short)%(end)%(end)'
 mapfile -t gone < <(
-    git branch --format "%(refname:short) %(upstream:track,nobracket)" \
-        | grep -E 'gone$' \
-        | awk '{print $1}' \
+    git branch --format "${branch_format}" \
+        | sed '/^$/d' \
         | sort -u)
 [[ "${#gone[@]}" -eq 0 ]] && exit
 
