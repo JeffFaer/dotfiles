@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+[[ $# -eq 0 ]] || (echo 1>&2 "This script does not take arguments." && exit 1)
+[[ -n "${DEBUG:-}" ]] && set -x
+
+primary_branches=(main master)
+if b="$(git config init.defaultBranch)"; then
+    primary_branches=( "${b}" "${primary_branches[@]}" )
+fi
+for b in "${primary_branches[@]}"; do
+    if git show-ref --verify --quiet "refs/heads/${b}"; then
+        echo "${b}"
+        exit
+    fi
+done
+
+exit 1

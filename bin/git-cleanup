@@ -22,17 +22,7 @@ mapfile -t gone < <(
 # also be cleaned up.
 
 # (1) Figure out what the primary branch's name is.
-primary_branches=(main master)
-if b="$(git config init.defaultBranch)"; then
-    primary_branches=( "${b}" "${primary_branches[@]}" )
-fi
-for b in "${primary_branches[@]}"; do
-    if git show-ref --verify --quiet "refs/heads/${b}"; then
-        primary_branch="${b}"
-        break
-    fi
-done
-if [[ -z "${primary_branch:-}" ]]; then
+if ! primary_branch="$(git primarybranch)"; then
     echo 1>&2 "Couldn't determine primary branch"
     exit 1
 fi

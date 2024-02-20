@@ -1,4 +1,16 @@
 #!/usr/bin/env bash
+# Display information about interesting commits.
+#
+# Interesting commits are defined as:
+#   - HEAD
+#   - Any local branch
+#   - Any remote branch that's tracked by a local branch
+#
+# Environment:
+#   CONTEXT - An integer number of commits you want to see before and after each
+#             interesting commit's split point from the primary branch.
+#             Defaults to 5.
+CONTEXT="${CONTEXT:-5}"
 
 set -euo pipefail
 [[ $# -eq 0 ]] || (echo 1>&2 "This script does not take arguments." && exit 1)
@@ -8,27 +20,137 @@ branch_format='%(objectname:short)%(if)%(upstream)%(then)%(if:notequals=gone)%(u
 %(upstream:short)%(end)%(end)'
 mapfile -t branches < <(git branch --list --format "${branch_format}")
 
-common_ancestor="$(git merge-base --octopus "${branches[@]}")"
-num_parents="$(git log --format="format:%h" "${common_ancestor}" | wc -l)"
-if ((num_parents < 5)); then
-  context_prune=""
-else
-  context_prune="^${common_ancestor}~5"
+if ! primary_branch="$(git primarybranch)"; then
+    echo 1>&2 "Couldn't determine primary branch"
+    exit 1
 fi
+
+declare -A branches_by_merge_point
+for b in "${branches[@]}"; do
+    p="$(git merge-base "${primary_branch}" "${b}")"
+    branches_by_merge_point["${p}"]+=" ${b}"
+done
+# Dedupe merge points.
+mapfile -t merge_points < <(
+    IFS=$'\n'; echo "${!branches_by_merge_point[*]}" | sort -u)
+# Order merge points topologically.
+mapfile -t merge_points < <(
+    git rev-list --topo-order "${merge_points[@]}" \
+        | grep --file <(IFS=$'\n'; echo "${merge_points[*]}") \
+               --max-count "${#merge_points[@]}")
+
 (
+dist_between() {
+    git log --format="format:1" "$1" "^$2" | wc -l
+}
 log_format='format:%C(auto)%h%d - %ch %C(dim white)- %aE %ah%C(reset)
 %s
 '
-# shellcheck disable=SC2086
-git --no-pager log \
-    --color=always \
-    --format="${log_format}" \
-    --graph \
-    "${branches[@]}" \
-    ${context_prune}
-if [[ -n "${context_prune}" ]]; then
-    echo "|"
-    echo "."
-    echo "."
-fi
+# Represents the commit that ensures we include enough pre-merge point context
+# in the git log output.
+pre_context_cutoff=''
+# A ^commit that cuts off git log just after we've printed enough post-merge
+# point context in the git log output. Or empty if there are fewer than
+# ${CONTEXT} commits remaining before root.
+post_context_cutoff=''
+for ((i=0; i < ${#merge_points[@]}; i++)); do
+    loggable_commits=()
+
+    if [[ -n "${next_pre_context_cutoff:-}" ]]; then
+        pre_context_cutoff="${next_pre_context_cutoff}"
+        next_pre_context_cutoff=""
+    fi
+
+    while true; do
+        p="${merge_points[$i]}"
+        # shellcheck disable=2206
+        loggable_commits+=( "${p}" ${branches_by_merge_point["${p}"]} )
+        if ((i < ${#merge_points[@]}-1)); then
+            # How many of these merge points should be combined because their
+            # context overlaps?
+            q="${merge_points[$i+1]}"
+            p_to_q="$(dist_between "${p}" "${q}")"
+            if ((p_to_q <= 2*CONTEXT)); then
+                # p and q are close enough that their contexts would merge.
+                ((i++))
+                continue
+            fi
+
+            # We want to show at least ${CONTEXT} commits before the current
+            # merge point, which we implement as commit~N where
+            # N = p_to_q - CONTEXT + 1.
+            # The rub here is that git log picks the column for branches based
+            # on whichever commit comes first in the ordering. So if we have a
+            # commit in the interesting branch that came significantly after
+            # these contextual primary branch commits, the column ordering will
+            # be backwards.
+            # So instead we find the first commit after ${p} that was created
+            # before any of the next interesting commits and use that.
+            #
+            # We're doing that here because if we end up backing up far enough,
+            # we might as well merge it into the previous merge point log.
+            #
+            # Alternatively we could implement our own graph printing logic or
+            # contribute to git log that'd allow us to influence column
+            # selection, but I'd rather not. At least not right now.
+
+            # shellcheck disable=2206
+            next_branches_by_merge_point=( ${branches_by_merge_point["${q}"]} )
+            next_pre_context_date="$(
+                 git log --no-walk --format="format:%ct" \
+                     "${next_branches_by_merge_point[@]}" \
+                     | sort -r \
+                     | head -1)"
+            next_pre_context_cutoff="$(
+                 git log --format="format:%h" \
+                     --after="${next_pre_context_date}" \
+                     "${p}" \
+                     "^${q}" \
+                     | tail -1)"
+            if [[ -z "${next_pre_context_cutoff}" ]]; then
+                # We didn't find anything after p that happens after the
+                # interesting commits.
+                ((i++))
+                continue
+            fi
+            p_to_next_context="$(
+                 dist_between "${p}" "${next_pre_context_cutoff}")"
+            if ((p_to_next_context <= CONTEXT)); then
+                # The commit we found that happens after the interesting commits
+                # falls inside p's context.
+                ((i++))
+                continue
+            fi
+            next_context_to_q="$(
+                dist_between "${next_pre_context_cutoff}" "${q}")"
+            if ((next_context_to_q < CONTEXT)); then
+                # We found a commit that happens after the interesting commits
+                # that doesn't actually include enough context.
+                next_pre_context_cutoff="${p}~$((p_to_q - CONTEXT + 1))"
+            fi
+        fi
+        break
+    done
+
+    num_remaining="$(git log --format="format:%h" "${p}" | wc -l)"
+    if ((num_remaining > CONTEXT)); then
+        post_context_cutoff="^${p}~$((CONTEXT+1))"
+    else
+        post_context_cutoff=''
+    fi
+
+    # shellcheck disable=2086
+    git --no-pager log \
+        --color=always \
+        --graph \
+        --format="${log_format}" \
+        ${pre_context_cutoff} \
+        "${loggable_commits[@]}" \
+        ${post_context_cutoff}
+    if [[ -n "${post_context_cutoff}" ]]; then
+        # Indicate that we omitted some commits.
+        echo :
+        echo :
+    fi
+done
 ) | "${PAGER:-less}" -RF
