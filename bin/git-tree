@@ -121,7 +121,7 @@ for ((i=0; i < ${#merge_points[@]}; i++)); do
             p_to_q="$(dist_between "${p}" "${q}")"
             if ((p_to_q <= 2*CONTEXT)); then
                 # p and q are close enough that their contexts would merge.
-                ((i++))
+                ((i++)) || true
                 continue
             fi
         fi
