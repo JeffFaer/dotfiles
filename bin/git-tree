@@ -9,8 +9,8 @@
 # Environment:
 #   CONTEXT - An integer number of commits you want to see before and after each
 #             interesting commit's split point from the primary branch.
-#             Defaults to 5.
-CONTEXT="${CONTEXT:-5}"
+#             Defaults to 2.
+CONTEXT="${CONTEXT:-2}"
 
 set -euo pipefail
 [[ $# -eq 0 ]] || (echo 1>&2 "This script does not take arguments." && exit 1)
@@ -33,11 +33,9 @@ done
 # Dedupe merge points.
 mapfile -t merge_points < <(
     IFS=$'\n'; echo "${!branches_by_merge_point[*]}" | sort -u)
-# Order merge points topologically.
+# Order merge points like git log does.
 mapfile -t merge_points < <(
-    git rev-list --topo-order "${merge_points[@]}" \
-        | grep --file <(IFS=$'\n'; echo "${merge_points[*]}") \
-               --max-count "${#merge_points[@]}")
+    git log --format="format:%H" --no-walk "${merge_points[@]}")
 
 (
 dist_between() {
@@ -46,23 +44,74 @@ dist_between() {
 log_format='format:%C(auto)%h%d - %ch %C(dim white)- %aE %ah%C(reset)
 %s
 '
-# Represents the commit that ensures we include enough pre-merge point context
-# in the git log output.
-pre_context_cutoff=''
-# A ^commit that cuts off git log just after we've printed enough post-merge
-# point context in the git log output. Or empty if there are fewer than
-# ${CONTEXT} commits remaining before root.
-post_context_cutoff=''
+p=
 for ((i=0; i < ${#merge_points[@]}; i++)); do
     loggable_commits=()
+    # Represents the commit that ensures we include enough pre-merge point
+    # context in the git log output.
+    pre_context_cutoff=''
+    # A ^commit that cuts off git log just after we've printed enough post-merge
+    # point context in the git log output. Or empty if there are fewer than
+    # ${CONTEXT} commits remaining before root.
+    post_context_cutoff=''
 
-    if [[ -n "${next_pre_context_cutoff:-}" ]]; then
-        pre_context_cutoff="${next_pre_context_cutoff}"
-        next_pre_context_cutoff=""
-    fi
-
+    prev_p="${p:-}"
     while true; do
         p="${merge_points[$i]}"
+
+        if [[ -n "${prev_p}" ]]; then
+            # We want to show at least ${CONTEXT} commits before the current
+            # merge point, which we implement as commit~N where
+            # N = $(dist_between ${prev_p} ${p}) - CONTEXT + 1.
+            #
+            # The rub here is that git log picks the column for branches based
+            # on whichever commit comes first in the ordering. So if we have a
+            # commit in the interesting branch that came significantly after
+            # these contextual primary branch commits, the column ordering will
+            # be backwards.
+            #
+            # So instead we find the first commit that was created before any of
+            # the interesting commits and use that.
+            #
+            # Alternatively we could implement our own graph printing logic or
+            # contribute to git log that'd allow us to influence column
+            # selection in an easier way, but I'd rather not. At least not right
+            # now.
+
+            # shellcheck disable=2206
+            interesting_commits=( ${branches_by_merge_point["${p}"]} )
+            # git log already sorts by commit date so we don't need to.
+            latest_commit_date="$(
+                 git log --no-walk --format="format:%ct" -n 1\
+                     "${interesting_commits[@]}")"
+            pre_context_cutoff="$(
+                 git log --format="format:%h" \
+                     --after="${latest_commit_date}" \
+                     "${merge_points[0]}" "^${p}" \
+                     | tail -1)"
+            if [[ -z "${pre_context_cutoff}" ]]; then
+                # We didn't find any commit that happens after the interesting
+                # commits.
+                pre_cutoff_to_p=-1
+            else
+                pre_cutoff_to_p="$(
+                    dist_between "${pre_context_cutoff}" "${p}")"
+            fi
+            if ((pre_cutoff_to_p <= CONTEXT)); then
+                # The first commit that happens after the interesting commits
+                # doesn't include enough context.
+                # p_to_q is the calculation from a previous loop iteration.
+                # So p is actually prev_p and q is actually p, so p_to_q is
+                # prev_p_to_p for this loop.
+                pre_context_cutoff="${prev_p}~$((p_to_q - CONTEXT + 1))"
+                pre_context_skip=0
+            else
+                # We'll need to skip this many commits to only show CONTEXT
+                # commits before the merge point.
+                pre_context_skip=$((pre_cutoff_to_p - CONTEXT + 1))
+            fi
+        fi
+
         # shellcheck disable=2206
         loggable_commits+=( "${p}" ${branches_by_merge_point["${p}"]} )
         if ((i < ${#merge_points[@]}-1)); then
@@ -75,64 +124,11 @@ for ((i=0; i < ${#merge_points[@]}; i++)); do
                 ((i++))
                 continue
             fi
-
-            # We want to show at least ${CONTEXT} commits before the current
-            # merge point, which we implement as commit~N where
-            # N = p_to_q - CONTEXT + 1.
-            # The rub here is that git log picks the column for branches based
-            # on whichever commit comes first in the ordering. So if we have a
-            # commit in the interesting branch that came significantly after
-            # these contextual primary branch commits, the column ordering will
-            # be backwards.
-            # So instead we find the first commit after ${p} that was created
-            # before any of the next interesting commits and use that.
-            #
-            # We're doing that here because if we end up backing up far enough,
-            # we might as well merge it into the previous merge point log.
-            #
-            # Alternatively we could implement our own graph printing logic or
-            # contribute to git log that'd allow us to influence column
-            # selection, but I'd rather not. At least not right now.
-
-            # shellcheck disable=2206
-            next_branches_by_merge_point=( ${branches_by_merge_point["${q}"]} )
-            next_pre_context_date="$(
-                 git log --no-walk --format="format:%ct" \
-                     "${next_branches_by_merge_point[@]}" \
-                     | sort -r \
-                     | head -1)"
-            next_pre_context_cutoff="$(
-                 git log --format="format:%h" \
-                     --after="${next_pre_context_date}" \
-                     "${p}" \
-                     "^${q}" \
-                     | tail -1)"
-            if [[ -z "${next_pre_context_cutoff}" ]]; then
-                # We didn't find anything after p that happens after the
-                # interesting commits.
-                ((i++))
-                continue
-            fi
-            p_to_next_context="$(
-                 dist_between "${p}" "${next_pre_context_cutoff}")"
-            if ((p_to_next_context <= CONTEXT)); then
-                # The commit we found that happens after the interesting commits
-                # falls inside p's context.
-                ((i++))
-                continue
-            fi
-            next_context_to_q="$(
-                dist_between "${next_pre_context_cutoff}" "${q}")"
-            if ((next_context_to_q < CONTEXT)); then
-                # We found a commit that happens after the interesting commits
-                # that doesn't actually include enough context.
-                next_pre_context_cutoff="${p}~$((p_to_q - CONTEXT + 1))"
-            fi
         fi
         break
     done
 
-    num_remaining="$(git log --format="format:%h" "${p}" | wc -l)"
+    num_remaining="$(git log --format="format:1" "${p}" | wc -l)"
     if ((num_remaining > CONTEXT)); then
         post_context_cutoff="^${p}~$((CONTEXT+1))"
     else
@@ -144,6 +140,7 @@ for ((i=0; i < ${#merge_points[@]}; i++)); do
         --color=always \
         --graph \
         --format="${log_format}" \
+        --skip="${pre_context_skip:-0}" \
         ${pre_context_cutoff} \
         "${loggable_commits[@]}" \
         ${post_context_cutoff}
