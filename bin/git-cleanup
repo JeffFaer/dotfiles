@@ -13,6 +13,64 @@ mapfile -t gone < <(
         | sed '/^$/d' \
         | sort -u)
 [[ "${#gone[@]}" -eq 0 ]] && exit
+set +x
+
+# Select a subset of elements in the array named by $1.
+# The result will overwrite $1.
+select_elements() {
+    [[ $# -eq 1 ]] || exit 1
+    local arr_name="$1"
+    local indirect_arr="$1[@]"
+    local arr=( "${!indirect_arr}" )
+    local num="${#arr[@]}"
+
+    for ((i=0; i < num; i++)); do
+      arr[i]="☐ ${arr[$i]}"
+    done
+
+    while true; do
+        local opts=( "${arr[@]}" "All of them" "Done" )
+        select opt in "${opts[@]}"; do
+            if [[ "${REPLY}" -le "${num}" ]]; then
+                if [[ "${opt}" = ☐* ]]; then
+                    arr[REPLY-1]="☑ ${opt#* }"
+                else
+                    arr[REPLY-1]="☐ ${opt#* }"
+                fi
+            elif [[ "${REPLY}" -eq $((num+1)) ]]; then
+                # All of them
+                for ((i=0; i < num; i++)); do
+                    if [[ "${arr[$i]}" = ☐* ]]; then
+                        arr[i]="☑ ${arr[$i]#* }"
+                    fi
+                done
+            elif [[ "${REPLY}" -eq $((num+2)) ]]; then
+                local done=1
+            fi
+            break
+        done
+
+        if [[ -n "${done:-}" ]]; then
+            break
+        fi
+    done
+
+    local selected=()
+    for e in "${arr[@]}"; do
+        if [[ "${e}" = ☑* ]]; then
+            selected+=( "${e#* }" )
+        fi
+    done
+
+    mapfile -t "${arr_name}" < <(IFS=$'\n'; echo "${selected[*]}")
+}
+
+
+echo
+echo "Found ${#gone[@]}} gone branches. Which of them would you like to cleanup?"
+select_elements gone
+
+[[ "${#gone[@]}" -eq 0 ]] && exit 0
 
 # We have some branches whose remote branches have gone missing.
 # That generally means their PR was submitted.
@@ -44,6 +102,11 @@ if [[ "${#commits[@]}" -gt 0 ]]; then
             <("${cmd[@]}" | sort -u))
 else
     extra_branches=()
+fi
+
+if [[ "${#extra_branches[@]}" -gt 0 ]]; then
+    echo "Found ${#extra_branches[@]} additional branches on the gone branches. Which of them would you like to cleanup?"
+    select_elements extra_branches
 fi
 
 # (4) Switch to a different branch if we're on one that's about to be deleted.
