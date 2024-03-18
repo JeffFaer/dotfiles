@@ -30,9 +30,7 @@ for b in "${branches[@]}"; do
     p="$(git merge-base "${primary_branch}" "${b}")"
     branches_by_merge_point["${p}"]+=" ${b}"
 done
-# Dedupe merge points.
-mapfile -t merge_points < <(
-    IFS=$'\n'; echo "${!branches_by_merge_point[*]}" | sort -u)
+merge_points=( "${!branches_by_merge_point[@]}" )
 # Order merge points like git log does.
 mapfile -t merge_points < <(
     git log --format="format:%H" --no-walk "${merge_points[@]}")
