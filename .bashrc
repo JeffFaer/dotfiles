@@ -57,11 +57,6 @@ export HISTFILE=~/.personal_bash_history
 
 # Replace !!, !<text>, !?<text>, !# commands inline before executing.
 shopt -s histverify
-# Flush and reload bash history before every command.
-bashrc::flush_history() {
-    history -a
-}
-preexec_functions+=("bashrc::flush_history")
 
 # ** globs directories
 shopt -s globstar
