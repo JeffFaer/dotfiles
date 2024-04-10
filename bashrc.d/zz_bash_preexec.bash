@@ -4,7 +4,7 @@ if [[ ${#preexec_functions[@]} -eq 0 && ${#precmd_functions[@]} -eq 0 ]]; then
     return
 fi
 
-if [[ -n "${__bashrc_instrument_preexec}" ]]; then 
+if [[ -n "${__bashrc_instrument_preexec}" ]]; then
   old_preexec_functions=( "${preexec_functions[@]}" )
   old_precmd_functions=( "${precmd_functions[@]}" )
   preexec_functions=()
