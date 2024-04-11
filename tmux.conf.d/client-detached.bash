@@ -6,5 +6,7 @@ set -euo pipefail
 (( $# != 1 )) && exit 1
 session_name="$1"
 
-set -o history
+# Bash needs HISTTIMEFORMAT as a shell variable, not an environment variable.
+HISTTIMEFORMAT="${HISTTIMEFORMAT:-}"
 history -s "# tmux client-detached ${session_name}"
+history -a
