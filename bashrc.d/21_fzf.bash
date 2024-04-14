@@ -3,6 +3,11 @@
 export FZF_DEFAULT_OPTS='--bind "ctrl-y:execute-silent(cut -f 3- {+f} | xclip -sel clip)"'
 [[ -f ~/.fzf.bash ]] && source ~/.fzf.bash
 
+export FZF_COMPLETION_AUTO_COMMON_PREFIX=true
+export FZF_COMPLETION_AUTO_COMMON_PREFIX_PART=true
+source ~/src/fzf-tab-completion/bash/fzf-bash-completion.sh
+bind -x '"\t": fzf_bash_completion'
+
 # I want duplicate history entries in my HISTFILE, but I don't want to see them
 # in fzf completion.
 # This is cribbed from `fzf --bash`.
