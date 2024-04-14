@@ -53,7 +53,10 @@ bashrc::fzf_history() {
             line=substr(line, RSTART+RLENGTH)
 
             cmd=line
-            if (!seen[cmd]++) {
+            key=cmd
+            # Remove leading and traliing whitespace before deduplicating.
+            gsub(/^[ \t]+|[ \t]+$/, \"\", key)
+            if (!seen[key]++) {
                 ts=strftime(\"${HISTTIMEFORMAT% *}\", ts)
                 print n, ts, cmd
             }
