@@ -41,14 +41,18 @@ bashrc::fzf_history() {
         # Do some manual line parsing so that the command is copied exactly
         # how it is in history, weird spacing and all.
         BEGIN { FS=\"\n\" ; OFS=\"\t\" }
+        function error(msg) {
+          print msg, \$0 > \"/dev/stderr\"
+          exit 1
+        }
         {
             line=\$0
 
-            if (!match(line, /[0-9]+/)) { print \"Unexpected line\", line > /dev/stderr; exit 1 }
+            if (!match(line, /[0-9]+/)) { error(\"Could not extract history number from line\") }
             n=substr(line,RSTART,RLENGTH)
             line=substr(line, RSTART+RLENGTH)
 
-            if (!match(line, /[0-9]+ /)) { print \"Unexpected line\", line > /dev/stderr; exit 1 }
+            if (!match(line, /[0-9]+ /)) { error(\"Could not extract timestamp from line\") }
             ts=substr(line,RSTART,RLENGTH-1)
             line=substr(line, RSTART+RLENGTH)
 
