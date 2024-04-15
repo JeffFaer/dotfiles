@@ -77,32 +77,33 @@ cdt() {
 #   1: bar
 #   2: arg 1
 alias() {
-    if [[ "$1" = "-x" ]]; then
-        local cmd=( "${@:2}" )
-        local -A expanded
-        while :; do
-            if [[ -n "${expanded["${cmd[0]}"]}" ]]; then
-                break
-            fi
-
-            expanded["${cmd[0]}"]=1
-            local alias="${BASH_ALIASES["${cmd[0]}"]}"
-            if [[ -z "${alias}" ]]; then
-                break
-            fi
-
-            local arr
-            eval "$(dotfiles::shlex arr "${alias}")"
-            cmd=( "${arr[@]}" "${cmd[@]:1}" )
-        done
-
-        local res="$(printf "%q " "${cmd[@]}")"
-        echo "${res% }"
+    if [[ "$1" != "-x" ]]; then
+        builtin alias "$@"
         return
     fi
-    builtin alias "$@"
-}
 
+    local cmd=( "${@:2}" )
+    local -A expanded
+    while true; do
+        if [[ -n "${expanded["${cmd[0]}"]}" ]]; then
+            break
+        fi
+
+        expanded["${cmd[0]}"]=1
+        local alias="${BASH_ALIASES["${cmd[0]}"]}"
+        if [[ -z "${alias}" ]]; then
+            break
+        fi
+
+        local arr
+        eval "$(dotfiles::shlex arr "${alias}")"
+        cmd=( "${arr[@]}" "${cmd[@]:1}" )
+    done
+
+    local res
+    res="$(printf "%q " "${cmd[@]}")"
+    echo "${res% }"
+}
 
 ########################
 #  Exported Functions  #
