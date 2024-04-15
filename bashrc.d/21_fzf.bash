@@ -5,9 +5,9 @@ if [[ ! -f ~/.fzf.bash ]]; then
 fi
 
 export FZF_DEFAULT_OPTS='--bind="ctrl-y:execute-silent(cat {+f} | xclip -sel clip)"'
-# `cut -f3-` so that we only get the command part of the history entry. See
+# `{3..}` so that we only get the command part of the history entry. See
 # bashrc::fzf_history in this file for more details.
-export FZF_CTRL_R_OPTS='--bind="ctrl-y:execute-silent(cut -f3- {+f} | xclip -sel clip)"'
+export FZF_CTRL_R_OPTS='--bind="ctrl-y:execute-silent(xclip -sel clip <<< "{3..}")"'
 source ~/.fzf.bash
 
 export FZF_COMPLETION_AUTO_COMMON_PREFIX=true
