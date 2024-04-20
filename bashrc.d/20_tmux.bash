@@ -12,6 +12,7 @@ preexec_functions+=("bashrc::tmux_preexec")
 
 if [[ -n "$(command -v tmux-vcs-sync)" ]]; then
     bashrc::tvs_preexec() {
+        [[ -n "${STOP_TVS}" ]] && return
         if ! git ls-files --error-unmatch &>/dev/null; then
             return
         fi
