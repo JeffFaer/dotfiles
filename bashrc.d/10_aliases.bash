@@ -86,19 +86,15 @@ bashrc::alias_aware_completion_loader() {
         return 124
     fi
 
-    # Make ${alias[@]} available after this function exits.
-    local alias_name="__bashrc_alias_aware_completion_loader_${cmd}"
-    declare -gn global_alias="${alias_name}"
-    global_alias=( "${alias[@]}" )
-
     # Create a wrapper function to invoke ${comp_func} with the expanded alias.
     local func_name="${FUNCNAME[0]}::${cmd}"
     local func="
 ${func_name}() {
+  local expanded=( $(printf "\"%q\" " "${alias[@]}") )
   (( COMP_CWORD += $((${#alias[@]}-1)) ))
-  COMP_WORDS=( \"\${${alias_name}[@]}\" \"\${COMP_WORDS[@]:1}\" )
+  COMP_WORDS=( \"\${expanded[@]}\" \"\${COMP_WORDS[@]:1}\" )
   (( COMP_POINT -= \${#COMP_LINE} ))
-  COMP_LINE=\"\${COMP_LINE/${cmd}/\${${alias_name}[*]}}\"
+  COMP_LINE=\"\${COMP_LINE/\"${cmd}\"/\"\${expanded[*]}\"}\"
   (( COMP_POINT += \${#COMP_LINE} ))
   ${comp_func} \"${alias[0]}\" \"\${COMP_WORDS[COMP_CWORD]}\" \"\${COMP_WORDS[COMP_CWORD-1]}\"
 }"
