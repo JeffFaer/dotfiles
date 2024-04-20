@@ -41,7 +41,7 @@ cdt() {
     cd "$(mktemp -d)"
 }
 
-# Adds -x to the alias builtin, which attempts to expand the alias into a
+# Adds -x to the alias builtin, which attempts to expand the alias into the
 # command that bash would execute.
 #
 #   - It handles multiple layers of aliases
@@ -88,8 +88,8 @@ alias() {
         if [[ -n "${expanded["${cmd[0]}"]}" ]]; then
             break
         fi
-
         expanded["${cmd[0]}"]=1
+
         local alias="${BASH_ALIASES["${cmd[0]}"]}"
         if [[ -z "${alias}" ]]; then
             break

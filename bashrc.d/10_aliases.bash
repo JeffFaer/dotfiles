@@ -9,44 +9,6 @@ alias_append() {
 }
 __bashrc_cleanup+=("alias_append")
 
-# Determines which completion is used for the aliased command and applies it to
-# the alias itself.
-#
-# $1: The command that is aliased.
-# $2?: The command whose completion should be copied. If not provided, it will
-# be determined from the first word of the alias.
-alias_completion() {
-    local command="$1"
-    local alias="$2"
-    if [[ $# -eq 1 ]]; then
-        local alias_spec
-        if ! alias_spec="$(alias "${command}")" \
-            || [[ -z "${alias_spec}" ]]; then
-            return 1
-        fi
-
-        local alias_command
-        if ! alias_command="$(
-            sed -re "s/alias ${command}='(.+)'/\1/" <<< "${alias_spec}")"; then
-            return 1
-        fi
-
-        local words
-        read -r -a words <<< "${alias_command}"
-        alias=${words[0]}
-    fi
-
-    local completion
-    if ! completion=$(complete -p "${alias}" 2>/dev/null) \
-        || [[ -z "${completion}" ]]; then
-        return 1
-    fi
-
-    # shellcheck disable=SC2046
-    eval $(sed -re "s/${alias}\$/${command}/" <<< "${completion}")
-}
-__bashrc_cleanup+=("alias_completion")
-
 # keep-sorted start
 alias cp="cp -i"
 alias du="du -h"
@@ -60,8 +22,6 @@ alias vim="vim --servername vim"
 alias yadm="yadm --yadm-repo ~/.git"
 # keep-sorted end
 
-alias_completion tvs
-
 if [[ -x /usr/bin/dircolors ]]; then
     if [[ -r ~/.dircolors ]]; then
         eval "$(dircolors -b ~/.dircolors)"
@@ -74,3 +34,79 @@ if [[ -x /usr/bin/dircolors ]]; then
 fi
 
 alias_append ls "-h"
+
+bashrc::alias_aware_completion_loader() {
+    local completion_loader="_completion_loader"
+    local cmd="$1"
+    local expanded="$(alias -x "${cmd}")"
+    if [[ "${expanded}" == "${cmd}" ]]; then
+        # ${cmd} is not an alias.
+        "${completion_loader}" "${cmd}"
+        return
+    fi
+
+    local arr=()
+    eval "$(dotfiles::shlex arr "${expanded}")"
+
+    local i
+    for ((i="${#arr[@]}"-1; i >= 0; i--)) do
+        # The command we want to use for our completion depends on whether the
+        # alias is using pipes, boolean operators, or command lists.
+        # This assumes there's spaces around pipes and boolean operators, but
+        # semicolons are only expected to have trailing space.
+        case "${arr[i]}" in
+            "|"|"||"|"&&"|*";")
+                break
+                ;;
+        esac
+    done
+    local alias=( "${arr[@]:i+1}" )
+
+    "${completion_loader}" "${alias[0]}"
+    if (( $? != 124 )); then
+        printf "\n%s failed\n" "${completion_loader} ${alias[0]}" 1>&2
+        "${completion_loader}" "${cmd}"
+        return
+    fi
+
+    local compspec
+    if ! compspec="$(complete -p "${alias[0]}")"; then
+        "${completion_loader}" "${cmd}"
+        return
+    fi
+
+    # compspec="complete -o default -F funcname ${alias[0]}"
+    local comp_func="${compspec##* -F }"
+    # comp_func="funcname ${alias[0]}"
+    comp_func="${comp_func%% *}"
+    # comp_func="funcname"
+
+    if [[ -z "${comp_func}" ]]; then
+        ${compspec} "${cmd}"
+        return 124
+    fi
+
+    # Make ${alias[@]} available after this function exits.
+    local alias_name="__bashrc_alias_aware_completion_loader_${cmd}"
+    declare -gn global_alias="${alias_name}"
+    global_alias=( "${alias[@]}" )
+
+    # Create a wrapper function to invoke ${comp_func} with the expanded alias.
+    local func_name="${FUNCNAME[0]}::${cmd}"
+    local func="
+${func_name}() {
+  (( COMP_CWORD += $((${#alias[@]}-1)) ))
+  COMP_WORDS=( \"\${${alias_name}[@]}\" \"\${COMP_WORDS[@]:1}\" )
+  (( COMP_POINT -= \${#COMP_LINE} ))
+  COMP_LINE=\"\${COMP_LINE/${cmd}/\${${alias_name}[*]}}\"
+  (( COMP_POINT += \${#COMP_LINE} ))
+  ${comp_func} \"${alias[0]}\" \"\${COMP_WORDS[COMP_CWORD]}\" \"\${COMP_WORDS[COMP_CWORD-1]}\"
+}"
+    eval "${func}"
+    compspec="${compspec/ -F ${comp_func} / -F ${func_name} }"
+    # Remove ${alias[0]} from the end of compspec.
+    compspec="${compspec% *}"
+    ${compspec} "${cmd}"
+    return 124
+}
+complete -D -F bashrc::alias_aware_completion_loader
