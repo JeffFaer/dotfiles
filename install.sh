@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
-[[ -n "${DEBUG:-}" ]] && set -x
+[[ -v DEBUG ]] && set -x
 
 source="$(dirname "${BASH_SOURCE[0]}")"
 target="${PWD}"

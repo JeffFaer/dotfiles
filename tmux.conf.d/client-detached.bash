@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
-[[ -n "${DEBUG:-}" ]] && set -x
+[[ -v DEBUG ]] && set -x
 
 (( $# != 1 )) && exit 1
 session_name="$1"

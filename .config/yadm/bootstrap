@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
-[[ -n "${DEBUG:-}" ]] && set -x
+[[ -v DEBUG ]] && set -x
 
 # Directory to look for bootstrap executables in
 BOOTSTRAP_D="${BASH_SOURCE[0]}.d"

@@ -14,7 +14,7 @@ CONTEXT="${CONTEXT:-2}"
 
 set -euo pipefail
 [[ $# -eq 0 ]] || (echo 1>&2 "This script does not take arguments." && exit 1)
-[[ -n "${DEBUG:-}" ]] && set -x
+[[ -v DEBUG ]] && set -x
 
 branch_format='%(objectname:short)%(if)%(upstream)%(then)%(if:notequals=gone)%(upstream:track,nobracket)%(then)
 %(upstream:short)%(end)%(end)'

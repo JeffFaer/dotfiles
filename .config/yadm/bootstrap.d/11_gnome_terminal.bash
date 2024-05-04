@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
-[[ -n "${DEBUG:-}" ]] && set -x
+[[ -v DEBUG ]] && set -x
 
 if ! command -v gnome-terminal &>/dev/null; then
     echo "gnome-terminal not installed, not setting it up."

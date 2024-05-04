@@ -2,7 +2,7 @@
 
 set -euo pipefail
 [[ $# -eq 0 ]] || (echo 1>&2 "This script does not take arguments." && exit 1)
-[[ -n "${DEBUG:-}" ]] && set -x
+[[ -v DEBUG ]] && set -x
 
 primary_branches=(main master)
 if b="$(git config init.defaultBranch)"; then

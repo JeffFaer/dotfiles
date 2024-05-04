@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
-[[ -n "${DEBUG:-}" ]] && set -x
+[[ -v DEBUG ]] && set -x
 
 cd "$(git rev-parse --show-toplevel)"
 if [[ -z "$(git config --get status.showUntrackedFiles)" ]]; then
