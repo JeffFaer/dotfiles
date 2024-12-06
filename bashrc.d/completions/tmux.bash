@@ -4,7 +4,7 @@ fi
 
 # $1: suggestion to escape.
 _tmux::completion::escape_suggestion() {
-    local escaped=$(printf "%q" "$1")
+    local escaped="$(printf "%q" "$1")"
     # Double up each backslash for completion.
     escaped="${escaped//\\/\\\\}"
     # Add an extra backslash for dollar signs.
@@ -37,12 +37,7 @@ _tmux::completion::format_suggestions() {
 
     # Escape cur for compgen.
     local cur="$(printf "%q" "${cur}")"
-
-    local IFS=$'\n'
-    suggestions=( $(compgen -W "${suggestions[*]}" -- "${cur}") )
-    unset IFS
-
-    COMPREPLY+=( "${suggestions[@]}" )
+    mapfile -t COMPREPLY < <(compgen -W "${suggestions[*]}" -- "${cur}")
 }
 
 
@@ -70,7 +65,7 @@ _tmux::completion::suggest_socket_name() {
     local dir=/tmp/tmux-${UID}
     local socket
     for socket in "${dir}"/*; do
-        sockets+=( "${socket#${dir}/}" )
+        sockets+=( "${socket#"${dir}"/}" )
     done
     _tmux::completion::format_suggestions "$1" "" "" "${sockets[@]}"
 }
@@ -101,7 +96,7 @@ _tmux::completion() {
 
     local i
     # Start at i=1 so we can skip tmux.
-    for ((i=1; i<$COMP_CWORD; i++)); do
+    for ((i=1; i<COMP_CWORD; i++)); do
         local word="${COMP_WORDS[i]}"
 
         case "${word}" in
@@ -117,7 +112,7 @@ _tmux::completion() {
                         # These options take a parameter, and might affect how
                         # we complete the command. Record them in _tmux.
                         ((i++))
-                        if ((i<$COMP_CWORD)); then
+                        if ((i<COMP_CWORD)); then
                             _tmux+=( "${word}" "${COMP_WORDS[i]}" )
                         fi
                         ;;
@@ -133,7 +128,7 @@ _tmux::completion() {
     done
 
     # Figure out what options have already been enabled.
-    for ((; i<$COMP_CWORD; i++)); do
+    for ((; i<COMP_CWORD; i++)); do
         local word=${COMP_WORDS[i]}
 
         if [[ $word == -* ]]; then
@@ -159,7 +154,8 @@ _tmux::completion() {
             new_options["${opt}"]=1
         done
 
-        local proposed_options=( $(compgen -W "${!new_options[*]}" -- "${cur}") )
+        local proposed_options
+        mapfile -t proposed_options < <(compgen -W "${!new_options[*]}" -- "${cur}")
 
         if [[ ${#proposed_options[@]} -eq 0 ]]; then
             return
@@ -178,10 +174,8 @@ _tmux::completion() {
     }
 
     _tmux::completion::suggest_commands() {
-        local IFS=$'\n'
-        local commands=( $("${_tmux[@]}" list-commands -F "#{command_list_name}") )
-        unset IFS
-
+        local commands
+        mapfile -t commands < <("${_tmux[@]}" list-commands -F "#{command_list_name}")
         _tmux::completion::format_suggestions "$1" "" "" "${commands[@]}"
     }
 
@@ -191,9 +185,8 @@ _tmux::completion() {
     }
 
     _tmux::completion::suggest_sessions() {
-        local IFS=$'\n'
-        local sessions=( $("${_tmux[@]}" ls -F '#{session_name}' 2>/dev/null) )
-        unset IFS
+        local sessions
+        mapfile -t sessions < <("${_tmux[@]}" ls -F '#{session_name}' 2>/dev/null)
 
         local escaped_sessions=()
         local session
@@ -211,10 +204,8 @@ _tmux::completion() {
     }
 
     _tmux::completion::suggest_clients() {
-        local IFS=$'\n'
-        local clients=( $("${_tmux[@]}" lsc -F '#{client_tty}' 2>/dev/null) )
-        unset IFS
-
+        local clients
+        mapfile -t clients < <("${_tmux[@]}" lsc -F '#{client_tty}' 2>dev/null)
         _tmux::completion::format_suggestions "$1" "" "" "${clients[@]}"
     }
 
@@ -224,9 +215,8 @@ _tmux::completion() {
     }
 
     _tmux::completion::suggest_windows() {
-        local IFS=$'\n'
-        local windows=( $("${_tmux[@]}" lsw -a -F '#{window_name}' 2>/dev/null) )
-        unset IFS
+        local windows
+        mapfile -t windows < <("${_tmux[@]}" lsw -a -F '#{window_name}' 2>/dev/null)
         _tmux::completion::format_suggestions "$1" "" "" "${windows[@]}"
     }
 
@@ -244,7 +234,7 @@ _tmux::completion() {
 
                     # Commands that can be run with no existing session.
                     local initial_commands=( "start-server" "new-session" )
-                    COMPREPLY=( $(compgen -W "${initial_commands[*]}" -- "${cur}") )
+                    mapfile -t COMPREPLY < <(compgen -W "${initial_commands[*]}" -- "${cur}")
                 fi
                 ;;
         esac
