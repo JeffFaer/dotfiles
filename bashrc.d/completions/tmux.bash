@@ -2,17 +2,6 @@ if ! command -v tmux &> /dev/null; then
     return
 fi
 
-# $1: suggestion to escape.
-_tmux::completion::escape_suggestion() {
-    local escaped="$(printf "%q" "$1")"
-    # Double up each backslash for completion.
-    escaped="${escaped//\\/\\\\}"
-    # Add an extra backslash for dollar signs.
-    # Otherwise, the variable will be expanded.
-    escaped="${escaped//\$/\\\$}"
-    echo "${escaped}"
-}
-
 # Generates a list of suggestions and appends them to COMPREPLY.
 #
 # $1: $cur
@@ -28,18 +17,14 @@ _tmux::completion::format_suggestions() {
 
     local suggestions=()
     local infix
-    local suggestion
     for infix in "${@:4}"; do
-        suggestion="${prefix}${infix}${suffix}"
-        suggestion="$(_tmux::completion::escape_suggestion "${suggestion}")"
-        suggestions+=( "${suggestion}" )
+        suggestions+=( "${prefix}${infix}${suffix}" )
     done
 
-    # Escape cur for compgen.
-    local cur="$(printf "%q" "${cur}")"
+    mapfile -t suggestions < <(printf "%q\n" "${suggestions[@]}")
+    cur="$(printf "%q" "${cur}")"
     mapfile -t COMPREPLY < <(compgen -W "${suggestions[*]}" -- "${cur}")
 }
-
 
 _tmux::completion::suggest_client_format() {
     local format_names=( "activity" "activity_string" "created"\
@@ -86,6 +71,21 @@ _tmux::completion::match_command() {
 }
 
 _tmux::completion() {
+    # Omit wordbreaks that would need to be escaped.
+    local wordbreaks i
+    for ((i=0; i < ${#COMP_WORDBREAKS}; i++)); do
+        local char="${COMP_WORDBREAKS:$i:1}"
+        if [[ $'\n\t ' == *"${char}"* ]]; then
+            wordbreaks+="${char}"
+            continue
+        fi
+        if [[ "${char}" == "$(printf "%q" "${char}")" ]]; then
+            wordbreaks+="${char}"
+            continue
+        fi
+    done
+    COMP_WORDBREAKS="${wordbreaks}"
+
     local cur="${COMP_WORDS[COMP_CWORD]}"
     local prev="${COMP_WORDS[COMP_CWORD-1]}"
 
@@ -191,8 +191,8 @@ _tmux::completion() {
         local escaped_sessions=()
         local session
         for session in "${sessions[@]}"; do
-            # Escape @ symbols, otherwise tmux thinks we want a window.
-            escaped_sessions+=( "${session//@/\\@}" )
+            # Escape leading @ symbols, otherwise tmux thinks we want a window.
+            escaped_sessions+=( "${session/#@/\\@}" )
         done
 
         _tmux::completion::format_suggestions "$1" "" "" "${escaped_sessions[@]}"
@@ -450,6 +450,10 @@ _tmux::completion() {
     eval ${old_extglob}
 
     _tmux::completion::suggest_options
+
+    if ((${#COMPREPLY[@]} == 1)); then
+        COMPREPLY[0]="$(printf "%q" "${COMPREPLY[0]}")"
+    fi
 }
 
 complete -F _tmux::completion tmux
