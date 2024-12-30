@@ -5,12 +5,23 @@ fi
 # Generates a list of suggestions and appends them to COMPREPLY.
 #
 # $1: $cur
+# $2+: Possibilities
+#
+# This function handles escaping each suggestion and $cur.
+_tmux::completion::format_suggestions() {
+    _tmux::completion::format_suggestions_with_prefix_and_suffix \
+      "$1" "" "" "${@:2}"
+}
+
+# Generates a list of suggestions and appends them to COMPREPLY.
+#
+# $1: $cur
 # $2: Prefix e.g. #{client_
 # $3: Suffix e.g. }
 # $4+: infixes
 #
 # This function handles escaping each suggestion and $cur.
-_tmux::completion::format_suggestions() {
+_tmux::completion::format_suggestions_with_prefix_and_suffix() {
     local cur="$1"
     local prefix="$2"
     local suffix="$3"
@@ -22,7 +33,6 @@ _tmux::completion::format_suggestions() {
     done
 
     mapfile -t suggestions < <(printf "%q\n" "${suggestions[@]}")
-    cur="$(printf "%q" "${cur}")"
     mapfile -t COMPREPLY < <(compgen -W "${suggestions[*]}" -- "${cur}")
 }
 
@@ -30,19 +40,22 @@ _tmux::completion::suggest_client_format() {
     local format_names=( "activity" "activity_string" "created"\
         "created_string" "cwd" "height" "last_session" "prefix"\
         "readonly" "session" "termname" "tty" "utf8" "width" )
-    _tmux::completion::format_suggestions "$1" "#{client_" "}" "${format_names[@]}"
+    _tmux::completion::format_suggestions_with_prefix_and_suffix \
+      "$1" "#{client_" "}" "${format_names[@]}"
 }
 
 _tmux::completion::suggest_session_format() {
     local format_names=( "attached" "created" "created_string" "group"\
         "grouped" "height" "id" "name" "width" "windows" )
-    _tmux::completion::format_suggestions "$1" "#{session_" "}" "${format_names[@]}"
+    _tmux::completion::format_suggestions_with_prefix_and_suffix \
+      "$1" "#{session_" "}" "${format_names[@]}"
 }
 
 _tmux::completion::suggest_window_format() {
     local format_names=( "active" "find_matches" "flags" "height" "id"\
         "index" "layout" "name" "panes" "width" "wrap_flag" )
-    _tmux::completion::format_suggestions "$1" "#{window_" "}" "${format_names[@]}"
+    _tmux::completion::format_suggestions \
+      "$1" "#{window_" "}" "${format_names[@]}"
 }
 
 _tmux::completion::suggest_socket_name() {
@@ -52,7 +65,7 @@ _tmux::completion::suggest_socket_name() {
     for socket in "${dir}"/*; do
         sockets+=( "${socket#"${dir}"/}" )
     done
-    _tmux::completion::format_suggestions "$1" "" "" "${sockets[@]}"
+    _tmux::completion::format_suggestions "$1" "${sockets[@]}"
 }
 
 # Creates an extglob which must match $1, but additionally any letters found in
@@ -71,34 +84,18 @@ _tmux::completion::match_command() {
 }
 
 _tmux::completion() {
-    # Omit wordbreaks that would need to be escaped.
-    local wordbreaks i
-    for ((i=0; i < ${#COMP_WORDBREAKS}; i++)); do
-        local char="${COMP_WORDBREAKS:$i:1}"
-        if [[ $'\n\t ' == *"${char}"* ]]; then
-            wordbreaks+="${char}"
-            continue
-        fi
-        if [[ "${char}" == "$(printf "%q" "${char}")" ]]; then
-            wordbreaks+="${char}"
-            continue
-        fi
-    done
-    COMP_WORDBREAKS="${wordbreaks}"
-
-    local cur="${COMP_WORDS[COMP_CWORD]}"
-    local prev="${COMP_WORDS[COMP_CWORD-1]}"
+    local cur prev words cword
+    _init_completion "$@"
 
     # What has the user already typed?
-    local _tmux=( "${COMP_WORDS[0]}" )
+    local _tmux=( "${words[0]}" )
     local cmd
     local -A enabled_options
 
-    local i
-    # Start at i=1 so we can skip tmux.
-    for ((i=1; i<COMP_CWORD; i++)); do
-        local word="${COMP_WORDS[i]}"
-
+    local i word
+    # Start at i=1 to skip _tmux.
+    for ((i=1; i<cword; i++)); do
+        word="${words[i]}"
         case "${word}" in
             -*)
                 enabled_options["${word}"]=1
@@ -112,8 +109,8 @@ _tmux::completion() {
                         # These options take a parameter, and might affect how
                         # we complete the command. Record them in _tmux.
                         ((i++))
-                        if ((i<COMP_CWORD)); then
-                            _tmux+=( "${word}" "${COMP_WORDS[i]}" )
+                        if ((i<cword)); then
+                            _tmux+=( "${word}" "${words[i]}" )
                         fi
                         ;;
                 esac ;;
@@ -128,8 +125,8 @@ _tmux::completion() {
     done
 
     # Figure out what options have already been enabled.
-    for ((; i<COMP_CWORD; i++)); do
-        local word=${COMP_WORDS[i]}
+    for word in "${words[@]:i:cword}"; do
+        local word=${words[i]}
 
         if [[ $word == -* ]]; then
             enabled_options["${word}"]=1
@@ -140,7 +137,7 @@ _tmux::completion() {
     local -A options
 
     _tmux::completion::suggest_options() {
-        if [[ ${#options[@]} -eq 0 ]]; then
+        if (( ${#options[@]} == 0 )); then
             return
         fi
         local -A new_options
@@ -157,11 +154,11 @@ _tmux::completion() {
         local proposed_options
         mapfile -t proposed_options < <(compgen -W "${!new_options[*]}" -- "${cur}")
 
-        if [[ ${#proposed_options[@]} -eq 0 ]]; then
+        if (( ${#proposed_options[@]} == 0 )); then
             return
         fi
 
-        if [[ ${COMP_TYPE} -eq 63 ]]; then # ? = 63
+        if (( COMP_TYPE == 63 )); then # ? = 63
             # Provide option help text.
             local i
             for ((i = 0; i < ${#proposed_options[@]}; i++)); do
@@ -176,7 +173,7 @@ _tmux::completion() {
     _tmux::completion::suggest_commands() {
         local commands
         mapfile -t commands < <("${_tmux[@]}" list-commands -F "#{command_list_name}")
-        _tmux::completion::format_suggestions "$1" "" "" "${commands[@]}"
+        _tmux::completion::format_suggestions "$1" "${commands[@]}"
     }
 
     _tmux::completion::num_sessions() {
@@ -195,7 +192,7 @@ _tmux::completion() {
             escaped_sessions+=( "${session/#@/\\@}" )
         done
 
-        _tmux::completion::format_suggestions "$1" "" "" "${escaped_sessions[@]}"
+        _tmux::completion::format_suggestions "$1" "${escaped_sessions[@]}"
     }
 
     _tmux::completion::num_clients() {
@@ -206,7 +203,7 @@ _tmux::completion() {
     _tmux::completion::suggest_clients() {
         local clients
         mapfile -t clients < <("${_tmux[@]}" lsc -F '#{client_tty}' 2>dev/null)
-        _tmux::completion::format_suggestions "$1" "" "" "${clients[@]}"
+        _tmux::completion::format_suggestions "$1" "${clients[@]}"
     }
 
     _tmux::completion::num_windows() {
@@ -217,7 +214,7 @@ _tmux::completion() {
     _tmux::completion::suggest_windows() {
         local windows
         mapfile -t windows < <("${_tmux[@]}" lsw -a -F '#{window_name}' 2>/dev/null)
-        _tmux::completion::format_suggestions "$1" "" "" "${windows[@]}"
+        _tmux::completion::format_suggestions "$1" "${windows[@]}"
     }
 
     # There is no command yet.
@@ -245,9 +242,7 @@ _tmux::completion() {
         return 0
     fi
 
-    # Remember if extglob is enabled or not so we can reset back to its original
-    # state.
-    local old_extglob=$(shopt -p extglob)
+    local restore_extglob=$(shopt -p extglob)
     shopt -s extglob
 
     case "${cmd}" in
@@ -447,12 +442,12 @@ _tmux::completion() {
                     ;;
             esac ;;
     esac
-    eval ${old_extglob}
+    eval ${restore_extglob}
 
     _tmux::completion::suggest_options
 
-    if ((${#COMPREPLY[@]} == 1)); then
-        COMPREPLY[0]="$(printf "%q" "${COMPREPLY[0]}")"
+    if (( ${#COMPREPLY[@]} != 0 && COMP_TYPE != 63 )); then
+        mapfile -t COMPREPLY < <(printf "%q\n" "${COMPREPLY[@]}")
     fi
 }
 
