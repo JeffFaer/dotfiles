@@ -85,7 +85,7 @@ _tmux::completion::match_command() {
 
 _tmux::completion() {
     local cur prev words cword
-    _init_completion "$@"
+    _init_completion "$@" || return
 
     # What has the user already typed?
     local _tmux=( "${words[0]}" )
