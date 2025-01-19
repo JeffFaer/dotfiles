@@ -9,7 +9,7 @@
 	url = https://github.com/bats-core/bats-core.git
 [submodule "src/yadm"]
 	path = src/yadm
-	url = https://github.com/TheLocehiliosan/yadm.git
+    url = https://github.com/yadm-dev/yadm.git
 [submodule "src/fzf"]
 	path = src/fzf
 	url = ssh://git@github.com/junegunn/fzf.git
