@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+[[ -v DEBUG ]] && set -x
+
+mapfile -t files < <(git diff "$(git primarybranch)" --name-only --cached)
+mapfile -t unstaged_files < <(git diff --name-only)
+
+if (( ${#unstaged_files[@]} )); then
+  patch="$(mktemp --tmpdir 'pre-commit.XXXXX.patch')"
+  echo "Unstaged files detected. Stashing unstages diff to ${patch}."
+  git diff > "${patch}"
+  git restore .
+fi
+
+pre-commit run --show-diff-on-failure --files "${files[@]}" || ret=$?
+
+if [[ -v patch ]]; then
+  mapfile -t modified_files < <(git diff --name-only)
+  # Files that were both unstaged and that pre-commit modified.
+  mapfile -t double_modified_files < <(
+    comm -12 \
+      <(IFS=$'\n'; echo "${unstaged_files[*]}" | sort) \
+      <(IFS=$'\n'; echo "${modified_files[*]}" | sort))
+
+  if (( ${#double_modified_files[@]} )); then
+    echo "There are ${#double_modified_files[@]} files with unstaged changes that were modified by pre-commit. Reverting the pre-commit changes:"
+    (IFS=$'\n'; echo "${double_modified_files[*]}")
+    git restore "${double_modified_files[@]}"
+  fi
+
+  echo "Restoring changes from ${patch}."
+  git apply "${patch}"
+  rm "${patch}"
+fi
+
+exit "${ret:-0}"

@@ -19,8 +19,6 @@
     defaultBranch = main
 [url "ssh://git@github.com/"]
 	insteadOf = https://github.com/
-[alias]
-    pre-commit = !pre-commit run -s main -o HEAD --show-diff-on-failure
 
 [include]
     path = ~/.gitconfig-work
