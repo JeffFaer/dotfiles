@@ -11,11 +11,7 @@ bashrc::tmux_preexec() {
 preexec_functions+=("bashrc::tmux_preexec")
 
 if [[ -n "$(command -v tmux-vcs-sync)" ]]; then
-    bashrc::tvs_preexec() {
-        [[ -n "${STOP_TVS}" ]] && return
-        if ! git ls-files --error-unmatch &>/dev/null; then
-            return
-        fi
+    bashrc::tvs_update() {
         if tmux-vcs-sync update --fail-noop; then
             # This is being executed in a pre-exec, so the command being
             # executed is already in history. Let's rewrite history to include
@@ -26,6 +22,14 @@ if [[ -n "$(command -v tmux-vcs-sync)" ]]; then
             history -s tmux-vcs-sync update
             history -s "${last_cmd[@]}"
         fi
+    }
+
+    bashrc::tvs_preexec() {
+        [[ -n "${STOP_TVS}" ]] && return
+        if ! git ls-files --error-unmatch &>/dev/null; then
+            return
+        fi
+        bashrc::tvs_update
     }
     preexec_functions+=("bashrc::tvs_preexec")
 fi
