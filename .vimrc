@@ -68,6 +68,7 @@ if s:at_google
     Glug codefmt-google
     Glug blaze plugin[mappings]='<leader>b'
     let g:blazevim_notify_after_blaze=1
+    Glug whitespace !highlight
 else
     " the glaive#Install() should go after the "call vundle#end()"
     call glaive#Install()
@@ -313,17 +314,23 @@ augroup highlight
 
     " highlight long lines (81st character by default)
     au BufEnter,WinEnter *
-                \ if &textwidth
-                \|    let w:m1=matchadd('ErrorMsg', '\%' . (&textwidth + 1) . 'v.')
-                \|endif
+          \ if &textwidth
+          \|  let w:long_line_match_id=
+          \       matchadd('LongLine', '\%' . (&textwidth + 1) . 'v.')
+          \|endif
     au BufLeave *
-                \ if exists('w:m1')
-                \|    call matchdelete(w:m1)
-                \|    unlet w:m1
-                \|endif
+          \ if exists('w:long_line_match_id')
+          \|    call matchdelete(w:long_line_match_id)
+          \|    unlet w:long_line_match_id
+          \|endif
 
     " trailing whitespace
-    au BufEnter,WinEnter * let w:m2=matchadd('ErrorMsg', '\s\+$')
+    au VimEnter,WinEnter *
+          \ let w:whitespace_match_id=
+          \     matchadd('TrailingWhitespace', '\s\+$')
+
+    highlight link LongLine ErrorMsg
+    highlight link TrailingWhitespace ErrorMsg
 augroup END
 
 """""""""""""""
