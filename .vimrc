@@ -325,9 +325,7 @@ augroup highlight
           \|endif
 
     " trailing whitespace
-    au VimEnter,WinEnter *
-          \ let w:whitespace_match_id=
-          \     matchadd('TrailingWhitespace', '\v\s+%#@1<!$')
+    au VimEnter,WinEnter * call matchadd('TrailingWhitespace', '\v\s+%#@1<!$')
 
     highlight link LongLine ErrorMsg
     highlight link TrailingWhitespace ErrorMsg
