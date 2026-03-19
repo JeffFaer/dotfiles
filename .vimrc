@@ -309,20 +309,23 @@ nnoremap <leader>h :let @/='\V\<<C-r><C-a>\>'<CR>:set hls<CR>
 vnoremap <leader>h y:let @/='\V<C-r>"'<CR>:set hls<CR>
 nnoremap <leader><space> :nohls<CR>
 
+function! s:HighlightLongLines() abort
+  if exists('w:long_line_match_id')
+    call matchdelete(w:long_line_match_id)
+    unlet w:long_line_match_id
+  endif
+
+  if !&textwidth | return | endif
+
+  let w:long_line_match_id=
+        \ matchadd('LongLine', '\v%' . (&textwidth+1) . 'v.')
+endfunction
+
 augroup highlight
     au!
 
     " highlight long lines (81st character by default)
-    au BufEnter,WinEnter *
-          \ if &textwidth
-          \|  let w:long_line_match_id=
-          \       matchadd('LongLine', '\v%' . (&textwidth + 1) . 'v.')
-          \|endif
-    au BufLeave *
-          \ if exists('w:long_line_match_id')
-          \|    call matchdelete(w:long_line_match_id)
-          \|    unlet w:long_line_match_id
-          \|endif
+    au BufEnter,WinEnter * call s:HighlightLongLines()
 
     " trailing whitespace
     au VimEnter,WinEnter * call matchadd('TrailingWhitespace', '\v\s+%#@1<!$')
