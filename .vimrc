@@ -317,8 +317,17 @@ function! s:HighlightLongLines() abort
 
   if !&textwidth | return | endif
 
-  let w:long_line_match_id=
+  let w:long_line_match_id =
         \ matchadd('LongLine', '\v%' . (&textwidth+1) . 'v.')
+endfunction
+
+function! s:HighlightLongComments() abort
+  if &textwidth || !exists('b:commentwidth') || exists('b:long_comment_setup')
+      return
+  endif
+
+  execute 'syntax match LongComment /\v%' . (b:commentwidth + 1) . 'v./ containedin=@Spell,.*Comment.*'
+  let b:long_comment_setup = 1
 endfunction
 
 augroup highlight
@@ -326,11 +335,14 @@ augroup highlight
 
     " highlight long lines (81st character by default)
     au BufEnter,WinEnter * call s:HighlightLongLines()
+    " highlight long comments if we're not highlighting long lines.
+    au Syntax,FileType,BufWinEnter * call s:HighlightLongComments()
 
     " trailing whitespace
     au VimEnter,WinEnter * call matchadd('TrailingWhitespace', '\v\s+%#@1<!$')
 
     highlight link LongLine ErrorMsg
+    highlight link LongComment ErrorMsg
     highlight link TrailingWhitespace ErrorMsg
 augroup END
 
