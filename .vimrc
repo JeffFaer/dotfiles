@@ -316,7 +316,7 @@ augroup highlight
     au BufEnter,WinEnter *
           \ if &textwidth
           \|  let w:long_line_match_id=
-          \       matchadd('LongLine', '\%' . (&textwidth + 1) . 'v.')
+          \       matchadd('LongLine', '\v%' . (&textwidth + 1) . 'v.')
           \|endif
     au BufLeave *
           \ if exists('w:long_line_match_id')
@@ -327,7 +327,7 @@ augroup highlight
     " trailing whitespace
     au VimEnter,WinEnter *
           \ let w:whitespace_match_id=
-          \     matchadd('TrailingWhitespace', '\s\+$')
+          \     matchadd('TrailingWhitespace', '\v\s+%#@1<!$')
 
     highlight link LongLine ErrorMsg
     highlight link TrailingWhitespace ErrorMsg
