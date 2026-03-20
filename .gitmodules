@@ -15,4 +15,4 @@
 	url = ssh://git@github.com/junegunn/fzf.git
 [submodule "src/fzf-tab-completion"]
 	path = src/fzf-tab-completion
-	url = https://github.com/lincheney/fzf-tab-completion.git
+	url = ssh://git@github.com/JeffFaer/fzf-tab-completion.git
