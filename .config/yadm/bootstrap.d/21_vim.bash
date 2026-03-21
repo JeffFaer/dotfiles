@@ -10,8 +10,8 @@ if ! command -v vim &>/dev/null; then
     exit
 fi
 
-echo "Installing Vundle plugins"
-vim +PluginInstall +qall
+echo "Installing plugins"
+vim +PlugInstall +qall
 
 echo "Installing supporting software"
 bootstrap::install_packages shellcheck || true

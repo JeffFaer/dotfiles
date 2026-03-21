@@ -9,56 +9,55 @@ let s:at_google=filereadable(expand('~/.at_google'))
 
 filetype off
 
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
+call plug#begin()
 
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'vim-airline/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
-Plugin 'bling/vim-bufferline'
-Plugin 'airblade/vim-gitgutter'
+Plug 'junegunn/vim-plug'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'bling/vim-bufferline'
+Plug 'airblade/vim-gitgutter'
 " ,g (Configured below)
 
-Plugin 'tpope/vim-fugitive'
-Plugin 'camelcasemotion'
+Plug 'tpope/vim-fugitive'
+Plug 'vim-scripts/camelcasemotion'
 " ,w
 " ,e
 " ,b
 
-Plugin 'SirVer/ultisnips'
-Plugin 'honza/vim-snippets'
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
 " Ctrl-j to insert
 " Ctrl-l to list
 
-Plugin 'scrooloose/nerdcommenter'
+Plug 'scrooloose/nerdcommenter'
 " <leader>c<space> toggle comment
 " <leader>cl to comment
 
-Plugin 'jacoborus/tender.vim'
-Plugin 'powerman/vim-plugin-AnsiEsc'
-Plugin 'w0rp/ale'
-Plugin 'aliou/bats.vim'
-Plugin 'JamshedVesuna/vim-markdown-preview'
+Plug 'jacoborus/tender.vim'
+Plug 'powerman/vim-plugin-AnsiEsc'
+Plug 'w0rp/ale'
+Plug 'aliou/bats.vim'
+Plug 'JamshedVesuna/vim-markdown-preview'
 " <ctrl>p to preview.
 
-Plugin 'noahfrederick/vim-skeleton'
-Plugin 'udalov/kotlin-vim'
+Plug 'noahfrederick/vim-skeleton'
+Plug 'udalov/kotlin-vim'
 
 if !s:at_google
-    Plugin 'Valloric/YouCompleteMe'
+    Plug 'Valloric/YouCompleteMe'
     " <leader>jd Jump to definition
-    Plugin 'fatih/vim-go'
+    Plug 'fatih/vim-go'
 
     " Add maktaba and codefmt to the runtimepath.
     " (The latter must be installed before it can be used.)
-    Plugin 'google/vim-maktaba'
-    Plugin 'google/vim-codefmt'
+    Plug 'google/vim-maktaba'
+    Plug 'google/vim-codefmt'
     " Also add Glaive, which is used to configure codefmt's maktaba flags. See
     " `:help :Glaive` for usage.
-    Plugin 'google/vim-glaive'
+    Plug 'google/vim-glaive'
 endif
 
-call vundle#end()
+call plug#end()
 
 if s:at_google
     source /usr/share/vim/google/google.vim
