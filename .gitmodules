@@ -7,12 +7,16 @@
 [submodule "src/bats-core"]
 	path = src/bats-core
 	url = https://github.com/bats-core/bats-core.git
+	branch = v1.8.2
 [submodule "src/yadm"]
 	path = src/yadm
     url = https://github.com/yadm-dev/yadm.git
+	branch = 3.2.2
 [submodule "src/fzf"]
 	path = src/fzf
 	url = ssh://git@github.com/junegunn/fzf.git
+	branch = v0.70.0
 [submodule "src/fzf-tab-completion"]
 	path = src/fzf-tab-completion
 	url = ssh://git@github.com/JeffFaer/fzf-tab-completion.git
+	branch = jfaer/cherrypicks
