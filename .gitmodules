@@ -4,7 +4,8 @@
 	branch = 0.14.0
 [submodule "src/bash-preexec"]
 	path = src/bash-preexec
-	url = https://github.com/rcaloras/bash-preexec
+	url = https://github.com/JeffFaer/bash-preexec
+    branch = noop
 [submodule "src/bats-core"]
 	path = src/bats-core
 	url = https://github.com/bats-core/bats-core.git
