@@ -26,6 +26,7 @@ if [[ -n "$(command -v tmux-vcs-sync)" ]]; then
 
     bashrc::tvs_preexec() {
         [[ -n "${STOP_TVS}" ]] && return
+        [[ "$1" = "STOP_TVS=1"* ]] && return
         if ! git ls-files --error-unmatch &>/dev/null; then
             return
         fi
