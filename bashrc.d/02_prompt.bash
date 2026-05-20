@@ -193,6 +193,11 @@ bashrc::status_line() {
         status+="$(__git_ps1 \
             "${color[gray]}(${color[end]}%s${color[gray]})${color[end]}")"
     fi
+    if [[ "${STOP_TVS:-}" -eq "1" ]]; then
+      status+="🚫"
+    else
+      status+="📺"
+    fi
 
     local right_adjusted_status=""
     # shellcheck disable=SC2031
