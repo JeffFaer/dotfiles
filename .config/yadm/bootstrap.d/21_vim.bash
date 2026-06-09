@@ -28,7 +28,7 @@ fi
 if bootstrap::should_run "ycm"; then
     echo "Setting up YCM"
     if bootstrap::install_packages build-essential cmake python3-dev; then
-        cd ~/.vim/bundle/YouCompleteMe
+        cd ~/.vim/plugged/YouCompleteMe
         python3 install.py --all
     else
         echo "Cannot setup YCM until those packages are installed."
