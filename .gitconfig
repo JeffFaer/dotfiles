@@ -20,7 +20,8 @@
 [url "ssh://git@github.com/"]
 	insteadOf = https://github.com/
 
-[include]
-    path = ~/.gitconfig-work
 [remote "origin"]
 	prune = true
+
+[include]
+    path = ~/git/local.gitconfig
