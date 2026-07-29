@@ -22,7 +22,7 @@ alias vim="vim --servername vim"
 alias yadm="yadm --yadm-repo ~/.git"
 # keep-sorted end
 
-if [[ -x /usr/bin/dircolors ]]; then
+if command -v dircolors >/dev/null; then
     if [[ -r ~/.dircolors ]]; then
         eval "$(dircolors -b ~/.dircolors)"
     else
