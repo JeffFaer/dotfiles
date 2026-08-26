@@ -13,12 +13,11 @@
 CONTEXT="${CONTEXT:-2}"
 
 set -euo pipefail
-[[ $# -eq 0 ]] || (echo 1>&2 "This script does not take arguments." && exit 1)
 [[ -v DEBUG ]] && set -x
 
 branch_format='%(objectname:short)%(if)%(upstream)%(then)%(if:notequals=gone)%(upstream:track,nobracket)%(then)
 %(upstream:short)%(end)%(end)'
-mapfile -t branches < <(git branch --list --format "${branch_format}")
+mapfile -t branches < <(git branch --list --format "${branch_format}" "$@")
 
 if ! primary_branch="$(git primarybranch)"; then
     echo 1>&2 "Couldn't determine primary branch"
