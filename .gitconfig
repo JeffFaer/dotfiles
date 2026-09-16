@@ -1,6 +1,8 @@
 [user]
     name = Jeffrey Faer
     email = jeffrey.faer@gmail.com
+[core]
+	hooksPath = ~/git/hooks
 [color]
     ui = auto
 [merge]

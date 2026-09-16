@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+[[ -v DEBUG ]] && set -x
+
+caller="${CALLER:-${BASH_SOURCE[0]}}"
+hooks_dir="$(git rev-parse --git-path hooks)"
+hook_name="$(basename "${caller}")"
+hook="${hooks_dir}/${hook_name}"
+
+if ! [[ -x "${hook}" ]]; then
+    exit
+fi
+if [[ "$(realpath "${caller}")" == "$(realpath "${hook}")" ]]; then
+    exit
+fi
+"${hook}" "$@"
