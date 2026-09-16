@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+[[ -v DEBUG ]] && set -x
+
+help() {
+    echo "Usage: git fetch-branch <branch>"
+    echo "       git fetch-branch <remote> <branch>"
+}
+
+if (( $# == 1 )); then
+    remote=origin
+    branch="$1"
+elif (( $# == 2 )); then
+    remote="$1"
+    branch="$2"
+else
+    help
+    exit 1
+fi
+
+if [[ -z "${remote}" || -z "${branch}" ]]; then
+    help
+    exit 1
+fi
+
+maybe-add-refspec() {
+    local remote="$1"
+    local refspec="$2"
+    (( $# == 2 )) || exit 1
+
+    local refspecs=()
+    mapfile -t refspecs < <(git config --get-all "remote.${remote}.fetch" || true)
+
+    if (( ${#refspecs[@]} == 0 )); then
+        return
+    fi
+
+    local r
+    for r in "${refspecs[@]}"; do
+        if [[ "${refspec}" == ${r} ]]; then
+            return
+        fi
+    done
+
+    git config --add "remote.${remote}.fetch" "${refspec}"
+}
+
+refspec="+refs/heads/${branch}:refs/remotes/${remote}/${branch}"
+git fetch "${remote}" "${refspec}"
+maybe-add-refspec "${remote}" "${refspec}"

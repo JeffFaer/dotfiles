@@ -10,5 +10,6 @@ for hook in "${hooks[@]}"; do
         continue
     fi
 
+    echo "${hook}"
     ln -s "${dir}/run-local-hook" "${dir}/${hook}"
 done
