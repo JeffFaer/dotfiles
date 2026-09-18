@@ -1,8 +1,6 @@
 [user]
     name = Jeffrey Faer
     email = jeffrey.faer@gmail.com
-[core]
-	hooksPath = ~/git/hooks
 [color]
     ui = auto
 [merge]
@@ -24,6 +22,10 @@
 
 [remote "origin"]
 	prune = true
+
+[hook "prune-stale-refspecs"]
+    event = post-checkout
+    command = ~/git/hooks/prune-stale-refspecs.bash
 
 [include]
     path = ~/git/local.gitconfig
