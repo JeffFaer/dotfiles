@@ -30,9 +30,15 @@ for b in "${branches[@]}"; do
     branches_by_merge_point["${p}"]+=" ${b}"
 done
 merge_points=( "${!branches_by_merge_point[@]}" )
+
+if (( ${#merge_points[@]} == 0 )); then
+    exit 1
+fi
+
 # Order merge points like git log does.
 mapfile -t merge_points < <(
     git log --format="format:%H" --no-walk "${merge_points[@]}")
+
 
 (
 dist_between() {
