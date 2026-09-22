@@ -7,19 +7,21 @@ set -euo pipefail
 # $2 = new HEAD
 # $3 = flag (1 = branch checkout, 0 = file checkout)
 
-remotes=()
+remote=""
 branch="$(git symbolic-ref --short HEAD 2>/dev/null || true)"
 if [[ -n "${branch}" ]]; then
-    remotes=( "$(git config --get "branch.${branch}.remote" 2>/dev/null || true)" )
+    remote=( "$(git config --get "branch.${branch}.remote" 2>/dev/null || true)" )
 fi
-if (( ${#remotes[@]} == 0 )); then
+if [[ -z "${remote}" ]]; then
     upstream="$(git rev-parse --abbrev-ref HEAD@{upstream} 2>/dev/null || true)"
     if [[ -n "${upstream}" ]]; then
-        remotes=( "${upstream%%/*}" )
+        remote="${upstream%%/*}"
     fi
 fi
 
-if (( ${#remotes[@]} == 0 )); then
+if [[ -n "${remote}" ]]; then
+    remotes=( "${remote}" )
+else
     mapfile -t remotes < <(git remote || true)
     if (( ${#remotes[@]} > 1 )); then
         echo "Couldn't determine current remote. Defaulting to all remotes."
